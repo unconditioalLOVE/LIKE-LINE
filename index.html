@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>LINE-LIKE</title>
+  <title>LINE風チャットアプリ</title>
   <style>
     * {
       box-sizing: border-box;
@@ -62,6 +62,268 @@
       overflow: hidden;
     }
 
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+    .screen.active {
+      display: flex;
+    }
+
+    .tab-bar {
+      height: 60px;
+      background-color: #111111;
+      border-top: 1px solid #222222;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 150;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: #888888;
+      font-size: 10px;
+      flex: 1;
+    }
+
+    .tab-item.active {
+      color: #ffffff;
+    }
+
+    .tab-item svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .top-header {
+      background-color: var(--bg);
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .top-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .top-header-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      cursor: pointer;
+    }
+    .top-header-title.inactive {
+      color: #777777;
+    }
+
+    .top-header-icons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .top-icon-btn {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      cursor: pointer;
+    }
+
+    .search-bar-container {
+      padding: 6px 16px 12px 16px;
+      background-color: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      background-color: #262628;
+      border-radius: 10px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      color: #888888;
+      font-size: 14px;
+    }
+
+    .search-box svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: #888888;
+      stroke-width: 2;
+    }
+
+    .content-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .banner-area {
+      margin: 8px 16px;
+      background-color: #262628;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .banner-text {
+      font-size: 13px;
+      line-height: 1.4;
+      color: #ffffff;
+      flex: 1;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      gap: 16px;
+      color: #888888;
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .empty-desc {
+      font-size: 12px;
+      color: #888888;
+    }
+
+    .action-button {
+      background-color: #262628;
+      color: #ffffff;
+      border: 1px solid #3a3a3c;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .list-item:hover {
+      background-color: rgba(255,255,255,0.03);
+    }
+
+    .item-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #333333;
+      flex-shrink: 0;
+    }
+
+    .item-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .item-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-sub {
+      font-size: 12px;
+      color: #888888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .section-header {
+      padding: 8px 16px;
+      font-size: 12px;
+      color: #888888;
+      font-weight: bold;
+    }
+
+    .home-profile-card {
+      margin: 16px;
+      background-color: #262628;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .home-profile-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      background: #333;
+    }
+    .home-profile-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .home-profile-btn {
+      background-color: #38383a;
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* チャット画面側 */
     .header {
       background-color: var(--bg);
       height: 52px;
@@ -780,25 +1042,38 @@
       cursor: pointer;
     }
 
-    .datetime-inputs {
+    .time-override-row {
       display: flex;
-      gap: 6px;
       align-items: center;
-      font-size: 11px;
+      gap: 8px;
+      font-size: 12px;
       color: #aaaaaa;
     }
-
-    .datetime-inputs input {
+    .picker-input {
       background: #2a2a2c;
       border: 1px solid #3a3a3c;
-      border-radius: 4px;
-      color: #fff;
-      padding: 3px 6px;
-      font-size: 11px;
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
       outline: none;
+      text-align: center;
+      color-scheme: dark;
+    }
+    .now-btn {
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .now-btn:active {
+      background: #444;
     }
 
-    #file-input, #avatar-input, #my-avatar-input {
+    #file-input, #avatar-input, #my-avatar-input, #add-friend-avatar-input {
       display: none;
     }
 
@@ -809,7 +1084,7 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.6);
-      z-index: 100;
+      z-index: 200;
       display: none;
       align-items: center;
       justify-content: center;
@@ -825,7 +1100,7 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 16px 12px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      z-index: 101;
+      z-index: 201;
     }
 
     .action-item {
@@ -868,7 +1143,7 @@
       align-items: center;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 102;
+      z-index: 202;
     }
 
     .confirm-title {
@@ -941,7 +1216,7 @@
       align-items: center;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 103;
+      z-index: 203;
     }
 
     .delete-dialog-desc {
@@ -973,7 +1248,7 @@
       flex-direction: column;
       gap: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 104;
+      z-index: 204;
     }
 
     .account-modal-title {
@@ -1037,6 +1312,18 @@
       cursor: pointer;
     }
 
+    .add-friend-modal {
+      background-color: #222224;
+      border-radius: 16px;
+      width: 310px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 205;
+    }
+
     .premium-page {
       position: absolute;
       top: 0;
@@ -1045,7 +1332,7 @@
       height: 100%;
       background-color: #ffffff;
       color: #000000;
-      z-index: 200;
+      z-index: 300;
       display: none;
       flex-direction: column;
       overflow-y: auto;
@@ -1205,117 +1492,172 @@
 <body>
 
 <div class="container">
-  <div class="header" id="normal-header">
-    <div class="header-left">
-      <svg class="back-btn" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
-      <span class="partner-name" id="partner-name-display" onclick="openAccountModal()">森安</span>
-    </div>
-    <div class="header-icons">
-      <svg class="header-icon-svg" viewBox="0 0 24 24">
-        <circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/><path d="M10.5 6.5v4l2.6 1.6"/>
-      </svg>
-      <svg class="header-icon-svg" viewBox="0 0 24 24">
-        <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/>
-      </svg>
-      <div class="calendar-icon-box" onclick="alert('カレンダー')">
-        <span class="calendar-date">31</span>
+
+  <!-- ================= 1. ホーム画面 ================= -->
+  <div class="screen active" id="home-screen">
+    <div class="top-header">
+      <div class="top-header-left">
+        <span class="top-header-title" id="nav-talks-tab" onclick="switchHomeTab('talks')">トーク</span>
+        <span class="top-header-title inactive" id="nav-friends-tab" onclick="switchHomeTab('friends')">友だち</span>
       </div>
-      <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openAccountModal()">
-        <path d="M3 6h18M3 12h18M3 18h18"/>
-      </svg>
+      <div class="top-header-icons">
+        <svg class="top-icon-btn" viewBox="0 0 24 24" onclick="openAddFriendModal()">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        <div class="calendar-icon-box" onclick="alert('カレンダー')">
+          <span class="calendar-date">31</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-bar-container">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/></svg>
+        <span>検索</span>
+      </div>
+    </div>
+
+    <div class="content-body" id="home-content-body"></div>
+  </div>
+
+  <!-- ================= 2. 個別チャット画面 ================= -->
+  <div class="screen" id="chat-screen">
+    <div class="header" id="normal-header">
+      <div class="header-left">
+        <svg class="back-btn" viewBox="0 0 24 24" onclick="goToHomeScreen()"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
+        <span class="partner-name" id="partner-name-display" onclick="openAccountModal()">ユーザー</span>
+      </div>
+      <div class="header-icons">
+        <svg class="header-icon-svg" viewBox="0 0 24 24">
+          <circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/><path d="M10.5 6.5v4l2.6 1.6"/>
+        </svg>
+        <svg class="header-icon-svg" viewBox="0 0 24 24">
+          <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/>
+        </svg>
+        <div class="calendar-icon-box" onclick="alert('カレンダー')">
+          <span class="calendar-date">31</span>
+        </div>
+        <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openAccountModal()">
+          <path d="M3 6h18M3 12h18M3 18h18"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="header" id="delete-header" style="display: none;">
+      <div class="delete-header-title" id="delete-header-title">メッセージを削除</div>
+    </div>
+
+    <div class="announcement">
+      <div class="announcement-left">
+        <svg class="announcement-icon" viewBox="0 0 24 24">
+          <path d="M3 10v4a1 1 0 0 0 1 1h3l9 4.5V5.5L7 9H4a1 1 0 0 0-1 1z"/><path d="M19.5 9.5a4 4 0 0 1 0 5"/><path d="M7.5 15l1.4 5h2.4l-1-4.6"/>
+        </svg>
+        <span class="announcement-text" id="announcement-text" onclick="changeAnnouncement()">インスタ見るな</span>
+      </div>
+      <svg class="announcement-arrow" viewBox="0 0 24 24"><path d="M4.5 8.5 12 16l7.5-7.5"/></svg>
+    </div>
+
+    <div class="chat-wrap">
+      <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
+      <div class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()">
+        <svg viewBox="0 0 24 24"><path d="M12 4v16M5.5 13.5 12 20l6.5-6.5"/></svg>
+      </div>
+    </div>
+
+    <div class="input-reply-bar" id="input-reply-bar">
+      <div class="input-reply-info">
+        <div class="input-reply-title" id="reply-preview-sender">返信先: 相手</div>
+        <div class="input-reply-content" id="reply-preview-text">メッセージ本文</div>
+      </div>
+      <svg class="input-reply-close" viewBox="0 0 24 24" onclick="cancelReply()"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </div>
+
+    <div class="input-bar" id="input-bar">
+      <div class="input-icons-left">
+        <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
+        <svg class="tool-icon-svg" id="plus-btn" viewBox="0 0 24 24" onclick="toggleControlPanel()">
+          <path d="M12 3.5v17M3.5 12h17"/>
+        </svg>
+        <svg class="tool-icon-svg" id="cam-icon" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
+          <path d="M3 8.5a2 2 0 0 1 2-2h2.2l1.3-1.8h7l1.3 1.8H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/>
+        </svg>
+        <svg class="tool-icon-svg" id="img-icon" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
+          <rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M4 17.5l5-5 3.5 3.5 2.5-2.5 5 5"/>
+        </svg>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
+        <svg class="tool-icon-svg" id="emoji-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9"/><path d="M8.3 14c.9 1.5 2.1 2.2 3.7 2.2s2.8-.7 3.7-2.2"/><circle cx="9" cy="10" r=".7" fill="#b7b7b7"/><circle cx="15" cy="10" r=".7" fill="#b7b7b7"/>
+        </svg>
+      </div>
+      <button class="send-action-btn" id="send-action-btn" onclick="handleSendButtonAction()">
+        <svg viewBox="0 0 24 24" id="send-mic-svg"></svg>
+      </button>
+    </div>
+
+    <div class="delete-bottom-bar" id="delete-bottom-bar">
+      <div class="delete-cancel-btn" onclick="exitDeleteMode()">キャンセル</div>
+      <button class="delete-exec-btn" id="delete-exec-btn" onclick="openDeleteDialog()">削除 (0)</button>
+    </div>
+
+    <div class="control-panel" id="control-panel">
+      <div class="sender-switch">
+        <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
+        <button class="switch-btn partner" id="btn-partner" onclick="setSender('partner')">相手 (黒)</button>
+        <button class="switch-btn" id="btn-system" onclick="setSender('system')">システム</button>
+      </div>
+      <div class="time-override-row">
+        <span>日付:</span>
+        <input type="date" id="override-date-input" class="picker-input">
+        <span>時間:</span>
+        <input type="time" id="override-time-input" class="picker-input">
+        <button class="now-btn" onclick="setNowDateTime()">現在時刻</button>
+      </div>
+      <div class="option-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="read-status" checked> 既読をつける
+        </label>
+        <span style="cursor:pointer; color:#ff4444;" onclick="clearChat()">チャットクリア</span>
+      </div>
     </div>
   </div>
 
-  <div class="header" id="delete-header" style="display: none;">
-    <div class="delete-header-title" id="delete-header-title">メッセージを削除</div>
-  </div>
-
-  <div class="announcement">
-    <div class="announcement-left">
-      <svg class="announcement-icon" viewBox="0 0 24 24">
-        <path d="M3 10v4a1 1 0 0 0 1 1h3l9 4.5V5.5L7 9H4a1 1 0 0 0-1 1z"/><path d="M19.5 9.5a4 4 0 0 1 0 5"/><path d="M7.5 15l1.4 5h2.4l-1-4.6"/>
-      </svg>
-      <span class="announcement-text" id="announcement-text" onclick="changeAnnouncement()">インスタ見るな</span>
+  <!-- ================= ボトムタブバー ================= -->
+  <div class="tab-bar" id="main-tab-bar">
+    <div class="tab-item" id="tab-home" onclick="switchMainTab('home_tab')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>ホーム</span>
     </div>
-    <svg class="announcement-arrow" viewBox="0 0 24 24"><path d="M4.5 8.5 12 16l7.5-7.5"/></svg>
-  </div>
-
-  <div class="chat-wrap">
-    <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
-    <div class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()">
-      <svg viewBox="0 0 24 24"><path d="M12 4v16M5.5 13.5 12 20l6.5-6.5"/></svg>
+    <div class="tab-item active" id="tab-talk" onclick="switchMainTab('talk')">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>トーク</span>
     </div>
-  </div>
-
-  <div class="input-reply-bar" id="input-reply-bar">
-    <div class="input-reply-info">
-      <div class="input-reply-title" id="reply-preview-sender">返信先: 相手</div>
-      <div class="input-reply-content" id="reply-preview-text">メッセージ本文</div>
+    <div class="tab-item" onclick="alert('ショッピング')">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>ショップ</span>
     </div>
-    <svg class="input-reply-close" viewBox="0 0 24 24" onclick="cancelReply()"><path d="M18 6L6 18M6 6l12 12"/></svg>
-  </div>
-
-  <div class="input-bar" id="input-bar">
-    <div class="input-icons-left">
-      <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
-      <svg class="tool-icon-svg" id="plus-btn" viewBox="0 0 24 24" onclick="toggleControlPanel()">
-        <path d="M12 3.5v17M3.5 12h17"/>
-      </svg>
-      <svg class="tool-icon-svg" id="cam-icon" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
-        <path d="M3 8.5a2 2 0 0 1 2-2h2.2l1.3-1.8h7l1.3 1.8H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/>
-      </svg>
-      <svg class="tool-icon-svg" id="img-icon" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
-        <rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M4 17.5l5-5 3.5 3.5 2.5-2.5 5 5"/>
-      </svg>
+    <div class="tab-item" onclick="alert('ニュース')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span>ニュース</span>
     </div>
-    <div class="input-wrapper">
-      <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
-      <svg class="tool-icon-svg" id="emoji-icon" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9"/><path d="M8.3 14c.9 1.5 2.1 2.2 3.7 2.2s2.8-.7 3.7-2.2"/><circle cx="9" cy="10" r=".7" fill="#b7b7b7"/><circle cx="15" cy="10" r=".7" fill="#b7b7b7"/>
-      </svg>
-    </div>
-    <button class="send-action-btn" id="send-action-btn" onclick="handleSendButtonAction()">
-      <svg viewBox="0 0 24 24" id="send-mic-svg"></svg>
-    </button>
-  </div>
-
-  <div class="delete-bottom-bar" id="delete-bottom-bar">
-    <div class="delete-cancel-btn" onclick="exitDeleteMode()">キャンセル</div>
-    <button class="delete-exec-btn" id="delete-exec-btn" onclick="openDeleteDialog()">削除 (0)</button>
-  </div>
-
-  <!-- 管理用設定パネル（ここで日時の個別指定が可能） -->
-  <div class="control-panel" id="control-panel">
-    <div class="sender-switch">
-      <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
-      <button class="switch-btn partner" id="btn-partner" onclick="setSender('partner')">相手 (黒)</button>
-      <button class="switch-btn" id="btn-system" onclick="setSender('system')">システム</button>
-    </div>
-    <div class="datetime-inputs">
-      <label>日付: <input type="date" id="custom-date-input"></label>
-      <label>時間: <input type="time" id="custom-time-input"></label>
-      <button type="button" onclick="resetCustomDateTime()" style="background:#2a2a2c; border:1px solid #3a3a3c; color:#fff; border-radius:4px; padding:3px 6px; cursor:pointer;">現在時刻</button>
-    </div>
-    <div class="option-row">
-      <label class="checkbox-label">
-        <input type="checkbox" id="read-status" checked> 既読をつける
-      </label>
-      <span style="cursor:pointer; color:#ff4444;" onclick="clearChat()">チャットクリア</span>
+    <div class="tab-item" onclick="alert('アプリ')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>アプリ</span>
     </div>
   </div>
 
+  <!-- モーダル類 -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeAllModals()">
     <div class="action-menu" id="action-menu" onclick="event.stopPropagation()">
       <div class="action-item" onclick="alert('コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><span>コピー</span></div>
       <div class="action-item" onclick="alert('部分コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg></div><span>部分コピー</span></div>
       <div class="action-item" onclick="alert('Keepメモ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><span>Keepメモ</span></div>
       <div class="action-item" onclick="enterDeleteMode()"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><span>削除</span></div>
-      
       <div class="action-item" onclick="openConfirmModal()"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><span>送信取消</span></div>
       <div class="action-item" onclick="triggerReplyFromMenu()"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></div><span>リプライ</span></div>
       <div class="action-item" onclick="alert('転送')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div><span>転送</span></div>
       <div class="action-item" onclick="alert('ノート')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span>ノート</span></div>
-
       <div class="action-item" onclick="alert('アナウンス')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M3 10v4a1 1 0 0 0 1 1h3l9 4.5V5.5L7 9H4a1 1 0 0 0-1 1z"/></svg></div><span>アナウンス</span></div>
       <div class="action-item" onclick="alert('スクショ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><span>スクショ</span></div>
       <div class="action-item" onclick="alert('カレンダー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>カレンダー</span></div>
@@ -1337,7 +1679,6 @@
 
     <div class="account-modal" id="account-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title">アカウント情報の変更</div>
-      
       <div class="account-section">
         <div class="account-section-title">自分のプロフィール</div>
         <div class="account-row">
@@ -1345,16 +1686,27 @@
           <input type="text" id="my-name-input" class="account-input-name" placeholder="自分の名前">
         </div>
       </div>
-
-      <div class="account-section">
+      <div class="account-section" id="partner-account-section">
         <div class="account-section-title">相手のプロフィール</div>
         <div class="account-row">
           <img src="" id="partner-avatar-preview" class="account-avatar-preview" onclick="triggerAvatarUpload()" title="タップして変更">
           <input type="text" id="partner-name-input" class="account-input-name" placeholder="相手の名前">
         </div>
       </div>
-
       <button class="account-save-btn" onclick="saveAccountSettings()">変更を保存</button>
+      <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
+    </div>
+
+    <div class="add-friend-modal" id="add-friend-modal" onclick="event.stopPropagation()" style="display: none;">
+      <div class="account-modal-title">新しい友達を追加</div>
+      <div class="account-section">
+        <div class="account-section-title">友達のプロフィール</div>
+        <div class="account-row">
+          <img src="" id="new-friend-avatar-preview" class="account-avatar-preview" onclick="document.getElementById('add-friend-avatar-input').click()" title="タップして変更">
+          <input type="text" id="new-friend-name-input" class="account-input-name" placeholder="友達の名前を入力">
+        </div>
+      </div>
+      <button class="account-save-btn" onclick="executeAddFriend()">追加してトークを開始</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
   </div>
@@ -1397,123 +1749,267 @@
   <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
   <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
   <input type="file" id="my-avatar-input" accept="image/*" onchange="changeMyAvatar(event)">
+  <input type="file" id="add-friend-avatar-input" accept="image/*" onchange="changeNewFriendAvatar(event)">
 </div>
 
 <script>
-  let currentSender = 'me';
-  let myName = localStorage.getItem('line_myName') || '自分';
-  let partnerName = localStorage.getItem('line_partnerName') || '森安';
+  // 初期フレンドリスト（森安の初期メッセージログを完全に削除、件数表示も削除）
+  let friendsList = [];
 
-  // 標準のLINEロゴ（緑色の背景に白のLINE文字の簡易SVG、または外部画像も可）を初期アイコンに指定
-  const defaultLineLogoSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#06C755"/><path d="M78.5 44.5c0-14.3-13-26-29-26s-29 11.7-29 26c0 12.8 10.6 23.5 25 25.5 1 .1 2.3.4 2.7 1.2.3.7.2 1.8 0 2.5l-.5 3.1c-.2 1.3-1 5 4.4 2.7 5.4-2.4 29.2-17.2 30-31.2.3-5.6-2.6-10.2-2.6-13.8z" fill="#fff"/></svg>'
+  let currentFriendId = 'moriyasu';
+  let currentMainTab = 'talk'; 
+  let currentSender = 'me';
+  let myName = '自分';
+
+  let myAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d26a"/>' +
+    '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#fff"/></svg>'
   );
 
-  let myAvatarUrl = localStorage.getItem('line_myAvatarUrl') || defaultLineLogoSvg;
-  let partnerAvatarUrl = localStorage.getItem('line_partnerAvatarUrl') || defaultLineLogoSvg;
+  let newFriendTempAvatar = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#444"/><circle cx="50" cy="40" r="20" fill="#888"/><path d="M20 85c0-16.6 13.4-30 30-30s30 13.4 30 30" fill="#888"/></svg>'
+  );
 
   let isInputFocused = false;
   let selectedMsgIndex = null;
   let isDeleteMode = false;
   let selectedToDelete = new Set();
   let lastTapTime = 0;
-
   let activeReplyTarget = null;
 
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
 
-  const defaultMessages = [
-    { sender: 'me', text: 'フライングしたのやっぱりここか', time: '19:51', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '動画見た', time: '19:51', unsend: false, date: '2026-08-20' },
-    { sender: 'partner', text: 'がちか', time: '19:53', unsend: false, date: '2026-08-20' },
-    { sender: 'partner', text: '動画ほしい', time: '19:53', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最后見れない、、', time: '20:02', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '分かってない', time: '20:02', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '途中しかないけどえーか？', time: '20:03', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03', unsend: false, date: '2026-08-20' },
-    { sender: 'partner', text: 'あーー', time: '20:04', unsend: false, date: '2026-08-20' },
-    { sender: 'partner', text: 'とりまほしい', time: '20:04', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '普通に意味がわからない', time: '20:06', unsend: false, date: '2026-08-20', replyTargetIndex: 9 },
-    { sender: 'partner', text: 'だよな', time: '20:06', unsend: false, date: '2026-08-20' }
-  ];
-
-  let messagesData = [];
-
   window.onload = function() {
-    // ローカルストレージからメッセージを読み込み、なければデフォルト値を使用
-    const savedMessages = localStorage.getItem('line_messagesData');
-    if (savedMessages) {
-      try {
-        messagesData = JSON.parse(savedMessages);
-      } catch (e) {
-        messagesData = [];
-      }
-    }
-
-    if (messagesData.length === 0) {
-      defaultMessages.forEach((msg, idx) => {
-        let replyInfo = null;
-        if (msg.replyTargetIndex !== undefined && defaultMessages[msg.replyTargetIndex]) {
-          const target = defaultMessages[msg.replyTargetIndex];
-          replyInfo = {
-            sender: target.sender,
-            content: target.text
-          };
-        }
-        appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, replyInfo);
-      });
-      saveToLocalStorage();
-    }
-
-    resetCustomDateTime();
-    renderChat();
+    setNowDateTime();
+    renderHomeView();
     updateSendButtonState();
-    scrollToBottom();
-    document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
   };
 
-  function saveToLocalStorage() {
-    localStorage.setItem('line_messagesData', JSON.stringify(messagesData));
-    localStorage.setItem('line_myName', myName);
-    localStorage.setItem('line_partnerName', partnerName);
-    localStorage.setItem('line_myAvatarUrl', myAvatarUrl);
-    localStorage.setItem('line_partnerAvatarUrl', partnerAvatarUrl);
+  function setNowDateTime() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+
+    document.getElementById('override-date-input').value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('override-time-input').value = `${hh}:${min}`;
   }
 
-  function resetCustomDateTime() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+  function switchMainTab(tabName) {
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    
+    if (tabName === 'home_tab') {
+      currentMainTab = 'home_tab';
+      document.getElementById('tab-home').classList.add('active');
+    } else if (tabName === 'talk' || tabName === 'talks_sub') {
+      currentMainTab = 'talk';
+      document.getElementById('tab-talk').classList.add('active');
+    } else if (tabName === 'friends_sub') {
+      currentMainTab = 'friends_sub';
+      document.getElementById('tab-talk').classList.add('active');
+    }
 
-    document.getElementById('custom-date-input').value = `${y}-${m}-${d}`;
-    document.getElementById('custom-time-input').value = `${hours}:${minutes}`;
+    document.getElementById('home-screen').classList.add('active');
+    document.getElementById('chat-screen').classList.remove('active');
+    renderHomeView();
+  }
+
+  function switchHomeTab(subTab) {
+    if (subTab === 'talks') {
+      switchMainTab('talk');
+    } else if (subTab === 'friends') {
+      switchMainTab('friends_sub');
+    }
+  }
+
+  function goToHomeScreen() {
+    document.getElementById('chat-screen').classList.remove('active');
+    document.getElementById('home-screen').classList.add('active');
+    // ホームに戻ったときはボトムタブバーを表示
+    document.getElementById('main-tab-bar').style.display = 'flex';
+    renderHomeView();
+  }
+
+  function openChat(friendId) {
+    currentFriendId = friendId;
+    document.getElementById('home-screen').classList.remove('active');
+    document.getElementById('chat-screen').classList.add('active');
+    // トークを開いているときは下の写真のタブを非表示にする
+    document.getElementById('main-tab-bar').style.display = 'none';
+    renderChat();
+    scrollToBottom();
+    document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
+  }
+
+  function renderHomeView() {
+    const talkTab = document.getElementById('nav-talks-tab');
+    const friendTab = document.getElementById('nav-friends-tab');
+    const container = document.getElementById('home-content-body');
+    container.innerHTML = '';
+
+    if (currentMainTab === 'home_tab') {
+      talkTab.style.display = 'none';
+      friendTab.style.display = 'none';
+      document.querySelector('.search-bar-container').style.display = 'none';
+
+      const card = document.createElement('div');
+      card.className = 'home-profile-card';
+      card.innerHTML = `
+        <img src="${myAvatarUrl}" class="home-profile-avatar" onclick="openAccountModal()">
+        <div class="home-profile-name">${escapeHtml(myName)}</div>
+        <div style="font-size:12px; color:#888;">マイプロフィール</div>
+        <button class="home-profile-btn" onclick="openAccountModal()">アカウント情報を編集</button>
+      `;
+      container.appendChild(card);
+
+      const banner = document.createElement('div');
+      banner.className = 'banner-area';
+      banner.innerHTML = `
+        <div class="banner-text"><b>Geminiでスマートに！</b><br>AIと一緒に文章作成やプログラミングを始めよう！<br><span style="font-size:11px; color:#4d73ff; cursor:pointer;" onclick="window.open('https://gemini.google.com', '_blank')">今すぐGeminiを使ってみる ›</span></div>
+      `;
+      container.appendChild(banner);
+
+    } else {
+      talkTab.style.display = 'block';
+      friendTab.style.display = 'block';
+      document.querySelector('.search-bar-container').style.display = 'block';
+
+      if (currentMainTab === 'talk') {
+        talkTab.className = 'top-header-title';
+        friendTab.className = 'top-header-title inactive';
+
+        const banner = document.createElement('div');
+        banner.className = 'banner-area';
+        banner.innerHTML = `
+          <div class="banner-text"><b>Gemini宣伝：</b>AIを活用して効率アップ！<br><span style="font-size:11px; color:#aaa;">広告・Google Gemini</span></div>
+        `;
+        container.appendChild(banner);
+
+        if (friendsList.length === 0) {
+          const emptyDiv = document.createElement('div');
+          emptyDiv.className = 'empty-state';
+          emptyDiv.innerHTML = `
+            <div class="empty-title">トークを始めよう！</div>
+            <div class="empty-desc">以下のボタンからトークを開始できます。</div>
+            <button class="action-button" onclick="openAddFriendModal()">トークルームを作成</button>
+          `;
+          container.appendChild(emptyDiv);
+        } else {
+          friendsList.forEach(friend => {
+            const lastMsg = friend.messages.length > 0 ? friend.messages[friend.messages.length - 1] : null;
+            const subText = lastMsg ? (lastMsg.isImage ? '[画像]' : lastMsg.text) : 'まだメッセージはありません';
+            
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.onclick = () => openChat(friend.id);
+            item.innerHTML = `
+              <img src="${friend.avatar}" class="item-avatar">
+              <div class="item-info">
+                <!-- フレンド名の横にあった件数表示を完全削除 -->
+                <div class="item-name">${escapeHtml(friend.name)}</div>
+                <div class="item-sub">${escapeHtml(subText)}</div>
+              </div>
+            `;
+            container.appendChild(item);
+          });
+        }
+
+      } else if (currentMainTab === 'friends_sub') {
+        talkTab.className = 'top-header-title inactive';
+        friendTab.className = 'top-header-title';
+
+        const sec = document.createElement('div');
+        sec.className = 'section-header';
+        sec.innerText = `友だち (${friendsList.length}人)`;
+        container.appendChild(sec);
+
+        if (friendsList.length === 0) {
+          const emptyDiv = document.createElement('div');
+          emptyDiv.className = 'empty-state';
+          emptyDiv.innerHTML = `
+            <div class="empty-title">友だちがいません</div>
+            <button class="action-button" onclick="openAddFriendModal()">友だちを追加</button>
+          `;
+          container.appendChild(emptyDiv);
+        } else {
+          friendsList.forEach(friend => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.onclick = () => openChat(friend.id);
+            item.innerHTML = `
+              <img src="${friend.avatar}" class="item-avatar">
+              <div class="item-info">
+                <div class="item-name">${escapeHtml(friend.name)}</div>
+                <div class="item-sub">プロフィール詳細</div>
+              </div>
+            `;
+            container.appendChild(item);
+          });
+        }
+      }
+    }
+  }
+
+  function openAddFriendModal() {
+    closeAllModals();
+    document.getElementById('new-friend-name-input').value = '';
+    document.getElementById('new-friend-avatar-preview').src = newFriendTempAvatar;
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('add-friend-modal').style.display = 'flex';
+  }
+
+  function changeNewFriendAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      newFriendTempAvatar = e.target.result;
+      document.getElementById('new-friend-avatar-preview').src = newFriendTempAvatar;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function executeAddFriend() {
+    const nameInput = document.getElementById('new-friend-name-input').value.trim();
+    if (!nameInput) {
+      alert('名前を入力してください');
+      return;
+    }
+
+    const newId = 'friend_' + new Date().getTime();
+    const newFriend = {
+      id: newId,
+      name: nameInput,
+      avatar: newFriendTempAvatar,
+      messages: []
+    };
+
+    friendsList.push(newFriend);
+    closeAllModals();
+    openChat(newId);
+  }
+
+  function getCurrentActiveFriend() {
+    return friendsList.find(f => f.id === currentFriendId) || friendsList[0];
   }
 
   function getFormattedDateString(dateStr) {
     const today = new Date();
     const targetDate = new Date(dateStr);
-    
     const todayYMD = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const targetYMD = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+    const diffDays = Math.round((todayYMD - targetYMD) / (1000 * 60 * 60 * 24));
     
-    const diffTime = todayYMD - targetYMD;
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return '今日';
-    } else if (diffDays === 1) {
-      return '昨日';
-    } else {
-      const m = targetDate.getMonth() + 1;
-      const d = targetDate.getDate();
-      const wList = ['日', '月', '火', '水', '木', '金', '土'];
-      const w = wList[targetDate.getDay()];
-      return `${m}/${d}(${w})`;
-    }
+    if (diffDays === 0) return '今日';
+    if (diffDays === 1) return '昨日';
+    const m = targetDate.getMonth() + 1;
+    const d = targetDate.getDate();
+    const w = ['日', '月', '火', '水', '木', '金', '土'][targetDate.getDay()];
+    return `${m}/${d}(${w})`;
   }
 
   function toggleControlPanel() {
@@ -1577,58 +2073,50 @@
     const text = input.value.trim();
     if (!text) return;
 
-    // パネルで設定された日時を取得（未設定なら現在時刻）
-    const customDate = document.getElementById('custom-date-input').value;
-    const customTime = document.getElementById('custom-time-input').value;
-
-    const timeStr = customTime || '12:00';
-    const dateStr = customDate || new Date().toISOString().split('T')[0];
-    const isRead = document.getElementById('read-status').checked;
-
+    const friend = getCurrentActiveFriend();
     let replyInfo = null;
     if (activeReplyTarget) {
       replyInfo = {
         sender: activeReplyTarget.sender,
-        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content
+        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.text
       };
     }
 
-    appendMessage(currentSender, text, timeStr, isRead, false, false, dateStr, replyInfo);
-    cancelReply();
+    const overrideDate = document.getElementById('override-date-input').value;
+    const overrideTime = document.getElementById('override-time-input').value;
 
+    const dateStr = overrideDate !== '' ? overrideDate : new Date().toISOString().split('T')[0];
+    const timeStr = overrideTime !== '' ? overrideTime : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
+
+    friend.messages.push({
+      sender: currentSender,
+      text: text,
+      time: timeStr,
+      isRead: document.getElementById('read-status').checked,
+      isImage: false,
+      unsend: false,
+      date: dateStr,
+      replyTo: replyInfo
+    });
+
+    cancelReply();
     renderChat();
-    saveToLocalStorage();
     input.value = '';
     updateSendButtonState();
     scrollToBottom();
   }
 
-  function appendMessage(sender, content, time, isRead, isImage, unsend, date, replyTo) {
-    messagesData.push({
-      sender: sender,
-      content: content,
-      time: time,
-      isRead: isRead,
-      isImage: isImage,
-      unsend: unsend,
-      date: date,
-      replyTo: replyTo || null
-    });
-  }
-
   function startReply(index) {
     closeAllModals();
-    const targetMsg = messagesData[index];
+    const friend = getCurrentActiveFriend();
+    const targetMsg = friend.messages[index];
     if (!targetMsg || targetMsg.unsend || targetMsg.sender === 'system') return;
 
     activeReplyTarget = targetMsg;
-    const label = targetMsg.sender === 'me' ? myName : partnerName;
-    const textSummary = targetMsg.isImage ? '[画像]' : targetMsg.content;
-
+    const label = targetMsg.sender === 'me' ? myName : friend.name;
     document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
-    document.getElementById('reply-preview-text').innerText = textSummary;
+    document.getElementById('reply-preview-text').innerText = targetMsg.isImage ? '[画像]' : targetMsg.text;
     document.getElementById('input-reply-bar').style.display = 'flex';
-
     document.getElementById('message-input').focus();
   }
 
@@ -1638,37 +2126,32 @@
   }
 
   function triggerReplyFromMenu() {
-    if (selectedMsgIndex !== null) {
-      startReply(selectedMsgIndex);
-    }
+    if (selectedMsgIndex !== null) startReply(selectedMsgIndex);
   }
 
   function renderChat() {
-    document.getElementById('partner-name-display').innerText = partnerName;
+    const friend = getCurrentActiveFriend();
+    document.getElementById('partner-name-display').innerText = friend.name;
 
     const chatArea = document.getElementById('chat-area');
     chatArea.innerHTML = '';
-
     let lastDate = null;
 
-    for (let i = 0; i < messagesData.length; i++) {
-      const msg = messagesData[i];
-
+    friend.messages.forEach((msg, i) => {
       if (msg.date && msg.date !== lastDate) {
         lastDate = msg.date;
-        const dateText = getFormattedDateString(msg.date);
         const dateDiv = document.createElement('div');
         dateDiv.className = 'date-divider-msg';
-        dateDiv.innerText = dateText;
+        dateDiv.innerText = getFormattedDateString(msg.date);
         chatArea.appendChild(dateDiv);
       }
 
       if (msg.sender === 'system') {
         const sysDiv = document.createElement('div');
         sysDiv.className = 'system-msg';
-        sysDiv.innerHTML = escapeHtml(msg.content);
+        sysDiv.innerHTML = escapeHtml(msg.text);
         chatArea.appendChild(sysDiv);
-        continue;
+        return;
       }
 
       if (msg.unsend) {
@@ -1676,128 +2159,67 @@
         if (isDeleteMode) {
           unDiv.className = 'msg-group delete-mode-row';
           unDiv.onclick = () => toggleSelectMessage(i);
-
           const cb = document.createElement('div');
           cb.className = 'select-checkbox' + (selectedToDelete.has(i) ? ' checked' : '');
           cb.style.display = 'flex';
           unDiv.appendChild(cb);
-
-          const wrapper = document.createElement('div');
-          wrapper.style.flex = '1';
-          wrapper.style.display = 'flex';
-          wrapper.style.justifyContent = 'center';
-          const msgContent = document.createElement('div');
-          msgContent.className = 'unsend-sys-msg-box';
-          msgContent.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
-          wrapper.appendChild(msgContent);
-          unDiv.appendChild(wrapper);
+          unDiv.innerHTML += '<div style="flex:1; display:flex; justify-content:center;"><div class="unsend-sys-msg-box">メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span></div></div>';
         } else {
           unDiv.className = 'unsend-sys-msg-wrap';
-          const msgContent = document.createElement('div');
-          msgContent.className = 'unsend-sys-msg-box';
-          msgContent.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
-          unDiv.appendChild(msgContent);
+          unDiv.innerHTML = '<div class="unsend-sys-msg-box">メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span></div>';
         }
         chatArea.appendChild(unDiv);
-        continue;
+        return;
       }
 
-      const prev = messagesData[i - 1];
+      const prev = friend.messages[i - 1];
       const isGrouped = !!(prev && !prev.unsend && prev.sender === msg.sender && prev.time === msg.time && prev.date === msg.date);
-
       const msgDiv = document.createElement('div');
 
-      let avatarHtml = '';
-      if (msg.sender === 'partner') {
-        avatarHtml = `<img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">`;
-      }
+      let avatarHtml = msg.sender === 'partner' ? `<img src="${friend.avatar}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">` : '';
+      const metaHtml = `<div class="msg-meta">${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}<span>${msg.time}</span></div>`;
 
-      const metaHtml = `
-        <div class="msg-meta">
-          ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
-          <span>${msg.time}</span>
-        </div>`;
-
-      let contentHtml = '';
       let replyPreviewHtml = '';
       if (msg.replyTo) {
-        let shortText = msg.replyTo.content;
-        const replySender = msg.replyTo.sender;
-        const replyAvatar = replySender === 'me' ? myAvatarUrl : partnerAvatarUrl;
-        const senderLabel = replySender === 'me' ? myName : partnerName;
-
+        const replyAvatar = msg.replyTo.sender === 'me' ? myAvatarUrl : friend.avatar;
+        const senderLabel = msg.replyTo.sender === 'me' ? myName : friend.name;
         replyPreviewHtml = `
           <div class="bubble-reply-container">
             <img src="${replyAvatar}" class="bubble-reply-avatar">
             <div class="bubble-reply-info-col">
               <div class="bubble-reply-sender">${escapeHtml(senderLabel)}</div>
-              <div class="bubble-reply-text">${escapeHtml(shortText)}</div>
+              <div class="bubble-reply-text">${escapeHtml(msg.replyTo.content)}</div>
             </div>
           </div>
         `;
       }
 
+      let contentHtml = '';
       if (msg.isImage) {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<img src="${msg.content}" class="msg-img"></div>`;
+        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<img src="${msg.text}" class="msg-img"></div>`;
       } else {
-        const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.content)}</div>` : escapeHtml(msg.content);
+        const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.text)}</div>` : escapeHtml(msg.text);
         contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${bodyContent}</div>`;
       }
-      
+
       const wrappedContent = `<div class="msg-content">${contentHtml}</div>`;
 
       if (isDeleteMode) {
         msgDiv.className = `msg-group delete-mode-row ${msg.sender}${isGrouped ? ' grouped' : ''}`;
         msgDiv.onclick = () => toggleSelectMessage(i);
-
-        const isChecked = selectedToDelete.has(i);
-        const cbHtml = `<div class="select-checkbox${isChecked ? ' checked' : ''}" style="display:flex;"></div>`;
-
-        if (msg.sender === 'partner') {
-          msgDiv.innerHTML = `
-            ${cbHtml}
-            <div style="display:flex; align-items:flex-start; flex:1; min-width:0; gap:6px;">
-              ${avatarHtml}
-              ${wrappedContent}
-              ${metaHtml}
-            </div>
-          `;
-        } else {
-          msgDiv.innerHTML = `
-            ${cbHtml}
-            <div style="display:flex; align-items:flex-start; flex:1; min-width:0; justify-content:flex-end; gap:6px;">
-              ${metaHtml}
-              ${wrappedContent}
-            </div>
-          `;
-        }
+        const cbHtml = `<div class="select-checkbox${selectedToDelete.has(i) ? ' checked' : ''}" style="display:flex;"></div>`;
+        msgDiv.innerHTML = msg.sender === 'partner' ? `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; gap:6px;">${avatarHtml}${wrappedContent}${metaHtml}</div>` : `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; justify-content:flex-end; gap:6px;">${metaHtml}${wrappedContent}</div>`;
       } else {
         msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
-
-        if (msg.sender === 'partner') {
-          msgDiv.innerHTML = `
-            ${avatarHtml}
-            ${wrappedContent}
-            ${metaHtml}
-          `;
-        } else {
-          msgDiv.innerHTML = `
-            ${wrappedContent}
-            ${metaHtml}
-          `;
-        }
+        msgDiv.innerHTML = msg.sender === 'partner' ? `${avatarHtml}${wrappedContent}${metaHtml}` : `${wrappedContent}${metaHtml}`;
       }
 
       chatArea.appendChild(msgDiv);
-    }
+    });
     updateScrollButton();
   }
 
-  let touchTimer = null;
-  let startX = 0;
-  let startY = 0;
-  let currentSwipeRow = null;
-  let isSwiping = false;
+  let touchTimer = null, startX = 0, startY = 0, currentSwipeRow = null, isSwiping = false;
 
   function handleTouchStart(e, index, bubbleElem) {
     if (isDeleteMode) return;
@@ -1808,39 +2230,26 @@
     isSwiping = false;
 
     touchTimer = setTimeout(() => {
-      if (!isSwiping) {
-        showActionMenu(index);
-      }
+      if (!isSwiping) showActionMenu(index);
     }, 600);
 
-    const moveHandler = (moveEvent) => {
-      const currentTouch = moveEvent.touches[0];
-      const diffX = currentTouch.clientX - startX;
-      const diffY = currentTouch.clientY - startY;
-
+    const moveHandler = (me) => {
+      const diffX = me.touches[0].clientX - startX;
+      const diffY = me.touches[0].clientY - startY;
       if (Math.abs(diffX) > Math.abs(diffY) && diffX < -10) {
         isSwiping = true;
         clearTimeout(touchTimer);
-
-        const translateX = Math.max(diffX, -60);
-        if (currentSwipeRow) {
-          currentSwipeRow.style.transform = `translateX(${translateX}px)`;
-        }
+        if (currentSwipeRow) currentSwipeRow.style.transform = `translateX(${Math.max(diffX, -60)}px)`;
       }
     };
 
-    const endHandler = (endEvent) => {
+    const endHandler = () => {
       clearTimeout(touchTimer);
       if (currentSwipeRow) {
-        const transformStyle = currentSwipeRow.style.transform;
-        const match = transformStyle.match(/translateX\(([-\.]+)px\)/);
+        const match = currentSwipeRow.style.transform.match(/translateX\(([-\.]+)px\)/);
         const movedX = match ? parseFloat(match[1]) : 0;
-        
         currentSwipeRow.style.transform = 'translateX(0px)';
-
-        if (movedX < -45) {
-          startReply(index);
-        }
+        if (movedX < -45) startReply(index);
       }
       document.removeEventListener('touchmove', moveHandler);
       document.removeEventListener('touchend', endHandler);
@@ -1850,21 +2259,12 @@
     document.addEventListener('touchend', endHandler, { passive: true });
   }
 
-  function handleTouchEnd(bubbleElem) {
-    clearTimeout(touchTimer);
-  }
-
-  function handleLongPress(e, index) {
-    if (isDeleteMode) return;
-    e.preventDefault();
-    showActionMenu(index);
-  }
-
+  function handleTouchEnd() { clearTimeout(touchTimer); }
+  function handleLongPress(e, index) { if (!isDeleteMode) { e.preventDefault(); showActionMenu(index); } }
   function handleMessageClick(e, index) {
     if (isDeleteMode) return;
     const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTapTime;
-    if (tapLength < 300 && tapLength > 0) {
+    if (currentTime - lastTapTime < 300 && currentTime - lastTapTime > 0) {
       e.preventDefault();
       showActionMenu(index);
     }
@@ -1878,6 +2278,7 @@
     document.getElementById('confirm-modal').style.display = 'none';
     document.getElementById('delete-dialog').style.display = 'none';
     document.getElementById('account-modal').style.display = 'none';
+    document.getElementById('add-friend-modal').style.display = 'none';
   }
 
   function openConfirmModal() {
@@ -1891,14 +2292,23 @@
     document.getElementById('confirm-modal').style.display = 'none';
     document.getElementById('delete-dialog').style.display = 'none';
     document.getElementById('account-modal').style.display = 'none';
+    document.getElementById('add-friend-modal').style.display = 'none';
   }
 
   function openAccountModal() {
     closeAllModals();
+    const friend = getCurrentActiveFriend();
     document.getElementById('my-name-input').value = myName;
-    document.getElementById('partner-name-input').value = partnerName;
     document.getElementById('my-avatar-preview').src = myAvatarUrl;
-    document.getElementById('partner-avatar-preview').src = partnerAvatarUrl;
+
+    const partnerSection = document.getElementById('partner-account-section');
+    if (document.getElementById('chat-screen').classList.contains('active')) {
+      partnerSection.style.display = 'flex';
+      document.getElementById('partner-name-input').value = friend.name;
+      document.getElementById('partner-avatar-preview').src = friend.avatar;
+    } else {
+      partnerSection.style.display = 'none';
+    }
 
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('account-modal').style.display = 'flex';
@@ -1906,21 +2316,23 @@
 
   function saveAccountSettings() {
     const newMyName = document.getElementById('my-name-input').value.trim();
-    const newPartnerName = document.getElementById('partner-name-input').value.trim();
-
     if (newMyName) myName = newMyName;
-    if (newPartnerName) partnerName = newPartnerName;
 
+    if (document.getElementById('chat-screen').classList.contains('active')) {
+      const newPartnerName = document.getElementById('partner-name-input').value.trim();
+      const friend = getCurrentActiveFriend();
+      if (newPartnerName) friend.name = newPartnerName;
+      renderChat();
+    } else {
+      renderHomeView();
+    }
     closeAllModals();
-    renderChat();
-    saveToLocalStorage();
   }
 
   function executeUnsend() {
     if (selectedMsgIndex !== null) {
-      messagesData[selectedMsgIndex].unsend = true;
+      getCurrentActiveFriend().messages[selectedMsgIndex].unsend = true;
       renderChat();
-      saveToLocalStorage();
     }
     closeAllModals();
   }
@@ -1929,9 +2341,7 @@
     closeAllModals();
     isDeleteMode = true;
     selectedToDelete.clear();
-    if (selectedMsgIndex !== null) {
-      selectedToDelete.add(selectedMsgIndex);
-    }
+    if (selectedMsgIndex !== null) selectedToDelete.add(selectedMsgIndex);
 
     document.getElementById('normal-header').style.display = 'none';
     document.getElementById('delete-header').style.display = 'flex';
@@ -1946,21 +2356,16 @@
   function exitDeleteMode() {
     isDeleteMode = false;
     selectedToDelete.clear();
-
     document.getElementById('normal-header').style.display = 'flex';
     document.getElementById('delete-header').style.display = 'none';
     document.getElementById('input-bar').style.display = 'flex';
     document.getElementById('delete-bottom-bar').style.display = 'none';
-
     renderChat();
   }
 
   function toggleSelectMessage(index) {
-    if (selectedToDelete.has(index)) {
-      selectedToDelete.delete(index);
-    } else {
-      selectedToDelete.add(index);
-    }
+    if (selectedToDelete.has(index)) selectedToDelete.delete(index);
+    else selectedToDelete.add(index);
     updateDeleteButtonState();
     renderChat();
   }
@@ -1983,13 +2388,11 @@
   }
 
   function executeDeleteSelected() {
+    const friend = getCurrentActiveFriend();
     const indices = Array.from(selectedToDelete).sort((a, b) => b - a);
-    indices.forEach(idx => {
-      messagesData.splice(idx, 1);
-    });
+    indices.forEach(idx => friend.messages.splice(idx, 1));
     closeAllModals();
     exitDeleteMode();
-    saveToLocalStorage();
   }
 
   function openPremiumPage() {
@@ -2001,35 +2404,37 @@
   }
 
   function handleKeyPress(e) {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
+    if (e.key === 'Enter') sendMessage();
   }
 
   function sendImage(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
-      const customDate = document.getElementById('custom-date-input').value;
-      const customTime = document.getElementById('custom-time-input').value;
-      const timeStr = customTime || '12:00';
-      const dateStr = customDate || new Date().toISOString().split('T')[0];
-      const isRead = document.getElementById('read-status').checked;
-      
+      const friend = getCurrentActiveFriend();
       let replyInfo = null;
       if (activeReplyTarget) {
-        replyInfo = {
-          sender: activeReplyTarget.sender,
-          content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content
-        };
+        replyInfo = { sender: activeReplyTarget.sender, content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.text };
       }
+      const overrideDate = document.getElementById('override-date-input').value;
+      const overrideTime = document.getElementById('override-time-input').value;
 
-      appendMessage(currentSender, e.target.result, timeStr, isRead, true, false, dateStr, replyInfo);
+      const dateStr = overrideDate !== '' ? overrideDate : new Date().toISOString().split('T')[0];
+      const timeStr = overrideTime !== '' ? overrideTime : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
+
+      friend.messages.push({
+        sender: currentSender,
+        text: e.target.result,
+        time: timeStr,
+        isRead: document.getElementById('read-status').checked,
+        isImage: true,
+        unsend: false,
+        date: dateStr,
+        replyTo: replyInfo
+      });
       cancelReply();
       renderChat();
-      saveToLocalStorage();
       scrollToBottom();
     };
     reader.readAsDataURL(file);
@@ -2039,44 +2444,33 @@
   function changeAnnouncement() {
     const currentText = document.getElementById('announcement-text').innerText;
     const newText = prompt('アナウンスのテキストを入力してください:', currentText);
-    if (newText !== null) {
-      document.getElementById('announcement-text').innerText = newText;
-    }
+    if (newText !== null) document.getElementById('announcement-text').innerText = newText;
   }
 
-  function triggerAvatarUpload() {
-    document.getElementById('avatar-input').click();
-  }
-
+  function triggerAvatarUpload() { document.getElementById('avatar-input').click(); }
   function changeAvatar(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
-      partnerAvatarUrl = e.target.result;
-      document.getElementById('partner-avatar-preview').src = partnerAvatarUrl;
+      getCurrentActiveFriend().avatar = e.target.result;
+      document.getElementById('partner-avatar-preview').src = e.target.result;
       renderChat();
-      saveToLocalStorage();
     };
     reader.readAsDataURL(file);
     event.target.value = '';
   }
 
-  function triggerMyAvatarUpload() {
-    document.getElementById('my-avatar-input').click();
-  }
-
+  function triggerMyAvatarUpload() { document.getElementById('my-avatar-input').click(); }
   function changeMyAvatar(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
       myAvatarUrl = e.target.result;
       document.getElementById('my-avatar-preview').src = myAvatarUrl;
       renderChat();
-      saveToLocalStorage();
+      renderHomeView();
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -2084,10 +2478,9 @@
 
   function clearChat() {
     if (confirm('チャット履歴を全消去しますか？')) {
-      messagesData = [];
+      getCurrentActiveFriend().messages = [];
       cancelReply();
       renderChat();
-      saveToLocalStorage();
     }
   }
 
@@ -2105,11 +2498,7 @@
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;")
-              .replace(/"/g, "&quot;")
-              .replace(/'/g, "&#039;");
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 </script>
 
