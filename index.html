@@ -197,7 +197,7 @@
       line-height: 1.4;
     }
 
-    /* メッセージグループ */
+    /* メッセージグループ・行 */
     .msg-group {
       display: flex;
       margin-bottom: 6px;
@@ -213,22 +213,27 @@
       flex-direction: row-reverse;
     }
 
-    /* アイコン領域 */
-    .avatar-holder {
-      width: 38px;
+    /* アイコンを円形に */
+    .avatar {
+      width: 33px;
+      height: 33px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex: none;
       margin-right: 8px;
-      flex-shrink: 0;
+      cursor: pointer;
+      background-color: #333333;
     }
 
-    .avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 40%;
-      object-fit: cover;
-      background-color: #333333;
-      cursor: pointer;
-      display: block;
-    }
+    /* 相手の行: フキダシをアイコン上端より少し下げ、間隔を詰める */
+    .msg-group.partner { display: flex; align-items: flex-start; }
+    .partner .msg-bubble { margin-top: 4.5px; }
+
+    /* 同じ分が続く2通目以降 */
+    .msg-group.grouped { margin-top: 7px; }
+    .msg-group.grouped .avatar { visibility: hidden; }
+    .msg-group.grouped .msg-bubble::before,
+    .msg-group.grouped .msg-bubble::after { display: none; }
 
     .msg-content {
       display: flex;
@@ -687,15 +692,17 @@
         continue;
       }
 
+      let isGrouped = false;
+      if (i > 0 && messagesData[i - 1].sender === msg.sender && messagesData[i - 1].sender !== 'system') {
+        isGrouped = true;
+      }
+
       const msgDiv = document.createElement('div');
-      msgDiv.className = `msg-group ${msg.sender}`;
+      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
 
       let avatarHtml = '';
       if (msg.sender === 'partner') {
-        avatarHtml = `
-          <div class="avatar-holder">
-            <img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">
-          </div>`;
+        avatarHtml = `<img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">`;
       }
 
       let metaHtml = `
