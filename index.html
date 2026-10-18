@@ -261,7 +261,6 @@
       color: #ffffff;
       font-size: 11.5px;
       text-align: center;
-      margin: 10px 0;
       line-height: 1.4;
       user-select: none;
     }
@@ -277,14 +276,27 @@
       align-items: flex-start;
       margin-top: 7.5px;
       position: relative;
+      width: 100%;
     }
     .msg-group:first-of-type { margin-top: 0; }
+
+    /* 削除モード時：行全体を横軸の当たり判定にするためフレックス配置を調整 */
+    .msg-group.delete-mode-row {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
 
     .msg-group.partner { align-self: flex-start; }
 
     .msg-group.me {
       align-self: flex-end;
       flex-direction: row-reverse;
+    }
+    /* 削除モード時は自分のメッセージも左側にチェックボックスを置くため順序を制御 */
+    .msg-group.delete-mode-row.me {
+      flex-direction: row;
+      justify-content: flex-end;
     }
 
     /* 同じ分が続く2通目以降: 間隔を詰め、しっぽ・アイコンを消す */
@@ -319,7 +331,7 @@
       min-width: 0;
     }
 
-    /* ---------- 削除用選択チェックボックス ---------- */
+    /* ---------- 削除用選択チェックボックス（常に左側） ---------- */
     .select-checkbox {
       width: 22px;
       height: 22px;
@@ -328,14 +340,8 @@
       display: none;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      margin-right: 12px;
       flex-shrink: 0;
-      align-self: center;
-    }
-    .msg-group.me .select-checkbox {
-      margin-right: 0;
-      margin-left: 12px;
+      margin-right: 12px;
     }
     .select-checkbox.checked {
       background-color: #00d26a;
@@ -774,7 +780,7 @@
       padding: 4px;
     }
 
-    /* 削除実行確認ダイアログ（参考写真3枚目） */
+    /* 削除確認ダイアログ */
     .delete-dialog {
       background-color: #222224;
       border-radius: 16px;
@@ -1048,7 +1054,7 @@
     </button>
   </div>
 
-  <!-- 削除モード用ボトムバー（参考写真1・2枚目） -->
+  <!-- 削除モード用ボトムバー -->
   <div class="delete-bottom-bar" id="delete-bottom-bar">
     <div class="delete-cancel-btn" onclick="exitDeleteMode()">キャンセル</div>
     <button class="delete-exec-btn" id="delete-exec-btn" onclick="openDeleteDialog()">削除 (0)</button>
@@ -1097,7 +1103,7 @@
       <button class="confirm-btn-cancel" onclick="closeAllModals()">閉じる</button>
     </div>
 
-    <!-- 削除確認ダイアログ（参考写真3枚目） -->
+    <!-- 削除確認ダイアログ -->
     <div class="delete-dialog" id="delete-dialog" onclick="event.stopPropagation()" style="display: none;">
       <div class="delete-dialog-desc">選択したメッセージはこの端末でのみ削除されます。相手の端末からは削除されません。</div>
       <button class="delete-dialog-btn-red" onclick="executeDeleteSelected()">この端末でのみ削除</button>
@@ -1152,9 +1158,9 @@
     '<circle cx="50" cy="40" r="18" fill="#8a8a8a"/><path d="M14 100c0-22 16-36 36-36s36 14 36 36z" fill="#8a8a8a"/></svg>'
   );
   let isInputFocused = false;
-  let selectedMsgIndex = null; // 長押しで選択されたインデックス
-  let isDeleteMode = false;     // 削除選択モードかどうかのフラグ
-  let selectedToDelete = new Set(); // 削除選択されたインデックスの集合
+  let selectedMsgIndex = null;
+  let isDeleteMode = false;
+  let selectedToDelete = new Set();
 
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
@@ -1287,19 +1293,19 @@
         continue;
       }
 
-      // 送信取り消しされたメッセージのシステム表示
+      // 送信取り消しされたメッセージ
       if (msg.unsend) {
         const unDiv = document.createElement('div');
-        unDiv.className = 'msg-group';
-        unDiv.style.width = '100%';
-        unDiv.style.justifyContent = 'center';
+        unDiv.className = 'msg-group' + (isDeleteMode ? ' delete-mode-row' : '');
+        if (isDeleteMode) {
+          unDiv.onclick = () => toggleSelectMessage(i);
+        }
 
-        // 削除モード時のチェックボックス
+        // 削除モード時の左側チェックボックス
         if (isDeleteMode) {
           const cb = document.createElement('div');
           cb.className = 'select-checkbox' + (selectedToDelete.has(i) ? ' checked' : '');
           cb.style.display = 'flex';
-          cb.onclick = (e) => { e.stopPropagation(); toggleSelectMessage(i); };
           unDiv.appendChild(cb);
         }
 
@@ -1316,13 +1322,18 @@
       const isGrouped = !!(prev && !prev.unsend && prev.sender === msg.sender && prev.time === msg.time);
 
       const msgDiv = document.createElement('div');
-      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
+      // 削除モード時は行全体で当たり判定を持たせるためクラスを付与
+      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}${isDeleteMode ? ' delete-mode-row' : ''}`;
 
-      // 削除モード用チェックボックス
+      if (isDeleteMode) {
+        msgDiv.onclick = () => toggleSelectMessage(i);
+      }
+
+      // 削除モード時はすべての行で左側にチェックボックスを配置
       let cbHtml = '';
       if (isDeleteMode) {
         const isChecked = selectedToDelete.has(i);
-        cbHtml = `<div class="select-checkbox${isChecked ? ' checked' : ''}" style="display:flex;" onclick="event.stopPropagation(); toggleSelectMessage(${i})"></div>`;
+        cbHtml = `<div class="select-checkbox${isChecked ? ' checked' : ''}" style="display:flex;"></div>`;
       }
 
       let avatarHtml = '';
@@ -1340,9 +1351,10 @@
       if (msg.isImage) {
         contentHtml = `<img src="${msg.content}" class="msg-img">`;
       } else {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()" onclick="handleBubbleClick(${i})">${escapeHtml(msg.content)}</div>`;
+        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()" onclick="handleBubbleClick(event, ${i})">${escapeHtml(msg.content)}</div>`;
       }
 
+      // 削除モードの有無に関わらず、HTML構造を統一（削除モード時は自分のメッセージも含めてチェックボックスが左にくる）
       if (msg.sender === 'partner') {
         msgDiv.innerHTML = `
           ${cbHtml}
@@ -1381,8 +1393,9 @@
     showActionMenu(index);
   }
 
-  function handleBubbleClick(index) {
+  function handleBubbleClick(e, index) {
     if (isDeleteMode) {
+      e.stopPropagation(); // バブリングを防ぎつつ行全体クリックで処理
       toggleSelectMessage(index);
     }
   }
@@ -1407,7 +1420,6 @@
     document.getElementById('delete-dialog').style.display = 'none';
   }
 
-  // 送信取消（システムメッセージ化）
   function executeUnsend() {
     if (selectedMsgIndex !== null) {
       messagesData[selectedMsgIndex].unsend = true;
@@ -1416,7 +1428,6 @@
     closeAllModals();
   }
 
-  // 削除モードに入る（長押しメニューの「削除」タップ時）
   function enterDeleteMode() {
     closeAllModals();
     isDeleteMode = true;
@@ -1435,7 +1446,6 @@
     renderChat();
   }
 
-  // 削除モードから抜ける
   function exitDeleteMode() {
     isDeleteMode = false;
     selectedToDelete.clear();
@@ -1467,7 +1477,6 @@
     btn.style.pointerEvents = count > 0 ? 'auto' : 'none';
   }
 
-  // 削除ボタン押下時の確認ダイアログオープン（参考写真3枚目）
   function openDeleteDialog() {
     if (selectedToDelete.size === 0) return;
     document.getElementById('modal-overlay').style.display = 'flex';
@@ -1476,9 +1485,7 @@
     document.getElementById('delete-dialog').style.display = 'flex';
   }
 
-  // 選択メッセージの完全削除実行（痕跡なく消す）
   function executeDeleteSelected() {
-    // 降順にソートして削除（インデックスのズレを防ぐため）
     const indices = Array.from(selectedToDelete).sort((a, b) => b - a);
     indices.forEach(idx => {
       messagesData.splice(idx, 1);
@@ -1487,7 +1494,6 @@
     exitDeleteMode();
   }
 
-  // 4枚目のプレミアムページを開く
   function openPremiumPage() {
     closeAllModals();
     document.getElementById('premium-page').style.display = 'flex';
