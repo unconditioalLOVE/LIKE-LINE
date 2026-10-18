@@ -254,17 +254,17 @@
       border-top-left-radius: 4px;
     }
 
-    .partner-tail-svg {
+    .partner-tail-img {
       position: absolute;
-      top: 0;
-      left: -9px;
-      width: 11px;
-      height: 13px;
-      fill: #262628;
+      top: -2px;
+      left: -8px;
+      width: 14px;
+      height: auto;
       z-index: 2;
+      transform: scaleX(-1); /* 左右反転して左側用にする */
     }
 
-    /* 自分の吹き出し（被せるSVG尻尾） */
+    /* 自分の吹き出し（角に画像を被せる） */
     .me .msg-bubble {
       background-color: #6be779;
       color: #000000;
@@ -273,13 +273,12 @@
       font-weight: 500;
     }
 
-    .me-tail-svg {
+    .me-tail-img {
       position: absolute;
-      top: 0;
-      right: -9px;
-      width: 11px;
-      height: 13px;
-      fill: #6be779;
+      top: -2px;
+      right: -8px;
+      width: 14px;
+      height: auto;
       z-index: 2;
     }
 
@@ -558,6 +557,8 @@
 <script>
   let currentSender = 'me';
   let partnerAvatarUrl = 'https://via.placeholder.com/100/444444/ffffff?text=Icon';
+  // ★ ここにアップロードした画像のファイル名やURLを指定してください
+  let tailImageUrl = 'tail.png'; 
   let isInputFocused = false;
   
   const initialMessages = [
@@ -708,14 +709,13 @@
       if (msg.isImage) {
         contentHtml = `<img src="${msg.content}" class="msg-img">`;
       } else {
-        let tailSvg = '';
+        let tailImg = '';
         if (msg.sender === 'me') {
-          // 画像15を完全にトレースした「ふくらんでから右上に跳ね上がる尻尾」の正確なSVGパス
-          tailSvg = `<svg class="me-tail-svg" viewBox="0 0 12 14"><path d="M0,0 C3.5,0 7,2.5 9.5,7 C10.8,9.5 11.5,12 12,14 C9,14 5,13.5 2,12 C0.8,11.4 0,10.2 0,8.8 Z"/></svg>`;
+          tailImg = `<img src="${tailImageUrl}" class="me-tail-img">`;
         } else {
-          tailSvg = `<svg class="partner-tail-svg" viewBox="0 0 12 14"><path d="M12,0 C8.5,0 5,2.5 2.5,7 C1.2,9.5 0.5,12 0,14 C3,14 7,13.5 10,12 C11.2,11.4 12,10.2 12,8.8 Z"/></svg>`;
+          tailImg = `<img src="${tailImageUrl}" class="partner-tail-img">`;
         }
-        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}${tailSvg}</div>`;
+        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}${tailImg}</div>`;
       }
 
       if (msg.sender === 'partner') {
