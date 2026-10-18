@@ -244,49 +244,48 @@
       white-space: pre-wrap;
       letter-spacing: -0.1px;
       position: relative;
+      isolation: isolate; /* しっぽを文字の下に敷くため */
     }
 
-    /* 相手の吹き出し（左側のしっぽ） */
+    /* 相手（左） */
     .partner .msg-bubble {
       background-color: #2a2a2a;
-      color: #ffffff;
+      color: #fff;
       border-radius: 19px;
       position: relative;
     }
-
     .partner .msg-bubble::before {
       content: "";
       position: absolute;
       display: block;
       left: -10px;
-      top: 0px;
+      top: -21px;
       width: 24px;
       height: 36px;
-      border-radius: 18px 0 18px 6px/18px 0 1px 18px;
+      border-radius: 18px 0 6px 18px / 18px 0 1px 18px;
       box-shadow: -3px -15px 0 -5px #2a2a2a inset;
-      z-index: 2;
+      z-index: -1;
     }
 
-    /* 自分の吹き出し（右側のしっぽ） */
+    /* 自分（右） */
     .me .msg-bubble {
       background-color: #69e779;
-      color: #000000;
-      border-radius: 19px;
+      color: #000;
       font-weight: 500;
+      border-radius: 19px;
       position: relative;
     }
-
     .me .msg-bubble::after {
       content: "";
       position: absolute;
       display: block;
       right: -10px;
-      top: 0px;
+      top: -21px;
       width: 24px;
       height: 36px;
-      border-radius: 0 18px 6px 18px/0 18px 18px 1px;
+      border-radius: 0 18px 18px 6px / 0 18px 18px 1px;
       box-shadow: 3px -15px 0 -5px #69e779 inset;
-      z-index: 2;
+      z-index: -1;
     }
 
     .msg-meta {
@@ -571,7 +570,7 @@
     { sender: 'me', text: '動画見た', time: '19:51' },
     { sender: 'partner', text: 'がちか', time: '19:53' },
     { sender: 'partner', text: '動画ほしい', time: '19:53' },
-    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最后見れない、、', time: '20:02' },
+    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最後見れない、、', time: '20:02' },
     { sender: 'me', text: '分かってない', time: '20:02' },
     { sender: 'me', text: '途中しかないけどえーか？', time: '20:03' },
     { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03' },
