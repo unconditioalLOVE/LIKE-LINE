@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>LINE風チャット</title>
+  <title>LINE-LIKE</title>
   <style>
     * {
       box-sizing: border-box;
@@ -21,7 +21,6 @@
       --meta: #8d8d8d;
       --icon: #b7b7b7;
 
-      /* レイアウト調整用変数 */
       --msg-padding-y: 8px;
       --msg-padding-x: 12px;
       --msg-font-size: 14px;
@@ -63,7 +62,6 @@
       overflow: hidden;
     }
 
-    /* ヘッダー */
     .header {
       background-color: var(--bg);
       height: 52px;
@@ -161,7 +159,6 @@
       margin-bottom: 3px;
     }
 
-    /* アナウンスバー */
     .announcement {
       background-color: var(--bubble-partner);
       margin: 6px 6px 0;
@@ -213,7 +210,6 @@
       flex-shrink: 0;
     }
 
-    /* チャットエリア */
     .chat-wrap {
       flex: 1;
       min-height: 0;
@@ -310,7 +306,6 @@
       margin-top: 1px;
     }
 
-    /* メッセージ行 */
     .msg-group {
       display: flex;
       align-items: flex-start;
@@ -389,7 +384,6 @@
       margin-bottom: 2px;
     }
 
-    /* 吹き出し共通（通常メッセージ） */
     .msg-bubble {
       display: flex;
       flex-direction: column;
@@ -441,7 +435,6 @@
       clip-path: path("M 14 6 L 11.4 4.2 Q 3.5 4.3 1.1 0.8 C 2 5 4 8.6 6.4 11.2 L 14 11 Z");
     }
 
-    /* リプライメッセージ（上段：引用部） */
     .bubble-reply-container {
       padding: var(--reply-top-padding-y) var(--reply-top-padding-x);
       border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
@@ -504,7 +497,6 @@
       color: rgba(255, 255, 255, 0.65);
     }
 
-    /* リプライメッセージ（下段：送信本文） */
     .bubble-text-body {
       padding: var(--reply-body-padding-y) var(--reply-body-padding-x);
       font-size: var(--reply-body-font-size);
@@ -548,7 +540,6 @@
     .msg-group.partner .msg-img { margin-top: 4px; }
     .msg-group.partner.grouped .msg-img { margin-top: 0; }
 
-    /* 入力欄上のリプライプレビューバー */
     .input-reply-bar {
       background-color: #262628;
       padding: 8px 12px;
@@ -592,7 +583,6 @@
       margin-left: 8px;
     }
 
-    /* 入力バー */
     .input-bar {
       background-color: var(--bar);
       padding: 8px 12px 8px 10px;
@@ -694,7 +684,6 @@
       height: 16px;
     }
 
-    /* 削除モード用ボトムバー */
     .delete-bottom-bar {
       background-color: #111111;
       padding: 10px 14px 14px 14px;
@@ -732,14 +721,13 @@
       border: none;
     }
 
-    /* 管理用設定パネル */
     .control-panel {
       background-color: #1a1a1c;
       border-top: 1px solid #2a2a2c;
       padding: 8px 12px;
       display: none;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
@@ -792,11 +780,28 @@
       cursor: pointer;
     }
 
+    .datetime-inputs {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      color: #aaaaaa;
+    }
+
+    .datetime-inputs input {
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      border-radius: 4px;
+      color: #fff;
+      padding: 3px 6px;
+      font-size: 11px;
+      outline: none;
+    }
+
     #file-input, #avatar-input, #my-avatar-input {
       display: none;
     }
 
-    /* モーダル */
     .modal-overlay {
       position: absolute;
       top: 0;
@@ -959,7 +964,6 @@
       margin-bottom: 8px;
     }
 
-    /* アカウント情報設定モーダル */
     .account-modal {
       background-color: #222224;
       border-radius: 16px;
@@ -1033,7 +1037,6 @@
       cursor: pointer;
     }
 
-    /* プレミアムページ */
     .premium-page {
       position: absolute;
       top: 0;
@@ -1202,7 +1205,6 @@
 <body>
 
 <div class="container">
-  <!-- ヘッダー -->
   <div class="header" id="normal-header">
     <div class="header-left">
       <svg class="back-btn" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
@@ -1218,19 +1220,16 @@
       <div class="calendar-icon-box" onclick="alert('カレンダー')">
         <span class="calendar-date">31</span>
       </div>
-      <!-- 右上三本線アイコン（タップでアカウント設定モーダル起動） -->
       <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openAccountModal()">
         <path d="M3 6h18M3 12h18M3 18h18"/>
       </svg>
     </div>
   </div>
 
-  <!-- 削除モード時のヘッダー -->
   <div class="header" id="delete-header" style="display: none;">
     <div class="delete-header-title" id="delete-header-title">メッセージを削除</div>
   </div>
 
-  <!-- アナウンスバー -->
   <div class="announcement">
     <div class="announcement-left">
       <svg class="announcement-icon" viewBox="0 0 24 24">
@@ -1241,7 +1240,6 @@
     <svg class="announcement-arrow" viewBox="0 0 24 24"><path d="M4.5 8.5 12 16l7.5-7.5"/></svg>
   </div>
 
-  <!-- チャットエリア -->
   <div class="chat-wrap">
     <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
     <div class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()">
@@ -1249,7 +1247,6 @@
     </div>
   </div>
 
-  <!-- リプライプレビューバー（入力欄上部） -->
   <div class="input-reply-bar" id="input-reply-bar">
     <div class="input-reply-info">
       <div class="input-reply-title" id="reply-preview-sender">返信先: 相手</div>
@@ -1258,7 +1255,6 @@
     <svg class="input-reply-close" viewBox="0 0 24 24" onclick="cancelReply()"><path d="M18 6L6 18M6 6l12 12"/></svg>
   </div>
 
-  <!-- 通常のLINE風入力バー -->
   <div class="input-bar" id="input-bar">
     <div class="input-icons-left">
       <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
@@ -1283,18 +1279,22 @@
     </button>
   </div>
 
-  <!-- 削除モード用ボトムバー -->
   <div class="delete-bottom-bar" id="delete-bottom-bar">
     <div class="delete-cancel-btn" onclick="exitDeleteMode()">キャンセル</div>
     <button class="delete-exec-btn" id="delete-exec-btn" onclick="openDeleteDialog()">削除 (0)</button>
   </div>
 
-  <!-- 管理用設定パネル -->
+  <!-- 管理用設定パネル（ここで日時の個別指定が可能） -->
   <div class="control-panel" id="control-panel">
     <div class="sender-switch">
       <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
       <button class="switch-btn partner" id="btn-partner" onclick="setSender('partner')">相手 (黒)</button>
       <button class="switch-btn" id="btn-system" onclick="setSender('system')">システム</button>
+    </div>
+    <div class="datetime-inputs">
+      <label>日付: <input type="date" id="custom-date-input"></label>
+      <label>時間: <input type="time" id="custom-time-input"></label>
+      <button type="button" onclick="resetCustomDateTime()" style="background:#2a2a2c; border:1px solid #3a3a3c; color:#fff; border-radius:4px; padding:3px 6px; cursor:pointer;">現在時刻</button>
     </div>
     <div class="option-row">
       <label class="checkbox-label">
@@ -1304,9 +1304,7 @@
     </div>
   </div>
 
-  <!-- モーダル各種 -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeAllModals()">
-    <!-- アクションメニュー -->
     <div class="action-menu" id="action-menu" onclick="event.stopPropagation()">
       <div class="action-item" onclick="alert('コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><span>コピー</span></div>
       <div class="action-item" onclick="alert('部分コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg></div><span>部分コピー</span></div>
@@ -1323,7 +1321,6 @@
       <div class="action-item" onclick="alert('カレンダー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>カレンダー</span></div>
     </div>
 
-    <!-- 送信取消モーダル -->
     <div class="confirm-modal" id="confirm-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="confirm-title">メッセージの送信を<br>取り消しますか？</div>
       <div class="confirm-desc">このメッセージは未読のため、相手への<br>通知なしに取り消できます。</div>
@@ -1332,18 +1329,15 @@
       <button class="confirm-btn-cancel" onclick="closeAllModals()">閉じる</button>
     </div>
 
-    <!-- 削除確認ダイアログ -->
     <div class="delete-dialog" id="delete-dialog" onclick="event.stopPropagation()" style="display: none;">
       <div class="delete-dialog-desc">選択したメッセージはこの端末でのみ削除されます。相手の端末からは削除されません。</div>
       <button class="delete-dialog-btn-red" onclick="executeDeleteSelected()">この端末でのみ削除</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
 
-    <!-- アカウント情報編集モーダル -->
     <div class="account-modal" id="account-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title">アカウント情報の変更</div>
       
-      <!-- 自分情報 -->
       <div class="account-section">
         <div class="account-section-title">自分のプロフィール</div>
         <div class="account-row">
@@ -1352,7 +1346,6 @@
         </div>
       </div>
 
-      <!-- 相手情報 -->
       <div class="account-section">
         <div class="account-section-title">相手のプロフィール</div>
         <div class="account-row">
@@ -1366,7 +1359,6 @@
     </div>
   </div>
 
-  <!-- プレミアムページ -->
   <div class="premium-page" id="premium-page">
     <div class="prem-header">
       <div class="prem-title-area">
@@ -1409,18 +1401,16 @@
 
 <script>
   let currentSender = 'me';
-  let myName = '自分';
-  let partnerName = '森安';
+  let myName = localStorage.getItem('line_myName') || '自分';
+  let partnerName = localStorage.getItem('line_partnerName') || '森安';
 
-  // 初期アイコン設定
-  let myAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d26a"/>' +
-    '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#fff"/></svg>'
+  // 標準のLINEロゴ（緑色の背景に白のLINE文字の簡易SVG、または外部画像も可）を初期アイコンに指定
+  const defaultLineLogoSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#06C755"/><path d="M78.5 44.5c0-14.3-13-26-29-26s-29 11.7-29 26c0 12.8 10.6 23.5 25 25.5 1 .1 2.3.4 2.7 1.2.3.7.2 1.8 0 2.5l-.5 3.1c-.2 1.3-1 5 4.4 2.7 5.4-2.4 29.2-17.2 30-31.2.3-5.6-2.6-10.2-2.6-13.8z" fill="#fff"/></svg>'
   );
-  let partnerAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#2b2b2b"/>' +
-    '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#888"/></svg>'
-  );
+
+  let myAvatarUrl = localStorage.getItem('line_myAvatarUrl') || defaultLineLogoSvg;
+  let partnerAvatarUrl = localStorage.getItem('line_partnerAvatarUrl') || defaultLineLogoSvg;
 
   let isInputFocused = false;
   let selectedMsgIndex = null;
@@ -1433,12 +1423,12 @@
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
 
-  const initialMessages = [
-    { sender: 'me', text: 'フライングしたのやっぱりこ가', time: '19:51', unsend: false, date: '2026-08-20' },
+  const defaultMessages = [
+    { sender: 'me', text: 'フライングしたのやっぱりここか', time: '19:51', unsend: false, date: '2026-08-20' },
     { sender: 'me', text: '動画見た', time: '19:51', unsend: false, date: '2026-08-20' },
     { sender: 'partner', text: 'がちか', time: '19:53', unsend: false, date: '2026-08-20' },
     { sender: 'partner', text: '動画ほしい', time: '19:53', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最後見れない、、', time: '20:02', unsend: false, date: '2026-08-20' },
+    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最后見れない、、', time: '20:02', unsend: false, date: '2026-08-20' },
     { sender: 'me', text: '分かってない', time: '20:02', unsend: false, date: '2026-08-20' },
     { sender: 'me', text: '途中しかないけどえーか？', time: '20:03', unsend: false, date: '2026-08-20' },
     { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03', unsend: false, date: '2026-08-20' },
@@ -1451,22 +1441,57 @@
   let messagesData = [];
 
   window.onload = function() {
-    initialMessages.forEach((msg, idx) => {
-      let replyInfo = null;
-      if (msg.replyTargetIndex !== undefined && initialMessages[msg.replyTargetIndex]) {
-        const target = initialMessages[msg.replyTargetIndex];
-        replyInfo = {
-          sender: target.sender,
-          content: target.text
-        };
+    // ローカルストレージからメッセージを読み込み、なければデフォルト値を使用
+    const savedMessages = localStorage.getItem('line_messagesData');
+    if (savedMessages) {
+      try {
+        messagesData = JSON.parse(savedMessages);
+      } catch (e) {
+        messagesData = [];
       }
-      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, replyInfo);
-    });
+    }
+
+    if (messagesData.length === 0) {
+      defaultMessages.forEach((msg, idx) => {
+        let replyInfo = null;
+        if (msg.replyTargetIndex !== undefined && defaultMessages[msg.replyTargetIndex]) {
+          const target = defaultMessages[msg.replyTargetIndex];
+          replyInfo = {
+            sender: target.sender,
+            content: target.text
+          };
+        }
+        appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, replyInfo);
+      });
+      saveToLocalStorage();
+    }
+
+    resetCustomDateTime();
     renderChat();
     updateSendButtonState();
     scrollToBottom();
     document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
   };
+
+  function saveToLocalStorage() {
+    localStorage.setItem('line_messagesData', JSON.stringify(messagesData));
+    localStorage.setItem('line_myName', myName);
+    localStorage.setItem('line_partnerName', partnerName);
+    localStorage.setItem('line_myAvatarUrl', myAvatarUrl);
+    localStorage.setItem('line_partnerAvatarUrl', partnerAvatarUrl);
+  }
+
+  function resetCustomDateTime() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    document.getElementById('custom-date-input').value = `${y}-${m}-${d}`;
+    document.getElementById('custom-time-input').value = `${hours}:${minutes}`;
+  }
 
   function getFormattedDateString(dateStr) {
     const today = new Date();
@@ -1491,14 +1516,6 @@
     }
   }
 
-  function getTodayDateString() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
   function toggleControlPanel() {
     const panel = document.getElementById('control-panel');
     panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
@@ -1509,13 +1526,6 @@
     document.getElementById('btn-me').className = 'switch-btn' + (sender === 'me' ? ' active me' : '');
     document.getElementById('btn-partner').className = 'switch-btn' + (sender === 'partner' ? ' active partner' : '');
     document.getElementById('btn-system').className = 'switch-btn' + (sender === 'system' ? ' active system' : '');
-  }
-
-  function getCurrentTime() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
   }
 
   function focusInput() {
@@ -1567,9 +1577,13 @@
     const text = input.value.trim();
     if (!text) return;
 
-    const timeStr = getCurrentTime();
+    // パネルで設定された日時を取得（未設定なら現在時刻）
+    const customDate = document.getElementById('custom-date-input').value;
+    const customTime = document.getElementById('custom-time-input').value;
+
+    const timeStr = customTime || '12:00';
+    const dateStr = customDate || new Date().toISOString().split('T')[0];
     const isRead = document.getElementById('read-status').checked;
-    const todayStr = getTodayDateString();
 
     let replyInfo = null;
     if (activeReplyTarget) {
@@ -1579,10 +1593,11 @@
       };
     }
 
-    appendMessage(currentSender, text, timeStr, isRead, false, false, todayStr, replyInfo);
+    appendMessage(currentSender, text, timeStr, isRead, false, false, dateStr, replyInfo);
     cancelReply();
 
     renderChat();
+    saveToLocalStorage();
     input.value = '';
     updateSendButtonState();
     scrollToBottom();
@@ -1596,7 +1611,7 @@
       isRead: isRead,
       isImage: isImage,
       unsend: unsend,
-      date: date || getTodayDateString(),
+      date: date,
       replyTo: replyTo || null
     });
   }
@@ -1629,7 +1644,6 @@
   }
 
   function renderChat() {
-    // ヘッダーの名前を最新に設定
     document.getElementById('partner-name-display').innerText = partnerName;
 
     const chatArea = document.getElementById('chat-area');
@@ -1705,7 +1719,6 @@
         </div>`;
 
       let contentHtml = '';
-      
       let replyPreviewHtml = '';
       if (msg.replyTo) {
         let shortText = msg.replyTo.content;
@@ -1758,7 +1771,6 @@
             </div>
           `;
         }
-
       } else {
         msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
 
@@ -1881,7 +1893,6 @@
     document.getElementById('account-modal').style.display = 'none';
   }
 
-  /* アカウント情報設定モーダルの制御 */
   function openAccountModal() {
     closeAllModals();
     document.getElementById('my-name-input').value = myName;
@@ -1901,13 +1912,15 @@
     if (newPartnerName) partnerName = newPartnerName;
 
     closeAllModals();
-    renderChat(); // リアルタイム反映
+    renderChat();
+    saveToLocalStorage();
   }
 
   function executeUnsend() {
     if (selectedMsgIndex !== null) {
       messagesData[selectedMsgIndex].unsend = true;
       renderChat();
+      saveToLocalStorage();
     }
     closeAllModals();
   }
@@ -1976,6 +1989,7 @@
     });
     closeAllModals();
     exitDeleteMode();
+    saveToLocalStorage();
   }
 
   function openPremiumPage() {
@@ -1998,9 +2012,11 @@
 
     const reader = new FileReader();
     reader.onload = function(e) {
-      const timeStr = getCurrentTime();
+      const customDate = document.getElementById('custom-date-input').value;
+      const customTime = document.getElementById('custom-time-input').value;
+      const timeStr = customTime || '12:00';
+      const dateStr = customDate || new Date().toISOString().split('T')[0];
       const isRead = document.getElementById('read-status').checked;
-      const todayStr = getTodayDateString();
       
       let replyInfo = null;
       if (activeReplyTarget) {
@@ -2010,9 +2026,10 @@
         };
       }
 
-      appendMessage(currentSender, e.target.result, timeStr, isRead, true, false, todayStr, replyInfo);
+      appendMessage(currentSender, e.target.result, timeStr, isRead, true, false, dateStr, replyInfo);
       cancelReply();
       renderChat();
+      saveToLocalStorage();
       scrollToBottom();
     };
     reader.readAsDataURL(file);
@@ -2039,7 +2056,8 @@
     reader.onload = function(e) {
       partnerAvatarUrl = e.target.result;
       document.getElementById('partner-avatar-preview').src = partnerAvatarUrl;
-      renderChat(); // リアルタイム反映
+      renderChat();
+      saveToLocalStorage();
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -2057,7 +2075,8 @@
     reader.onload = function(e) {
       myAvatarUrl = e.target.result;
       document.getElementById('my-avatar-preview').src = myAvatarUrl;
-      renderChat(); // リアルタイム反映
+      renderChat();
+      saveToLocalStorage();
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -2068,6 +2087,7 @@
       messagesData = [];
       cancelReply();
       renderChat();
+      saveToLocalStorage();
     }
   }
 
