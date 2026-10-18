@@ -246,11 +246,11 @@
       position: relative;
     }
 
-    /* 相手の吹き出し（左側のしっぽ） */
+    /* 相手の吹き出し（左側のしっぽ：参考資料の数値を左右反転・適用） */
     .partner .msg-bubble {
       background-color: #262628;
       color: #ffffff;
-      border-radius: 18px;
+      border-radius: 19px;
       position: relative;
     }
 
@@ -258,20 +258,20 @@
       content: "";
       position: absolute;
       display: block;
-      left: -9px;
-      top: 0px;
-      width: 20px;
-      height: 30px;
+      left: -10px;
+      top: -21px;
+      width: 24px;
+      height: 36px;
       border-radius: 0 18px 18px 6px/0 18px 18px 1px;
-      box-shadow: 10px -12px 0 -5px #262628 inset;
+      box-shadow: 3px -15px 0 -5px #262628 inset;
       z-index: 2;
     }
 
-    /* 自分の吹き出し（右側のしっぽ） */
+    /* 自分の吹き出し（右側のしっぽ：参考資料の数値をそのまま適用） */
     .me .msg-bubble {
       background-color: #6be779;
       color: #000000;
-      border-radius: 18px;
+      border-radius: 19px;
       font-weight: 500;
       position: relative;
     }
@@ -280,12 +280,12 @@
       content: "";
       position: absolute;
       display: block;
-      right: -9px;
-      top: 0px;
-      width: 20px;
-      height: 30px;
+      right: -10px;
+      top: -21px;
+      width: 24px;
+      height: 36px;
       border-radius: 18px 0 6px 18px/18px 0 1px 18px;
-      box-shadow: -10px -12px 0 -5px #6be779 inset;
+      box-shadow: -3px -15px 0 -5px #6be779 inset;
       z-index: 2;
     }
 
