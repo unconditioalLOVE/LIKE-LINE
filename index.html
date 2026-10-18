@@ -245,6 +245,21 @@
       line-height: 1.4;
     }
 
+    /* 送信取り消しシステムメッセージ風 */
+    .un-msg {
+      align-self: center;
+      color: #999999;
+      font-size: 11.5px;
+      text-align: center;
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+    .un-msg span {
+      color: #4b88ff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
     /* ---------- メッセージ行 ---------- */
     .msg-group {
       display: flex;
@@ -306,6 +321,9 @@
       position: relative;
       isolation: isolate;
       border-radius: 19px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     /* 自分（右）: しっぽは右上 */
@@ -541,6 +559,303 @@
     #file-input, #avatar-input {
       display: none;
     }
+
+    /* ---------- 長押しメニュー & モーダルオーバーレイ ---------- */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 1枚目のメニューボード */
+    .action-menu {
+      position: absolute;
+      background-color: #262628;
+      border-radius: 14px;
+      width: 270px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 101;
+    }
+
+    .action-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 10px;
+    }
+
+    .action-icon-box {
+      width: 42px;
+      height: 42px;
+      background-color: #38383a;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-icon-box svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* 2枚目の確認モーダル */
+    .confirm-modal {
+      background-color: #222224;
+      border-radius: 16px;
+      width: 290px;
+      padding: 24px 16px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 102;
+    }
+
+    .confirm-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .confirm-desc {
+      font-size: 12px;
+      color: #999999;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    .confirm-btn-green {
+      width: 100%;
+      background: linear-gradient(90deg, #00d26a, #00c2cb);
+      color: #ffffff;
+      border: none;
+      border-radius: 22px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .confirm-btn-green span {
+      background: rgba(0,0,0,0.25);
+      font-size: 9px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .confirm-btn-dark {
+      width: 100%;
+      background-color: #2c2c2e;
+      color: #ffffff;
+      border: none;
+      border-radius: 22px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .confirm-btn-cancel {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* ---------- 4枚目のプレミアムページ画面 ---------- */
+    .premium-page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      color: #000000;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .prem-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+    }
+
+    .prem-title-area {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    .prem-title-area svg {
+      width: 22px;
+      height: 22px;
+      fill: #2f65ff;
+    }
+
+    .prem-close {
+      font-size: 24px;
+      cursor: pointer;
+      color: #333333;
+      font-weight: 300;
+    }
+
+    .prem-notice-box {
+      margin: 0 16px;
+      border: 1px solid #eeeeee;
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .prem-notice-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #333333;
+      cursor: pointer;
+    }
+
+    .prem-notice-row span:last-child {
+      color: #999999;
+    }
+
+    .prem-hero-card {
+      margin: 16px;
+      background: linear-gradient(135deg, #2b70ff, #1a56db);
+      border-radius: 20px;
+      color: #ffffff;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .prem-hero-subtitle {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+
+    .prem-hero-title {
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    .prem-mockup {
+      background-color: #d8e3ff;
+      width: 100%;
+      max-width: 260px;
+      height: 140px;
+      border-radius: 12px;
+      position: relative;
+      margin-bottom: 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .prem-check-list {
+      background-color: #ffffff;
+      color: #333333;
+      width: 100%;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .prem-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: #222222;
+    }
+
+    .prem-check-item svg {
+      width: 18px;
+      height: 18px;
+      stroke: #2b70ff;
+      stroke-width: 2.5;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    .prem-footer {
+      margin-top: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .prem-start-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #2b70ff, #1e4fd8);
+      color: #ffffff;
+      border: none;
+      border-radius: 28px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(43,112,255,0.3);
+    }
+
+    .prem-footer-sub {
+      font-size: 11px;
+      color: #666666;
+      text-decoration: underline;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -627,45 +942,109 @@
     </div>
   </div>
 
+  <!-- 各種オーバーレイモーダル -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeAllModals()">
+    <!-- 1枚目のアクションメニュー -->
+    <div class="action-menu" id="action-menu" onclick="event.stopPropagation()">
+      <div class="action-item" onclick="alert('コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><span>コピー</span></div>
+      <div class="action-item" onclick="alert('部分コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg></div><span>部分コピー</span></div>
+      <div class="action-item" onclick="alert('Keepメモ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><span>Keepメモ</span></div>
+      <div class="action-item" onclick="alert('削除')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><span>削除</span></div>
+      
+      <div class="action-item" onclick="openConfirmModal()"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><span>送信取消</span></div>
+      <div class="action-item" onclick="alert('リプライ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></div><span>リプライ</span></div>
+      <div class="action-item" onclick="alert('転送')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div><span>転送</span></div>
+      <div class="action-item" onclick="alert('ノート')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span>ノート</span></div>
+
+      <div class="action-item" onclick="alert('アナウンス')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M3 10v4a1 1 0 0 0 1 1h3l9 4.5V5.5L7 9H4a1 1 0 0 0-1 1z"/></svg></div><span>アナウンス</span></div>
+      <div class="action-item" onclick="alert('スクショ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><span>スクショ</span></div>
+      <div class="action-item" onclick="alert('カレンダー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>カレンダー</span></div>
+    </div>
+
+    <!-- 2枚目の確認モーダル -->
+    <div class="confirm-modal" id="confirm-modal" onclick="event.stopPropagation()">
+      <div class="confirm-title">メッセージの送信を<br>取り消しますか？</div>
+      <div class="confirm-desc">このメッセージは未読のため、相手への<br>通知なしに取り消できます。</div>
+      <button class="confirm-btn-green" onclick="openPremiumPage()">通知なしで送信取消 <span>プレミアム</span></button>
+      <button class="confirm-btn-dark" onclick="executeUnsend()">送信取消</button>
+      <button class="confirm-btn-cancel" onclick="closeAllModals()">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 4枚目のプレミアムページ -->
+  <div class="premium-page" id="premium-page">
+    <div class="prem-header">
+      <div class="prem-title-area">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span>プレミアム</span>
+      </div>
+      <div class="prem-close" onclick="closePremiumPage()">×</div>
+    </div>
+    <div class="prem-notice-box">
+      <div class="prem-notice-row"><span>Agent i特典終了のお知らせ</span><span>›</span></div>
+      <div class="prem-notice-row"><span>今後の特典終了のお知らせ</span><span>›</span></div>
+    </div>
+    <div class="prem-hero-card">
+      <div class="prem-hero-subtitle">LYPプレミアムなら</div>
+      <div class="prem-hero-title">相手に気づかれずに<br>送信取消できます！</div>
+      <div class="prem-mockup">
+        <div style="background:rgba(0,0,0,0.1); padding:8px 12px; border-radius:12px; font-size:11px; color:#333;">送信を取り消しました</div>
+      </div>
+      <div class="prem-check-list">
+        <div class="prem-check-item">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>未読メッセージを<b>通知なしで取消可能</b></span>
+        </div>
+        <div class="prem-check-item">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>送信取消できる期間が<b>7日間に延長</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="prem-footer">
+      <button class="prem-start-btn">今すぐはじめる<br><span style="font-size:11px; font-weight:normal;">月額650円 (税込)</span></button>
+      <span class="prem-footer-sub">アプリから登録した場合は、ここから会員情報を復元</span>
+    </div>
+  </div>
+
   <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
   <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
 </div>
 
 <script>
   let currentSender = 'me';
-  // 画像未設定のときの初期アイコン（外部サービスに頼らないSVG）
   let partnerAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#4a4a4a"/>' +
     '<circle cx="50" cy="40" r="18" fill="#8a8a8a"/><path d="M14 100c0-22 16-36 36-36s36 14 36 36z" fill="#8a8a8a"/></svg>'
   );
   let isInputFocused = false;
+  let selectedMsgIndex = null; // 長押しされたメッセージのインデックス
 
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
 
   const initialMessages = [
-    { sender: 'me', text: 'フライングしたのやっぱりこが', time: '19:51' },
-    { sender: 'me', text: '動画見た', time: '19:51' },
-    { sender: 'partner', text: 'がちか', time: '19:53' },
-    { sender: 'partner', text: '動画ほしい', time: '19:53' },
-    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最後見れない、、', time: '20:02' },
-    { sender: 'me', text: '分かってない', time: '20:02' },
-    { sender: 'me', text: '途中しかないけどえーか？', time: '20:03' },
-    { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03' },
-    { sender: 'partner', text: 'あーー', time: '20:04' },
-    { sender: 'partner', text: 'とりまほしい', time: '20:04' },
-    { sender: 'me', text: '普通に意味がわからない', time: '20:06' },
-    { sender: 'me', text: '両親来なかったんか', time: '20:06' },
-    { sender: 'partner', text: '多分来れてない', time: '20:11' },
-    { sender: 'partner', text: 'ああお前しか映ってないのか', time: '20:11' }
+    { sender: 'me', text: 'フライングしたのやっぱりこが', time: '19:51', unsend: false },
+    { sender: 'me', text: '動画見た', time: '19:51', unsend: false },
+    { sender: 'partner', text: 'がちか', time: '19:53', unsend: false },
+    { sender: 'partner', text: '動画ほしい', time: '19:53', unsend: false },
+    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最後見れない、、', time: '20:02', unsend: false },
+    { sender: 'me', text: '分かってない', time: '20:02', unsend: false },
+    { sender: 'me', text: '途中しかないけどえーか？', time: '20:03', unsend: false },
+    { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03', unsend: false },
+    { sender: 'partner', text: 'あーー', time: '20:04', unsend: false },
+    { sender: 'partner', text: 'とりまほしい', time: '20:04', unsend: false },
+    { sender: 'me', text: '普通に意味がわからない', time: '20:06', unsend: false },
+    { sender: 'me', text: '両親来なかったんか', time: '20:06', unsend: false },
+    { sender: 'partner', text: '多分来れてない', time: '20:11', unsend: false },
+    { sender: 'partner', text: 'ああお前しか映ってないのか', time: '20:11', unsend: false }
   ];
 
   let messagesData = [];
 
   window.onload = function() {
     initialMessages.forEach(msg => {
-      // 自分のメッセージには既読をつける
-      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false);
+      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false);
     });
     renderChat();
     updateSendButtonState();
@@ -739,20 +1118,21 @@
     const timeStr = getCurrentTime();
     const isRead = document.getElementById('read-status').checked;
 
-    appendMessage(currentSender, text, timeStr, isRead, false);
+    appendMessage(currentSender, text, timeStr, isRead, false, false);
     renderChat();
     input.value = '';
     updateSendButtonState();
     scrollToBottom();
   }
 
-  function appendMessage(sender, content, time, isRead, isImage) {
+  function appendMessage(sender, content, time, isRead, isImage, unsend) {
     messagesData.push({
       sender: sender,
       content: content,
       time: time,
       isRead: isRead,
-      isImage: isImage
+      isImage: isImage,
+      unsend: unsend
     });
   }
 
@@ -771,9 +1151,17 @@
         continue;
       }
 
-      // 直前が同じ送信者・同じ時刻(分)なら「同グループの2通目以降」
+      // 送信取り消しされたメッセージの表示（3枚目の状態）
+      if (msg.unsend) {
+        const unDiv = document.createElement('div');
+        unDiv.className = 'un-msg';
+        unDiv.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
+        chatArea.appendChild(unDiv);
+        continue;
+      }
+
       const prev = messagesData[i - 1];
-      const isGrouped = !!(prev && prev.sender === msg.sender && prev.time === msg.time);
+      const isGrouped = !!(prev && !prev.unsend && prev.sender === msg.sender && prev.time === msg.time);
 
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
@@ -793,7 +1181,7 @@
       if (msg.isImage) {
         contentHtml = `<img src="${msg.content}" class="msg-img">`;
       } else {
-        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
+        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()">${escapeHtml(msg.content)}</div>`;
       }
 
       if (msg.sender === 'partner') {
@@ -814,6 +1202,58 @@
     updateScrollButton();
   }
 
+  // タッチ長押し・右クリック（長押し）のハンドリング
+  let touchTimer = null;
+  function handleTouchStart(e, index) {
+    touchTimer = setTimeout(() => {
+      e.preventDefault();
+      showActionMenu(index);
+    }, 600); // 0.6秒長押し
+  }
+  function handleTouchEnd() {
+    clearTimeout(touchTimer);
+  }
+  function handleLongPress(e, index) {
+    e.preventDefault();
+    showActionMenu(index);
+  }
+
+  function showActionMenu(index) {
+    selectedMsgIndex = index;
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('action-menu').style.display = 'grid';
+    document.getElementById('confirm-modal').style.display = 'none';
+  }
+
+  function openConfirmModal() {
+    document.getElementById('action-menu').style.display = 'none';
+    document.getElementById('confirm-modal').style.display = 'flex';
+  }
+
+  function closeAllModals() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.getElementById('action-menu').style.display = 'none';
+    document.getElementById('confirm-modal').style.display = 'none';
+  }
+
+  // 送信取消を実行して3枚目の状態にする（見た目のみ、実際のメッセージは削除せずフラグ立てる）
+  function executeUnsend() {
+    if (selectedMsgIndex !== null) {
+      messagesData[selectedMsgIndex].unsend = true;
+      renderChat();
+    }
+    closeAllModals();
+  }
+
+  // 4枚目のプレミアムページを開く
+  function openPremiumPage() {
+    closeAllModals();
+    document.getElementById('premium-page').style.display = 'flex';
+  }
+  function closePremiumPage() {
+    document.getElementById('premium-page').style.display = 'none';
+  }
+
   function handleKeyPress(e) {
     if (e.key === 'Enter') {
       sendMessage();
@@ -828,7 +1268,7 @@
     reader.onload = function(e) {
       const timeStr = getCurrentTime();
       const isRead = document.getElementById('read-status').checked;
-      appendMessage(currentSender, e.target.result, timeStr, isRead, true);
+      appendMessage(currentSender, e.target.result, timeStr, isRead, true, false);
       renderChat();
       scrollToBottom();
     };
@@ -837,8 +1277,8 @@
   }
 
   function changePartnerName() {
-    const currentName = document.getElementById('partner-name-display').innerText;
-    const newName = prompt('相手の名前を入力してください:', currentName);
+    const currentName = document.getElementById('partner-name-display的表现', document.getElementById('partner-name-display').innerText);
+    const newName = prompt('相手の名前を入力してください:', document.getElementById('partner-name-display').innerText);
     if (newName !== null && newName.trim() !== '') {
       document.getElementById('partner-name-display').innerText = newName.trim();
     }
@@ -882,7 +1322,6 @@
     updateScrollButton();
   }
 
-  // 一番下にいないときだけ「↓」ボタンを出す
   function updateScrollButton() {
     const chatArea = document.getElementById('chat-area');
     const btn = document.getElementById('scroll-bottom-btn');
