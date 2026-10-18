@@ -17,6 +17,9 @@
 
     :root {
       --bg: #1a1a1a;
+      --home-bg: #111111;
+      --header-bg: #111111;
+      --search-bg: #111111;
       --bar: #111111;
       --bubble-partner: #2a2a2a;
       --bubble-me: #69e779;
@@ -63,7 +66,7 @@
       height: 100vh;
       height: 100dvh;
       max-height: 932px;
-      background-color: var(--bg);
+      background-color: var(--home-bg);
       display: flex;
       flex-direction: column;
       position: relative;
@@ -120,7 +123,7 @@
     }
 
     .top-header {
-      background-color: var(--bg);
+      background-color: var(--header-bg);
       height: 52px;
       padding: 0 16px;
       display: flex;
@@ -165,7 +168,7 @@
 
     .search-bar-container {
       padding: 6px 16px 12px 16px;
-      background-color: var(--bg);
+      background-color: var(--search-bg);
       flex-shrink: 0;
     }
 
@@ -253,6 +256,7 @@
       padding: 10px 16px;
       gap: 12px;
       cursor: pointer;
+      position: relative;
     }
     .list-item:hover {
       background-color: rgba(255,255,255,0.03);
@@ -290,6 +294,18 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .friend-delete-btn {
+      background-color: #ff3b30;
+      color: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      flex-shrink: 0;
     }
 
     .section-header {
@@ -753,13 +769,22 @@
 
     .msg-img {
       max-width: 210px;
-      border-radius: 14px;
+      max-height: 250px;
+      border-radius: 12px;
       cursor: pointer;
       display: block;
-      margin: 8px;
+      margin: 4px 0;
+      object-fit: cover;
     }
-    .msg-group.partner .msg-img { margin-top: 4px; }
-    .msg-group.partner.grouped .msg-img { margin-top: 0; }
+
+    .imported-media-placeholder {
+      padding: 6px 0;
+      font-size: 13px;
+      color: #4da6ff;
+      text-decoration: underline;
+      cursor: pointer;
+      display: inline-block;
+    }
 
     .input-reply-bar {
       background-color: #262628;
@@ -1032,7 +1057,7 @@
       background: #444;
     }
 
-    #file-input, #avatar-input, #my-avatar-input, #add-friend-avatar-input {
+    #file-input, #avatar-input, #my-avatar-input, #add-friend-avatar-input, #media-embed-input {
       display: none;
     }
 
@@ -1717,15 +1742,16 @@
   <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
   <input type="file" id="my-avatar-input" accept="image/*" onchange="changeMyAvatar(event)">
   <input type="file" id="add-friend-avatar-input" accept="image/*" onchange="changeNewFriendAvatar(event)">
+  <input type="file" id="media-embed-input" accept="image/*,video/*" onchange="embedMediaFile(event)">
 </div>
 
 <script>
   let friendsList = [];
-
   let currentFriendId = null;
   let currentMainTab = 'talk'; 
   let currentSender = 'me';
   let myName = '自分';
+  let targetEmbedMsgIndex = null;
 
   let myAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d26a"/>' +
@@ -1747,10 +1773,40 @@
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
 
   window.onload = function() {
+    loadFromLocalStorage();
     setNowDateTime();
     renderHomeView();
     updateSendButtonState();
   };
+
+  function saveToLocalStorage() {
+    try {
+      localStorage.setItem('line_like_friends', JSON.stringify(friendsList));
+      localStorage.setItem('line_like_my_name', myName);
+      localStorage.setItem('line_like_my_avatar', myAvatarUrl);
+    } catch(e) {
+      console.error('Failed to save to localStorage', e);
+    }
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const savedFriends = localStorage.getItem('line_like_friends');
+      if (savedFriends) {
+        friendsList = JSON.parse(savedFriends);
+      }
+      const savedName = localStorage.getItem('line_like_my_name');
+      if (savedName) {
+        myName = savedName;
+      }
+      const savedAvatar = localStorage.getItem('line_like_my_avatar');
+      if (savedAvatar) {
+        myAvatarUrl = savedAvatar;
+      }
+    } catch(e) {
+      console.error('Failed to load from localStorage', e);
+    }
+  }
 
   function setNowDateTime() {
     const now = new Date();
@@ -1806,6 +1862,15 @@
     renderChat();
     scrollToBottom();
     document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
+  }
+
+  function deleteFriend(event, friendId) {
+    event.stopPropagation();
+    if (confirm('この友達およびトーク履歴を削除しますか？')) {
+      friendsList = friendsList.filter(f => f.id !== friendId);
+      saveToLocalStorage();
+      renderHomeView();
+    }
   }
 
   function renderHomeView() {
@@ -1864,7 +1929,7 @@
         } else {
           friendsList.forEach(friend => {
             const lastMsg = friend.messages.length > 0 ? friend.messages[friend.messages.length - 1] : null;
-            const subText = lastMsg ? (lastMsg.isImage ? '[画像]' : lastMsg.text) : 'まだメッセージはありません';
+            const subText = lastMsg ? (lastMsg.isImage || lastMsg.isVideo ? (lastMsg.isImage ? '[画像]' : '[動画]') : lastMsg.text) : 'まだメッセージはありません';
             
             const item = document.createElement('div');
             item.className = 'list-item';
@@ -1875,6 +1940,7 @@
                 <div class="item-name">${escapeHtml(friend.name)}</div>
                 <div class="item-sub">${escapeHtml(subText)}</div>
               </div>
+              <button class="friend-delete-btn" onclick="deleteFriend(event, '${friend.id}')">削除</button>
             `;
             container.appendChild(item);
           });
@@ -1908,6 +1974,7 @@
                 <div class="item-name">${escapeHtml(friend.name)}</div>
                 <div class="item-sub">プロフィール詳細</div>
               </div>
+              <button class="friend-delete-btn" onclick="deleteFriend(event, '${friend.id}')">削除</button>
             `;
             container.appendChild(item);
           });
@@ -1946,39 +2013,65 @@
     }
 
     let friendName = nameInput;
+    let partnerNames = new Set();
     let parsedMessages = [];
-    let partnerName = null;
 
     if (rawText) {
-      // 1. タイトル行「[LINE] 〇〇とのトーク」から相手の名前を確実に抽出（大文字小文字や空白の揺れにも対応）
-      const titleMatch = rawText.match(/(?:\[.*?LINE.*?\])?\s*(.+?)\s*とのトーク/);
+      const cleanText = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      
+      // 苗字と名前の間の半角・全角空白を考慮してタイトルからパートナー名を抽出
+      const titleMatch = cleanText.match(/(?:\[.*?LINE.*?\])?\s*([^\n]+?)\s*とのトーク/);
       if (titleMatch) {
-        partnerName = titleMatch[1].trim();
+        let rawPartner = titleMatch[1].replace(/\[.*$/, '').trim();
+        rawPartner = rawPartner.replace(/\s+/g, ' ');
+        partnerNames.add(rawPartner);
       }
 
-      const lines = rawText.split('\n');
+      const lines = cleanText.split('\n');
       let currentDate = new Date().toISOString().split('T')[0];
 
-      // タイトルが見つからない場合、最初に出てくる発言者名を相手の名前とする
-      if (!partnerName) {
-        for (let line of lines) {
-          const timeMatch = line.trim().match(/^(\d{2}:\d{2})/);
-          if (timeMatch) {
-            const remainder = line.trim().substring(timeMatch[1].length).trim();
-            const tokens = remainder.split(/[\t\s]+/);
-            if (tokens.length >= 2 && tokens[0] !== 'メッセージの送信を取り消しました' && !tokens[0].includes('がアナウンスしました')) {
-              partnerName = tokens[0];
-              break;
+      // 本文中の各行から複数のトークン（名字・名前の半角スペース分割対応）をパートナー候補として収集
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+
+        const dateMatch = line.match(/^(\d{4}\/\d{2}\/\d{2})/);
+        if (dateMatch) {
+          currentDate = dateMatch[1].replace(/\//g, '-');
+          continue;
+        }
+
+        const timeMatch = line.match(/^(\d{2}:\d{2})/);
+        if (timeMatch) {
+          const timeStr = timeMatch[1];
+          const remainder = line.substring(timeStr.length).trim();
+          
+          const tokens = remainder.split(/[\t\s]+/);
+          if (tokens.length >= 2) {
+            const potentialSender = tokens[0];
+            if (potentialSender && potentialSender !== 'メッセージの送信を取り消しました' && !potentialSender.includes('がアナウンスしました')) {
+              partnerNames.add(potentialSender);
+              if (tokens.length >= 3 && tokens[1].length > 0 && !tokens[1].match(/^\d{2}:\d{2}$/)) {
+                partnerNames.add(potentialSender + ' ' + tokens[1]);
+              }
             }
           }
         }
       }
 
+      let mainPartnerName = nameInput;
+      if (!mainPartnerName && partnerNames.size > 0) {
+        mainPartnerName = Array.from(partnerNames)[0];
+      }
+      if (!mainPartnerName) {
+        mainPartnerName = 'てすとくん';
+      }
+      partnerNames.add(mainPartnerName);
+
       for (let line of lines) {
         line = line.trim();
         if (!line) continue;
 
-        // 日付行の判定 (例: 2026/04/19(日))
         const dateMatch = line.match(/^(\d{4}\/\d{2}\/\d{2})/);
         if (dateMatch) {
           currentDate = dateMatch[1].replace(/\//g, '-');
@@ -1997,7 +2090,15 @@
           
           if (tokens.length >= 2) {
             const potentialSender = tokens[0];
-            if (potentialSender && potentialSender !== 'メッセージの送信を取り消しました' && !potentialSender.includes('がアナウンスしました')) {
+            const twoTokenSender = tokens.length >= 3 ? tokens[0] + ' ' + tokens[1] : '';
+
+            if (partnerNames.has(twoTokenSender)) {
+              senderName = twoTokenSender;
+              messageText = remainder.substring(senderName.length).trim();
+            } else if (partnerNames.has(potentialSender)) {
+              senderName = potentialSender;
+              messageText = remainder.substring(senderName.length).trim();
+            } else if (potentialSender && potentialSender !== 'メッセージの送信を取り消しました' && !potentialSender.includes('がアナウンスしました')) {
               senderName = potentialSender;
               messageText = remainder.substring(senderName.length).trim();
             } else {
@@ -2011,16 +2112,19 @@
             continue;
           }
 
-          // 発言者が相手の名前と一致する場合は partner、それ以外（自分や別名）は me
-          const isMe = (senderName && partnerName && senderName !== partnerName);
+          const isPartner = senderName && partnerNames.has(senderName);
           const isUnsend = messageText.includes('メッセージの送信を取り消しました');
+          const isImg = messageText === '[写真]' || messageText === '[画像]';
+          const isVid = messageText === '[動画]';
 
           parsedMessages.push({
-            sender: isMe ? 'me' : 'partner',
+            sender: isPartner ? 'partner' : 'me',
             text: isUnsend ? 'メッセージの送信を取り消しました' : messageText,
             time: timeStr,
             isRead: true,
-            isImage: messageText === '[写真]' || messageText === '[動画]',
+            isImage: isImg,
+            isVideo: isVid,
+            mediaUrl: null,
             unsend: isUnsend,
             date: currentDate,
             replyTo: null
@@ -2028,13 +2132,11 @@
         }
       }
 
-      if (!friendName && partnerName) {
-        friendName = partnerName;
-      }
+      friendName = mainPartnerName;
     }
 
     if (!friendName) {
-      friendName = partnerName || 'てすとくん';
+      friendName = 'てすとくん';
     }
 
     const newId = 'friend_' + new Date().getTime();
@@ -2046,6 +2148,7 @@
     };
 
     friendsList.push(newFriend);
+    saveToLocalStorage();
     closeAllModals();
     openChat(newId);
   }
@@ -2135,7 +2238,7 @@
     if (activeReplyTarget) {
       replyInfo = {
         sender: activeReplyTarget.sender,
-        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.text
+        content: (activeReplyTarget.isImage || activeReplyTarget.isVideo) ? (activeReplyTarget.isImage ? '[画像]' : '[動画]') : activeReplyTarget.text
       };
     }
 
@@ -2151,11 +2254,14 @@
       time: timeStr,
       isRead: document.getElementById('read-status').checked,
       isImage: false,
+      isVideo: false,
+      mediaUrl: null,
       unsend: false,
       date: dateStr,
       replyTo: replyInfo
     });
 
+    saveToLocalStorage();
     cancelReply();
     renderChat();
     input.value = '';
@@ -2172,7 +2278,7 @@
     activeReplyTarget = targetMsg;
     const label = targetMsg.sender === 'me' ? myName : friend.name;
     document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
-    document.getElementById('reply-preview-text').innerText = targetMsg.isImage ? '[画像]' : targetMsg.text;
+    document.getElementById('reply-preview-text').innerText = (targetMsg.isImage || targetMsg.isVideo) ? (targetMsg.isImage ? '[画像]' : '[動画]') : targetMsg.text;
     document.getElementById('input-reply-bar').style.display = 'flex';
     document.getElementById('message-input').focus();
   }
@@ -2253,8 +2359,17 @@
       }
 
       let contentHtml = '';
-      if (msg.isImage) {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<div style="padding:4px 0; font-size:13px; color:#ccc;">[画像]</div></div>`;
+      if (msg.isImage || msg.isVideo) {
+        if (msg.mediaUrl) {
+          if (msg.isVideo) {
+            contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<video src="${msg.mediaUrl}" controls class="msg-img"></video></div>`;
+          } else {
+            contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<img src="${msg.mediaUrl}" class="msg-img"></div>`;
+          }
+        } else {
+          const label = msg.isImage ? '[画像]' : '[動画]';
+          contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<span class="imported-media-placeholder" onclick="event.stopPropagation(); triggerMediaEmbed(${i})">${label} (タップして追加)</span></div>`;
+        }
       } else {
         const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.text)}</div>` : escapeHtml(msg.text);
         contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${bodyContent}</div>`;
@@ -2275,6 +2390,35 @@
       chatArea.appendChild(msgDiv);
     });
     updateScrollButton();
+  }
+
+  function triggerMediaEmbed(index) {
+    targetEmbedMsgIndex = index;
+    document.getElementById('media-embed-input').click();
+  }
+
+  function embedMediaFile(event) {
+    const file = event.target.files[0];
+    if (!file || targetEmbedMsgIndex === null) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const friend = getCurrentActiveFriend();
+      if (friend && friend.messages[targetEmbedMsgIndex]) {
+        friend.messages[targetEmbedMsgIndex].mediaUrl = e.target.result;
+        if (file.type.startsWith('video/')) {
+          friend.messages[targetEmbedMsgIndex].isVideo = true;
+          friend.messages[targetEmbedMsgIndex].isImage = false;
+        } else {
+          friend.messages[targetEmbedMsgIndex].isImage = true;
+          friend.messages[targetEmbedMsgIndex].isVideo = false;
+        }
+        saveToLocalStorage();
+        renderChat();
+      }
+      targetEmbedMsgIndex = null;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   }
 
   let touchTimer = null, startX = 0, startY = 0, currentSwipeRow = null, isSwiping = false;
@@ -2384,12 +2528,14 @@
     } else {
       renderHomeView();
     }
+    saveToLocalStorage();
     closeAllModals();
   }
 
   function executeUnsend() {
     if (selectedMsgIndex !== null) {
       getCurrentActiveFriend().messages[selectedMsgIndex].unsend = true;
+      saveToLocalStorage();
       renderChat();
     }
     closeAllModals();
@@ -2450,6 +2596,7 @@
     if (!friend) return;
     const indices = Array.from(selectedToDelete).sort((a, b) => b - a);
     indices.forEach(idx => friend.messages.splice(idx, 1));
+    saveToLocalStorage();
     closeAllModals();
     exitDeleteMode();
   }
@@ -2475,7 +2622,7 @@
       if (!friend) return;
       let replyInfo = null;
       if (activeReplyTarget) {
-        replyInfo = { sender: activeReplyTarget.sender, content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.text };
+        replyInfo = { sender: activeReplyTarget.sender, content: (activeReplyTarget.isImage || activeReplyTarget.isVideo) ? (activeReplyTarget.isImage ? '[画像]' : '[動画]') : activeReplyTarget.text };
       }
       const overrideDate = document.getElementById('override-date-input').value;
       const overrideTime = document.getElementById('override-time-input').value;
@@ -2489,10 +2636,13 @@
         time: timeStr,
         isRead: document.getElementById('read-status').checked,
         isImage: true,
+        isVideo: false,
+        mediaUrl: e.target.result,
         unsend: false,
         date: dateStr,
         replyTo: replyInfo
       });
+      saveToLocalStorage();
       cancelReply();
       renderChat();
       scrollToBottom();
@@ -2511,6 +2661,7 @@
       if (friend) {
         friend.avatar = e.target.result;
         document.getElementById('partner-avatar-preview').src = e.target.result;
+        saveToLocalStorage();
         renderChat();
       }
     };
@@ -2526,6 +2677,7 @@
     reader.onload = function(e) {
       myAvatarUrl = e.target.result;
       document.getElementById('my-avatar-preview').src = myAvatarUrl;
+      saveToLocalStorage();
       renderChat();
       renderHomeView();
     };
@@ -2537,6 +2689,7 @@
     if (confirm('チャット履歴を全消去しますか？')) {
       const friend = getCurrentActiveFriend();
       if (friend) friend.messages = [];
+      saveToLocalStorage();
       cancelReply();
       renderChat();
     }
