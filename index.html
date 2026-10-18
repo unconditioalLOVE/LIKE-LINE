@@ -1,246 +1,665 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#171717">
-<title>Chat — Chat Simulator</title>
-<style>
-:root{
-  --bg:#171717; --header:#191919; --panel:#252525; --incoming:#2b2b2b;
-  --outgoing:#6be779; --text:#f7f7f7; --muted:#858585; --line:#303030;
-  --blue:#4f7cff;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background:#090909;color:var(--text);-webkit-font-smoothing:antialiased}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-.app{width:100%;height:100dvh;max-width:560px;margin:auto;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
-.statusbar{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 30px;background:var(--header);font-size:16px;font-weight:650;letter-spacing:.1px}
-.status-right{display:flex;align-items:center;gap:7px;font-size:14px}
-.signal{font-size:16px;letter-spacing:-3px;margin-right:2px}
-.battery{border:1.5px solid #eee;border-radius:5px;padding:1px 4px;font-size:12px;line-height:16px;position:relative}
-.battery:after{content:"";position:absolute;right:-4px;top:5px;width:2px;height:7px;background:#eee;border-radius:0 2px 2px 0}
-.header{height:63px;flex:none;background:var(--header);display:flex;align-items:center;padding:0 19px 0 15px;gap:17px;border-bottom:1px solid #222}
-.back{font-size:34px;font-weight:200;line-height:1;width:25px;color:#f4f4f4;transform:translateY(-2px)}
-.name{font-size:19px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;cursor:pointer}
-.header-actions{display:flex;align-items:center;gap:22px;color:#f5f5f5}
-.header-actions button{border:0;background:none;color:inherit;padding:0;font-size:25px;line-height:1}
-.header-actions .calendar{border:2px solid #eee;border-radius:4px;font-size:15px;font-weight:700;width:25px;height:27px;display:grid;place-items:center;position:relative}
-.header-actions .calendar:before{content:"";position:absolute;top:5px;left:0;right:0;border-top:2px solid #eee}
-.announcement{height:66px;flex:none;margin:0 10px;background:#292929;border-radius:0 0 13px 13px;display:flex;align-items:center;gap:15px;padding:0 19px;box-shadow:0 3px 10px #0002;cursor:pointer}
-.megaphone{color:var(--blue);font-size:25px;line-height:1}
-.announcement-text{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
-.chevron{border-right:2px solid #777;border-bottom:2px solid #777;width:12px;height:12px;transform:rotate(45deg) translateY(-3px);margin-right:3px}
-.chat{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 10px 18px;display:flex;flex-direction:column;gap:12px;scrollbar-width:none;background:var(--bg)}
-.chat::-webkit-scrollbar{display:none}
-.day-label{align-self:center;background:#222;color:#aaa;border-radius:12px;padding:5px 11px;font-size:11px;margin:5px 0 1px}
-.msg{display:flex;align-items:flex-end;gap:7px;max-width:100%;position:relative}
-.msg.partner{align-self:flex-start}
-.msg.me{align-self:flex-end;flex-direction:row-reverse}
-.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;background:#333;align-self:flex-end;cursor:pointer}
-.avatar-spacer{width:38px;flex:none}
-.content{max-width:min(78%,340px);display:flex;flex-direction:column;min-width:0}
-.bubble{font-size:16px;line-height:1.43;padding:10px 13px;border-radius:20px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
-.partner .bubble{background:var(--incoming);color:#f7f7f7;border-top-left-radius:5px}
-.me .bubble{background:var(--outgoing);color:#07170a;border-top-right-radius:5px}
-.meta{font-size:10px;color:#898989;display:flex;flex-direction:column;justify-content:flex-end;gap:1px;min-width:30px;padding-bottom:2px;line-height:1.25}
-.me .meta{align-items:flex-end}
-.partner .meta{align-items:flex-start}
-.receipt{white-space:nowrap}
-.photo{display:block;max-width:220px;max-height:300px;object-fit:cover;border-radius:13px;cursor:pointer}
-.system{align-self:center;max-width:86%;text-align:center;color:#aaa;background:#242424;border-radius:13px;padding:7px 12px;font-size:12px;line-height:1.5;white-space:pre-wrap}
-.composer{flex:none;background:#111;border-top:1px solid #222;padding:9px 13px calc(10px + env(safe-area-inset-bottom));}
-.composer-row{display:flex;align-items:center;gap:12px;min-height:45px}
-.tool{border:0;background:none;color:#b8b8b8;padding:0;display:grid;place-items:center;width:31px;height:38px;flex:none}
-.tool svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.message-box{flex:1;min-width:0;background:#202020;border:1px solid #2d2d2d;border-radius:24px;display:flex;align-items:center;min-height:42px;padding:0 13px}
-.message-box input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#f5f5f5;font-size:16px;padding:9px 0}
-.message-box input::placeholder{color:#777}
-.send{width:34px;height:34px;border:0;border-radius:50%;background:var(--outgoing);color:#0b1a0d;font-size:18px;font-weight:700;display:grid;place-items:center;flex:none}
-.editor-toggle{position:absolute;right:13px;bottom:76px;border:1px solid #3a3a3a;border-radius:20px;background:#242424;color:#ddd;padding:7px 11px;font-size:11px;box-shadow:0 3px 12px #0005}
-.editor{position:absolute;inset:auto 0 0;background:#202020;border-top:1px solid #393939;padding:14px 15px calc(16px + env(safe-area-inset-bottom));z-index:30;box-shadow:0 -8px 30px #0008;transform:translateY(110%);transition:transform .22s ease;max-height:75dvh;overflow:auto}
-.editor.open{transform:translateY(0)}
-.editor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;font-size:16px;font-weight:700}
-.editor-head button{background:none;border:0;color:#ddd;font-size:23px}
-.sender-switch{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#151515;border-radius:10px;padding:4px;margin-bottom:12px}
-.sender-switch button{border:0;border-radius:7px;background:transparent;color:#999;padding:9px 3px;font-size:13px}
-.sender-switch button.active.me{background:var(--outgoing);color:#102013}
-.sender-switch button.active.partner{background:#444;color:#fff}
-.sender-switch button.active.system{background:#454545;color:#fff}
-.editor input[type=text],.editor textarea{width:100%;border:1px solid #414141;background:#151515;border-radius:10px;color:#fff;padding:11px;font-size:14px;outline:none}
-.editor textarea{resize:vertical;min-height:70px;margin-bottom:9px}
-.editor input[type=text]{margin-bottom:9px}
-.editor .checks{display:flex;gap:15px;align-items:center;color:#bbb;font-size:12px;margin:4px 0 12px;flex-wrap:wrap}
-.editor .checks label{display:flex;align-items:center;gap:6px}
-.editor-actions{display:flex;gap:8px}
-.editor-actions button{flex:1;border:0;border-radius:10px;padding:11px;background:#353535;color:#fff;font-size:13px}
-.editor-actions .primary{background:var(--outgoing);color:#07170a;font-weight:700}
-.editor-actions .danger{background:#492727;color:#ffcece}
-.hidden{display:none!important}
-.toast{position:absolute;top:128px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 13px;border-radius:18px;font-size:12px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
-.toast.show{opacity:1}
-@media(min-width:600px){
- body{display:flex;align-items:center;justify-content:center;padding:20px}
- .app{height:min(900px,94dvh);border:1px solid #333;border-radius:24px;box-shadow:0 20px 80px #0009}
- .statusbar{border-radius:24px 24px 0 0}
-}
-@media(max-height:620px){.statusbar{height:35px}.header{height:53px}.announcement{height:48px}.composer{padding-top:5px}.chat{gap:8px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LINE風チャット</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      max-height: 932px;
+      background-color: #000000;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ヘッダー */
+    .header {
+      background-color: #111111;
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1a1a1a;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      font-size: 24px;
+      font-weight: 300;
+      cursor: pointer;
+      color: #ffffff;
+    }
+
+    .partner-name {
+      font-weight: 700;
+      font-size: 17px;
+      cursor: pointer;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 18px;
+      font-size: 19px;
+      color: #ffffff;
+    }
+
+    /* アナウンスバー */
+    .announcement {
+      background-color: #1c1c1e;
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #28282a;
+      z-index: 9;
+      flex-shrink: 0;
+    }
+
+    .announcement-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .announcement-icon {
+      color: #3f82f8;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .announcement-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      font-size: 13.5px;
+    }
+
+    .announcement-arrow {
+      color: #666666;
+      font-size: 12px;
+    }
+
+    /* チャットエリア */
+    .chat-area {
+      flex: 1;
+      padding: 12px 12px 20px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      background-color: #0b0b0b;
+      position: relative;
+    }
+
+    /* 下移動ボタン */
+    .scroll-bottom-btn {
+      position: absolute;
+      right: 16px;
+      bottom: 80px;
+      width: 36px;
+      height: 36px;
+      background-color: rgba(30, 30, 30, 0.85);
+      border: 1px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888888;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    /* システムメッセージ */
+    .system-msg {
+      align-self: center;
+      background-color: #1a1a1c;
+      color: #999999;
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 12px;
+      max-width: 85%;
+      text-align: center;
+      margin: 12px 0;
+      line-height: 1.4;
+    }
+
+    /* メッセージグループ */
+    .msg-group {
+      display: flex;
+      margin-bottom: 3px;
+      max-width: 82%;
+    }
+
+    .msg-group.partner {
+      align-self: flex-start;
+    }
+
+    .msg-group.me {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    /* アイコン領域（連投時は透明） */
+    .avatar-holder {
+      width: 38px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 40%;
+      object-fit: cover;
+      background-color: #333333;
+      cursor: pointer;
+      display: block;
+    }
+
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .msg-bubble {
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 14.5px;
+      line-height: 1.35;
+      word-break: break-word;
+      white-space: pre-wrap;
+      letter-spacing: -0.1px;
+    }
+
+    .partner .msg-bubble {
+      background-color: #262628;
+      color: #ffffff;
+      border-top-left-radius: 4px;
+    }
+
+    /* 連投時の角丸調整 */
+    .partner.continuous .msg-bubble {
+      border-top-left-radius: 18px;
+    }
+
+    .me .msg-bubble {
+      background-color: #00e676; /* LINEの明瞭な緑色 */
+      color: #000000;
+      border-top-right-radius: 4px;
+      font-weight: 500;
+    }
+
+    .me.continuous .msg-bubble {
+      border-top-right-radius: 18px;
+    }
+
+    .msg-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      font-size: 10px;
+      color: #777777;
+      margin: 0 5px;
+      min-width: 32px;
+      user-select: none;
+    }
+
+    .me .msg-meta {
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .partner .msg-meta {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .msg-img {
+      max-width: 210px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: block;
+    }
+
+    /* 下部LINE入力バー */
+    .input-bar {
+      background-color: #121212;
+      border-top: 1px solid #1f1f1f;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .input-icons-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8e8e93;
+      font-size: 20px;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      background-color: #262628;
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .text-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .text-input::placeholder {
+      color: #666666;
+    }
+
+    .input-icons-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8e8e93;
+      font-size: 20px;
+    }
+
+    /* 管理用設定パネル */
+    .control-panel {
+      background-color: #1a1a1c;
+      border-top: 1px solid #2a2a2c;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .sender-switch {
+      display: flex;
+      background-color: #0d0d0d;
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .switch-btn {
+      flex: 1;
+      padding: 5px;
+      border: none;
+      background: none;
+      color: #777777;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .switch-btn.active.me {
+      background-color: #00e676;
+      color: #000000;
+    }
+
+    .switch-btn.active.partner {
+      background-color: #333333;
+      color: #ffffff;
+    }
+
+    .switch-btn.active.system {
+      background-color: #444444;
+      color: #ffffff;
+    }
+
+    .option-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #aaaaaa;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    #file-input, #avatar-input {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-<main class="app" aria-label="チャットシミュレーター">
-  <div class="statusbar"><span id="clock">11:17</span><div class="status-right"><span style="font-size:19px">✈</span><span class="signal">●●●</span><span style="font-size:19px">⌁</span><span class="battery">89</span></div></div>
-  <header class="header">
-    <span class="back" aria-hidden="true">‹</span>
-    <div class="name" id="partnerName" title="タップして名前を変更">Ryo Murakami</div>
-    <div class="header-actions">
-      <button title="検索" aria-label="検索" id="searchBtn">⌕</button>
-      <button title="通話" aria-label="通話">♧</button>
-      <button class="calendar" title="カレンダー" aria-label="カレンダー">31</button>
-      <button title="設定" aria-label="設定" id="menuBtn">☰</button>
+
+<div class="container">
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="header-left">
+      <span class="back-btn">‹</span>
+      <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">Ryo Murakami</span>
     </div>
-  </header>
-  <div class="announcement" id="announcement">
-    <span class="megaphone">⚐</span><span class="announcement-text" id="announcementText">インスタ見るな</span><span class="chevron"></span>
+    <div class="header-icons">
+      <span>🔍</span>
+      <span>📞</span>
+      <span>📅</span>
+      <span>☰</span>
+    </div>
   </div>
-  <section class="chat" id="chat" aria-label="メッセージ履歴"></section>
-  <button class="editor-toggle" id="editorToggle">編集・送信 ＋</button>
-  <div class="toast" id="toast"></div>
-  <section class="editor" id="editor" aria-label="メッセージ編集パネル">
-    <div class="editor-head"><span>メッセージを作成</span><button id="closeEditor" aria-label="閉じる">×</button></div>
+
+  <!-- アナウンスバー -->
+  <div class="announcement">
+    <div class="announcement-left">
+      <span class="announcement-icon">📢</span>
+      <span class="announcement-text" id="announcement-text" onclick="changeAnnouncement()">インスタ見るな</span>
+    </div>
+    <span class="announcement-arrow">∨</span>
+  </div>
+
+  <!-- チャットエリア -->
+  <div class="chat-area" id="chat-area">
+    <!-- 下移動ボタン -->
+    <div class="scroll-bottom-btn" onclick="scrollToBottom()">↓</div>
+  </div>
+
+  <!-- LINE本家風入力バー -->
+  <div class="input-bar">
+    <div class="input-icons-left">
+      <span style="cursor:pointer;" onclick="document.getElementById('file-input').click()">＋</span>
+      <span style="cursor:pointer;" onclick="document.getElementById('file-input').click()">📷</span>
+      <span style="cursor:pointer;" onclick="document.getElementById('file-input').click()">🖼️</span>
+    </div>
+    <div class="input-wrapper">
+      <input type="text" class="text-input" id="message-input" placeholder="Aa" onkeypress="handleKeyPress(event)">
+    </div>
+    <div class="input-icons-right">
+      <span>😊</span>
+      <span style="cursor:pointer;" onclick="sendMessage()">🎙️</span>
+    </div>
+  </div>
+
+  <!-- 送信者・設定コントロールパネル -->
+  <div class="control-panel">
     <div class="sender-switch">
-      <button class="active me" data-sender="me">自分（緑）</button>
-      <button data-sender="partner">相手（グレー）</button>
-      <button data-sender="system">システム</button>
+      <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
+      <button class="switch-btn partner" id="btn-partner" onclick="setSender('partner')">相手 (黒)</button>
+      <button class="switch-btn" id="btn-system" onclick="setSender('system')">システム</button>
     </div>
-    <textarea id="messageInput" placeholder="メッセージを入力…" rows="2"></textarea>
-    <div class="checks">
-      <label><input type="checkbox" id="readStatus" checked> 自分側に「既読」を表示</label>
-      <label><input type="checkbox" id="showAvatar" checked> 相手のアイコンを表示</label>
-    </div>
-    <div class="editor-actions">
-      <button id="photoBtn">画像を追加</button>
-      <button class="primary" id="sendBtn">送信</button>
-      <button class="danger" id="clearBtn">全消去</button>
-    </div>
-    <input type="file" id="photoInput" accept="image/*" class="hidden">
-    <input type="file" id="avatarInput" accept="image/*" class="hidden">
-    <input type="file" id="importInput" accept="application/json,.json" class="hidden">
-  </section>
-  <div class="composer">
-    <div class="composer-row">
-      <button class="tool" id="plusBtn" aria-label="編集パネルを開く"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
-      <button class="tool" id="cameraBtn" aria-label="画像を追加"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="4"/></svg></button>
-      <button class="tool" id="galleryBtn" aria-label="写真を選ぶ"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
-      <div class="message-box"><input id="quickInput" type="text" placeholder="Aa" autocomplete="off"></div>
-      <button class="tool" id="emojiBtn" aria-label="絵文字">☺</button>
-      <button class="tool" id="micBtn" aria-label="音声（デモ）"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg></button>
+    <div class="option-row">
+      <label class="checkbox-label">
+        <input type="checkbox" id="read-status" checked> 既読をつける
+      </label>
+      <span style="cursor:pointer; color:#ff4444;" onclick="clearChat()">チャットクリア</span>
     </div>
   </div>
-</main>
+
+  <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
+  <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
+</div>
+
 <script>
-(() => {
-  const $ = id => document.getElementById(id);
-  const chat = $('chat'), editor = $('editor');
-  let sender = 'me';
-  let avatar = '';
-  let messages = [];
-  const KEY = 'chat-simulator-v2';
-  const defaultMessages = [
-    {id:1,type:'partner',text:'フライングしたのやっぱりこが',time:'19:51'},
-    {id:2,type:'me',text:'動画見た',time:'19:51',read:true},
-    {id:3,type:'partner',text:'がちか',time:'19:53'},
-    {id:4,type:'partner',text:'動画ほしい',time:'19:53'},
-    {id:5,type:'me',text:'俺のお父さん俺しか写してないからお前最後見れない、、',time:'20:02',read:true},
-    {id:6,type:'me',text:'分かってない',time:'20:02',read:true},
-    {id:7,type:'me',text:'途中しかないけどえーか？',time:'20:03',read:true},
-    {id:8,type:'me',text:'だから俺とお前の差がみれない',time:'20:03',read:true},
-    {id:9,type:'partner',text:'あーー',time:'20:04'},
-    {id:10,type:'partner',text:'とりまほしい',time:'20:04'},
-    {id:11,type:'me',text:'普通に意味がわからない',time:'20:06',read:true},
-    {id:12,type:'me',text:'両親来なかったんか',time:'20:06',read:true},
-    {id:13,type:'partner',text:'多分来れてない',time:'20:11'},
-    {id:14,type:'partner',text:'あお前しか映ってないのか',time:'20:11'}
+  let currentSender = 'me';
+  let partnerAvatarUrl = 'https://via.placeholder.com/100/444444/ffffff?text=Icon';
+  
+  // 初期サンプルのデータ構築
+  const initialMessages = [
+    { sender: 'me', text: 'フライングしたのやっぱりこが', time: '19:51' },
+    { sender: 'me', text: '動画見た', time: '19:51' },
+    { sender: 'partner', text: 'がちか', time: '19:53' },
+    { sender: 'partner', text: '動画ほしい', time: '19:53' },
+    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最後見れない、、', time: '20:02' },
+    { sender: 'me', text: '分かってない', time: '20:02' },
+    { sender: 'me', text: '途中しかないけどえーか？', time: '20:03' },
+    { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03' },
+    { sender: 'partner', text: 'あーー', time: '20:04' },
+    { sender: 'partner', text: 'とりまほしい', time: '20:04' },
+    { sender: 'me', text: '普通に意味がわからない', time: '20:06' },
+    { sender: 'me', text: '両親来なかったんか', time: '20:06' },
+    { sender: 'partner', text: '多分来れてない', time: '20:11' },
+    { sender: 'partner', text: 'ああお前しか映ってないのか', time: '20:11' }
   ];
-  function safeLoad(){
-    try{
-      const raw=localStorage.getItem(KEY);
-      if(raw){const data=JSON.parse(raw); messages=Array.isArray(data.messages)?data.messages:defaultMessages; avatar=data.avatar||''; $('partnerName').textContent=data.name||'Ryo Murakami'; $('announcementText').textContent=data.announcement??'インスタ見るな';}
-      else messages=defaultMessages.map(x=>({...x}));
-    }catch{messages=defaultMessages.map(x=>({...x}));}
-    render(false);
-  }
-  function save(){
-    try{localStorage.setItem(KEY,JSON.stringify({messages,avatar,name:$('partnerName').textContent,announcement:$('announcementText').textContent}));}
-    catch{toast('保存容量を超えました。画像を減らしてください');}
-  }
-  function nowTime(){const d=new Date();return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`}
-  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  function render(scroll=true){
-    chat.replaceChildren();
-    messages.forEach(m=>{
-      if(m.type==='system'){
-        const el=document.createElement('div');el.className='system';el.textContent=m.text;el.title='タップで削除';el.addEventListener('click',()=>deleteMessage(m.id));chat.append(el);return;
-      }
-      const row=document.createElement('div');row.className='msg '+(m.type==='me'?'me':'partner');row.dataset.id=m.id;
-      if(m.type==='partner'){
-        if($('showAvatar').checked && avatar){const im=document.createElement('img');im.className='avatar';im.src=avatar;im.alt='相手のアイコン';im.addEventListener('click',()=> $('avatarInput').click());row.append(im);}
-        else {const spacer=document.createElement('span');spacer.className='avatar-spacer';row.append(spacer);}
-      }
-      const content=document.createElement('div');content.className='content';
-      if(m.image){const im=document.createElement('img');im.className='photo';im.src=m.image;im.alt='送信画像';im.addEventListener('click',()=>showImage(im.src));content.append(im);}
-      if(m.text){const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=m.text;content.append(bubble);}
-      row.append(content);
-      const meta=document.createElement('div');meta.className='meta';
-      if(m.type==='me'&&m.read) {const read=document.createElement('span');read.className='receipt';read.textContent='既読';meta.append(read);}
-      const time=document.createElement('span');time.textContent=m.time||nowTime();meta.append(time);row.append(meta);
-      row.title='タップで削除';row.addEventListener('dblclick',()=>deleteMessage(m.id));
-      chat.append(row);
+
+  window.onload = function() {
+    initialMessages.forEach(msg => {
+      appendMessage(msg.sender, msg.text, msg.time, false, false);
     });
-    if(scroll) requestAnimationFrame(()=>chat.scrollTop=chat.scrollHeight);
+    renderChat();
+    scrollToBottom();
+  };
+
+  let messagesData = [];
+
+  function setSender(sender) {
+    currentSender = sender;
+    document.getElementById('btn-me').className = 'switch-btn' + (sender === 'me' ? ' active me' : '');
+    document.getElementById('btn-partner').className = 'switch-btn' + (sender === 'partner' ? ' active partner' : '');
+    document.getElementById('btn-system').className = 'switch-btn' + (sender === 'system' ? ' active system' : '');
   }
-  function toast(text){const el=$('toast');el.textContent=text;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800)}
-  function setSender(s){sender=s;document.querySelectorAll('[data-sender]').forEach(b=>{b.className='';if(b.dataset.sender===s)b.classList.add('active',s)})}
-  function addMessage(text,type=sender,image=''){
-    if(!text.trim()&&!image)return;
-    messages.push({id:Date.now()+Math.random(),type,text:text.trim(),image,time:nowTime(),read:type==='me'&&$('readStatus').checked});
-    save();render();$('messageInput').value='';$('quickInput').value='';
+
+  function getCurrentTime() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
-  function deleteMessage(id){if(confirm('このメッセージを削除しますか？')){messages=messages.filter(m=>m.id!==id);save();render(false)}}
-  function openEditor(){editor.classList.add('open');$('messageInput').focus()}
-  function closeEditor(){editor.classList.remove('open')}
-  function uploadImage(file,callback){
-    if(!file)return;
-    if(file.size>3*1024*1024){toast('画像は3MB以下にしてください');return}
-    const reader=new FileReader();reader.onload=()=>callback(reader.result);reader.readAsDataURL(file);
+
+  function sendMessage() {
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const timeStr = getCurrentTime();
+    const isRead = document.getElementById('read-status').checked;
+
+    appendMessage(currentSender, text, timeStr, isRead, false);
+    renderChat();
+    input.value = '';
+    scrollToBottom();
   }
-  function showImage(src){const w=window.open();if(!w){toast('画像を開けませんでした');return}w.document.write('<title>画像</title><body style="margin:0;background:#111;display:grid;place-items:center;min-height:100vh"><img src="'+src+'" style="max-width:100%;max-height:100vh;object-fit:contain"></body>');w.document.close()}
-  function choosePhoto(){ $('photoInput').click() }
-  $('sendBtn').addEventListener('click',()=>addMessage($('messageInput').value));
-  $('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addMessage($('messageInput').value)}});
-  $('quickInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addMessage($('quickInput').value,'me')}});
-  document.querySelectorAll('[data-sender]').forEach(b=>b.addEventListener('click',()=>setSender(b.dataset.sender)));
-  $('editorToggle').addEventListener('click',openEditor);$('plusBtn').addEventListener('click',openEditor);$('closeEditor').addEventListener('click',closeEditor);
-  $('photoBtn').addEventListener('click',choosePhoto);$('cameraBtn').addEventListener('click',choosePhoto);$('galleryBtn').addEventListener('click',choosePhoto);
-  $('photoInput').addEventListener('change',e=>{uploadImage(e.target.files[0],src=>addMessage($('messageInput').value,sender,src));e.target.value=''});
-  $('avatarInput').addEventListener('change',e=>{uploadImage(e.target.files[0],src=>{avatar=src;save();render(false);toast('アイコンを更新しました')});e.target.value=''});
-  $('partnerName').addEventListener('click',()=>{const n=prompt('相手の名前', $('partnerName').textContent);if(n!==null&&n.trim()){$('partnerName').textContent=n.trim();save()}});
-  $('announcement').addEventListener('click',()=>{const t=prompt('アナウンスを編集',$('announcementText').textContent);if(t!==null){$('announcementText').textContent=t;save()}});
-  $('clearBtn').addEventListener('click',()=>{if(confirm('チャット履歴をすべて削除しますか？')){messages=[];save();render(false);toast('履歴を削除しました')}});
-  $('menuBtn').addEventListener('click',()=>{
-    const action=prompt('設定メニュー\\n1：会話を書き出す（JSON）\\n2：会話を読み込む（JSON）\\n3：相手アイコンを変更\\n4：名前を変更\\n番号を入力');
-    if(action==='1'){const blob=new Blob([JSON.stringify({messages,avatar,name:$('partnerName').textContent,announcement:$('announcementText').textContent},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chat-history.json';a.click();URL.revokeObjectURL(a.href)}
-    else if(action==='2')$('importInput').click();else if(action==='3')$('avatarInput').click();else if(action==='4')$('partnerName').click();
-  });
-  $('importInput').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.messages))throw Error();messages=d.messages;avatar=d.avatar||'';if(d.name)$('partnerName').textContent=d.name;if(d.announcement!==undefined)$('announcementText').textContent=d.announcement;save();render();toast('会話を読み込みました')}catch{toast('JSONファイルを読み込めませんでした')}};r.readAsText(file);e.target.value=''});
-  $('searchBtn').addEventListener('click',()=>{const q=prompt('検索するメッセージ');if(q===null||!q.trim())return;const found=messages.find(m=>m.text&&m.text.includes(q.trim()));if(found){const el=chat.querySelector(`[data-id="${found.id}"]`);el?.scrollIntoView({behavior:'smooth',block:'center'});toast('最初に見つかったメッセージへ移動')}else toast('見つかりませんでした')});
-  $('emojiBtn').addEventListener('click',()=>{const i=$('quickInput');i.value+='☺';i.focus()});
-  $('micBtn').addEventListener('click',()=>toast('音声入力はこのデモでは未実装です'));
-  $('clock').textContent=nowTime();
-  safeLoad();
-})();
+
+  function appendMessage(sender, content, time, isRead, isImage) {
+    messagesData.push({
+      sender: sender,
+      content: content,
+      time: time,
+      isRead: isRead,
+      isImage: isImage
+    });
+  }
+
+  // LINEの連投時のアイコン隠し・時刻集約ロジックを反映した再レンダリング
+  function renderChat() {
+    const chatArea = document.getElementById('chat-area');
+    // 下移動ボタン以外を削除
+    const scrollBtn = chatArea.querySelector('.scroll-bottom-btn');
+    chatArea.innerHTML = '';
+    chatArea.appendChild(scrollBtn);
+
+    for (let i = 0; i < messagesData.length; i++) {
+      const msg = messagesData[i];
+      const nextMsg = messagesData[i + 1];
+      const prevMsg = messagesData[i - 1];
+
+      // 同じ送信者が連続しているか確認
+      const isContinuousFromPrev = prevMsg && prevMsg.sender === msg.sender;
+      const isContinuousToNext = nextMsg && nextMsg.sender === msg.sender && nextMsg.time === msg.time;
+
+      if (msg.sender === 'system') {
+        const sysDiv = document.createElement('div');
+        sysDiv.className = 'system-msg';
+        sysDiv.innerHTML = escapeHtml(msg.content);
+        chatArea.appendChild(sysDiv);
+        continue;
+      }
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `msg-group ${msg.sender}${isContinuousFromPrev ? ' continuous' : ''}`;
+
+      let avatarHtml = '';
+      if (msg.sender === 'partner') {
+        if (!isContinuousFromPrev) {
+          avatarHtml = `
+            <div class="avatar-holder">
+              <img src="${partnerAvatarUrl}" class="avatar" onclick="triggerAvatarUpload()">
+            </div>`;
+        } else {
+          avatarHtml = `<div class="avatar-holder"></div>`;
+        }
+      }
+
+      // 時間と既読の表示（グループの最後のみ表示）
+      let metaHtml = '';
+      if (!isContinuousToNext) {
+        metaHtml = `
+          <div class="msg-meta">
+            ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
+            <span>${msg.time}</span>
+          </div>`;
+      } else {
+        metaHtml = `<div class="msg-meta"></div>`;
+      }
+
+      let contentHtml = '';
+      if (msg.isImage) {
+        contentHtml = `<img src="${msg.content}" class="msg-img">`;
+      } else {
+        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
+      }
+
+      if (msg.sender === 'partner') {
+        msgDiv.innerHTML = `
+          ${avatarHtml}
+          <div class="msg-content">${contentHtml}</div>
+          ${metaHtml}
+        `;
+      } else {
+        msgDiv.innerHTML = `
+          <div class="msg-content">${contentHtml}</div>
+          ${metaHtml}
+        `;
+      }
+
+      chatArea.appendChild(msgDiv);
+    }
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  }
+
+  function sendImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const timeStr = getCurrentTime();
+      const isRead = document.getElementById('read-status').checked;
+      appendMessage(currentSender, e.target.result, timeStr, isRead, true);
+      renderChat();
+      scrollToBottom();
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function changePartnerName() {
+    const currentName = document.getElementById('partner-name-display').innerText;
+    const newName = prompt('相手の名前を入力してください:', currentName);
+    if (newName !== null && newName.trim() !== '') {
+      document.getElementById('partner-name-display').innerText = newName.trim();
+    }
+  }
+
+  function changeAnnouncement() {
+    const currentText = document.getElementById('announcement-text').innerText;
+    const newText = prompt('アナウンスのテキストを入力してください:', currentText);
+    if (newText !== null) {
+      document.getElementById('announcement-text').innerText = newText;
+    }
+  }
+
+  function triggerAvatarUpload() {
+    document.getElementById('avatar-input').click();
+  }
+
+  function changeAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      partnerAvatarUrl = e.target.result;
+      renderChat();
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function clearChat() {
+    if (confirm('チャット履歴を全消去しますか？')) {
+      messagesData = [];
+      renderChat();
+    }
+  }
+
+  function scrollToBottom() {
+    const chatArea = document.getElementById('chat-area');
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+  }
 </script>
+
 </body>
 </html>
