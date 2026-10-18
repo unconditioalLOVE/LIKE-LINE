@@ -246,7 +246,7 @@
       position: relative;
     }
 
-    /* 相手の吹き出し（左側の尻尾） */
+    /* 相手の吹き出し */
     .partner .msg-bubble {
       background-color: #262628;
       color: #ffffff;
@@ -257,13 +257,14 @@
     .partner-tail-svg {
       position: absolute;
       top: 0;
-      left: -10px;
-      width: 12px;
-      height: 14px;
+      left: -9px;
+      width: 11px;
+      height: 13px;
       fill: #262628;
+      z-index: 2;
     }
 
-    /* 自分の吹き出し（右側の尻尾：ご提示いただいた画像を完全に再現した曲線SVG） */
+    /* 自分の吹き出し（被せるSVG尻尾） */
     .me .msg-bubble {
       background-color: #6be779;
       color: #000000;
@@ -275,10 +276,11 @@
     .me-tail-svg {
       position: absolute;
       top: 0;
-      right: -10px;
-      width: 12px;
-      height: 14px;
+      right: -9px;
+      width: 11px;
+      height: 13px;
       fill: #6be779;
+      z-index: 2;
     }
 
     .msg-meta {
@@ -706,12 +708,12 @@
       if (msg.isImage) {
         contentHtml = `<img src="${msg.content}" class="msg-img">`;
       } else {
-        // LINE本家の完璧な曲線シルエットを持つSVG尻尾を配置
         let tailSvg = '';
         if (msg.sender === 'me') {
-          tailSvg = `<svg class="me-tail-svg" viewBox="0 0 12 14"><path d="M0 0c5.5 0 10 3.2 11.2 8.5 0.5 2.2 0.8 4.2 0.8 5.5H0V0z"/></svg>`;
+          // 画像15を完全にトレースした「ふくらんでから右上に跳ね上がる尻尾」の正確なSVGパス
+          tailSvg = `<svg class="me-tail-svg" viewBox="0 0 12 14"><path d="M0,0 C3.5,0 7,2.5 9.5,7 C10.8,9.5 11.5,12 12,14 C9,14 5,13.5 2,12 C0.8,11.4 0,10.2 0,8.8 Z"/></svg>`;
         } else {
-          tailSvg = `<svg class="partner-tail-svg" viewBox="0 0 12 14"><path d="M12 0c-5.5 0-10 3.2-11.2 8.5-0.5 2.2-0.8 4.2-0.8 5.5h12V0z"/></svg>`;
+          tailSvg = `<svg class="partner-tail-svg" viewBox="0 0 12 14"><path d="M12,0 C8.5,0 5,2.5 2.5,7 C1.2,9.5 0.5,12 0,14 C3,14 7,13.5 10,12 C11.2,11.4 12,10.2 12,8.8 Z"/></svg>`;
         }
         contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}${tailSvg}</div>`;
       }
