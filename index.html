@@ -2,49 +2,50 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE-LINE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LINE風チャット</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: #121212;
+      background-color: #000000;
       color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 10px;
+      padding: 0;
     }
 
     .container {
       width: 100%;
-      max-width: 400px;
-      height: 90vh;
-      max-height: 800px;
+      max-width: 430px;
+      height: 100vh;
+      max-height: 932px;
       background-color: #000000;
-      border-radius: 20px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       position: relative;
+      overflow: hidden;
     }
 
     /* ヘッダー */
     .header {
       background-color: #111111;
-      padding: 12px 16px;
+      height: 52px;
+      padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #222222;
+      border-bottom: 1px solid #1a1a1a;
       z-index: 10;
+      flex-shrink: 0;
     }
 
     .header-left {
@@ -54,68 +55,116 @@
     }
 
     .back-btn {
-      font-size: 20px;
+      font-size: 24px;
+      font-weight: 300;
       cursor: pointer;
+      color: #ffffff;
     }
 
     .partner-name {
-      font-weight: bold;
-      font-size: 16px;
+      font-weight: 700;
+      font-size: 17px;
       cursor: pointer;
+      color: #ffffff;
+      letter-spacing: -0.2px;
     }
 
     .header-icons {
       display: flex;
-      gap: 16px;
-      font-size: 18px;
-      color: #cccccc;
+      gap: 18px;
+      font-size: 19px;
+      color: #ffffff;
     }
 
     /* アナウンスバー */
     .announcement {
       background-color: #1c1c1e;
-      padding: 8px 16px;
-      font-size: 13px;
-      color: #dddddd;
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #ffffff;
       display: flex;
       align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid #2a2a2a;
+      justify-content: space-between;
+      border-bottom: 1px solid #28282a;
+      z-index: 9;
+      flex-shrink: 0;
+    }
+
+    .announcement-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
     }
 
     .announcement-icon {
-      color: #2b82f6;
+      color: #3f82f8;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .announcement-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      font-size: 13.5px;
+    }
+
+    .announcement-arrow {
+      color: #666666;
+      font-size: 12px;
     }
 
     /* チャットエリア */
     .chat-area {
       flex: 1;
-      padding: 16px;
+      padding: 12px 12px 20px 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
       background-color: #0b0b0b;
+      position: relative;
+    }
+
+    /* 下移動ボタン */
+    .scroll-bottom-btn {
+      position: absolute;
+      right: 16px;
+      bottom: 80px;
+      width: 36px;
+      height: 36px;
+      background-color: rgba(30, 30, 30, 0.85);
+      border: 1px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888888;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 5;
     }
 
     /* システムメッセージ */
     .system-msg {
       align-self: center;
-      background-color: #1c1c1e;
-      color: #aaaaaa;
+      background-color: #1a1a1c;
+      color: #999999;
       font-size: 11px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 12px;
-      max-width: 80%;
+      max-width: 85%;
       text-align: center;
-      margin: 4px 0;
+      margin: 12px 0;
+      line-height: 1.4;
     }
 
-    /* メッセージ共通 */
+    /* メッセージグループ */
     .msg-group {
       display: flex;
-      gap: 8px;
-      max-width: 80%;
+      margin-bottom: 3px;
+      max-width: 82%;
     }
 
     .msg-group.partner {
@@ -127,14 +176,21 @@
       flex-direction: row-reverse;
     }
 
+    /* アイコン領域（連投時は透明） */
+    .avatar-holder {
+      width: 38px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
     .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      border-radius: 40%;
       object-fit: cover;
       background-color: #333333;
-      flex-shrink: 0;
       cursor: pointer;
+      display: block;
     }
 
     .msg-content {
@@ -143,12 +199,13 @@
     }
 
     .msg-bubble {
-      padding: 9px 13px;
+      padding: 8px 12px;
       border-radius: 18px;
-      font-size: 14px;
-      line-height: 1.4;
+      font-size: 14.5px;
+      line-height: 1.35;
       word-break: break-word;
       white-space: pre-wrap;
+      letter-spacing: -0.1px;
     }
 
     .partner .msg-bubble {
@@ -157,11 +214,20 @@
       border-top-left-radius: 4px;
     }
 
+    /* 連投時の角丸調整 */
+    .partner.continuous .msg-bubble {
+      border-top-left-radius: 18px;
+    }
+
     .me .msg-bubble {
-      background-color: #25d366;
+      background-color: #00e676; /* LINEの明瞭な緑色 */
       color: #000000;
       border-top-right-radius: 4px;
       font-weight: 500;
+    }
+
+    .me.continuous .msg-bubble {
+      border-top-right-radius: 18px;
     }
 
     .msg-meta {
@@ -169,102 +235,121 @@
       flex-direction: column;
       justify-content: flex-end;
       font-size: 10px;
-      color: #888888;
-      margin: 0 4px;
-      min-width: 35px;
+      color: #777777;
+      margin: 0 5px;
+      min-width: 32px;
+      user-select: none;
     }
 
     .me .msg-meta {
       align-items: flex-end;
+      text-align: right;
     }
 
     .partner .msg-meta {
       align-items: flex-start;
+      text-align: left;
     }
 
     .msg-img {
-      max-width: 200px;
-      border-radius: 12px;
+      max-width: 210px;
+      border-radius: 14px;
       cursor: pointer;
+      display: block;
     }
 
-    /* 入力・設定エリア */
-    .controls {
-      background-color: #161616;
-      border-top: 1px solid #262626;
-      padding: 10px;
+    /* 下部LINE入力バー */
+    .input-bar {
+      background-color: #121212;
+      border-top: 1px solid #1f1f1f;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .input-icons-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8e8e93;
+      font-size: 20px;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      background-color: #262628;
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .text-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .text-input::placeholder {
+      color: #666666;
+    }
+
+    .input-icons-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #8e8e93;
+      font-size: 20px;
+    }
+
+    /* 管理用設定パネル */
+    .control-panel {
+      background-color: #1a1a1c;
+      border-top: 1px solid #2a2a2c;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .sender-switch {
       display: flex;
-      background-color: #262626;
+      background-color: #0d0d0d;
       border-radius: 8px;
       padding: 2px;
     }
 
     .switch-btn {
       flex: 1;
-      padding: 6px;
+      padding: 5px;
       border: none;
       background: none;
-      color: #888888;
-      font-size: 12px;
+      color: #777777;
+      font-size: 11px;
       font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
     }
 
     .switch-btn.active.me {
-      background-color: #25d366;
+      background-color: #00e676;
       color: #000000;
     }
 
     .switch-btn.active.partner {
+      background-color: #333333;
+      color: #ffffff;
+    }
+
+    .switch-btn.active.system {
       background-color: #444444;
       color: #ffffff;
-    }
-
-    .input-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .text-input {
-      flex: 1;
-      background-color: #262626;
-      border: 1px solid #333333;
-      border-radius: 20px;
-      padding: 8px 14px;
-      color: #ffffff;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .icon-btn {
-      background: none;
-      border: none;
-      color: #888888;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 4px;
-    }
-
-    .send-btn {
-      background-color: #25d366;
-      color: #000000;
-      border: none;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .option-row {
@@ -272,8 +357,7 @@
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
-      color: #888888;
-      padding: 0 4px;
+      color: #aaaaaa;
     }
 
     .checkbox-label {
@@ -295,7 +379,7 @@
   <div class="header">
     <div class="header-left">
       <span class="back-btn">‹</span>
-      <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">Jun Takabe</span>
+      <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">Ryo Murakami</span>
     </div>
     <div class="header-icons">
       <span>🔍</span>
@@ -307,90 +391,91 @@
 
   <!-- アナウンスバー -->
   <div class="announcement">
-    <span class="announcement-icon">📢</span>
-    <span id="announcement-text" onclick="changeAnnouncement()">君は家に帰っている途中で死んだ。</span>
+    <div class="announcement-left">
+      <span class="announcement-icon">📢</span>
+      <span class="announcement-text" id="announcement-text" onclick="changeAnnouncement()">インスタ見るな</span>
+    </div>
+    <span class="announcement-arrow">∨</span>
   </div>
 
   <!-- チャットエリア -->
   <div class="chat-area" id="chat-area">
-    <!-- 初期メッセージ -->
-    <div class="msg-group partner">
-      <img src="https://via.placeholder.com/100/444444/ffffff?text=Icon" class="avatar" onclick="triggerAvatarUpload()">
-      <div class="msg-content">
-        <div class="msg-bubble">なんでだ</div>
-      </div>
-      <div class="msg-meta">
-        <span>0:21</span>
-      </div>
+    <!-- 下移動ボタン -->
+    <div class="scroll-bottom-btn" onclick="scrollToBottom()">↓</div>
+  </div>
+
+  <!-- LINE本家風入力バー -->
+  <div class="input-bar">
+    <div class="input-icons-left">
+      <span style="cursor:pointer;" onclick="document.getElementById('file-input').click()">＋</span>
+      <span style="cursor:pointer;" onclick="document.getElementById('file-input').click()">📷</span>
+      <span style="cursor:pointer;" onclick="document.getElementById('file-input').click()">🖼️</span>
     </div>
-
-    <div class="msg-group me">
-      <div class="msg-content">
-        <div class="msg-bubble">受験</div>
-      </div>
-      <div class="msg-meta">
-        <span>既読</span>
-        <span>0:21</span>
-      </div>
+    <div class="input-wrapper">
+      <input type="text" class="text-input" id="message-input" placeholder="Aa" onkeypress="handleKeyPress(event)">
     </div>
-
-    <div class="msg-group partner">
-      <img src="https://via.placeholder.com/100/444444/ffffff?text=Icon" class="avatar" onclick="triggerAvatarUpload()">
-      <div class="msg-content">
-        <div class="msg-bubble">そうなんかな</div>
-      </div>
-      <div class="msg-meta">
-        <span>0:21</span>
-      </div>
-    </div>
-
-    <div class="system-msg">メッセージの送信を取り消しました<br>通知なしで送信を取り消す方法</div>
-
-    <div class="msg-group me">
-      <div class="msg-content">
-        <div class="msg-bubble">消えてないや</div>
-      </div>
-      <div class="msg-meta">
-        <span>既読</span>
-        <span>0:22</span>
-      </div>
+    <div class="input-icons-right">
+      <span>😊</span>
+      <span style="cursor:pointer;" onclick="sendMessage()">🎙️</span>
     </div>
   </div>
 
-  <!-- コントロールパネル -->
-  <div class="controls">
+  <!-- 送信者・設定コントロールパネル -->
+  <div class="control-panel">
     <div class="sender-switch">
       <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
       <button class="switch-btn partner" id="btn-partner" onclick="setSender('partner')">相手 (黒)</button>
       <button class="switch-btn" id="btn-system" onclick="setSender('system')">システム</button>
     </div>
-
-    <div class="input-row">
-      <button class="icon-btn" onclick="document.getElementById('file-input').click()">📷</button>
-      <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
-      <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
-      <input type="text" class="text-input" id="message-input" placeholder="メッセージを入力..." onkeypress="handleKeyPress(event)">
-      <button class="send-btn" onclick="sendMessage()">▲</button>
-    </div>
-
     <div class="option-row">
       <label class="checkbox-label">
-        <input type="checkbox" id="read-status" checked> 自分側に「既読」をつける
+        <input type="checkbox" id="read-status" checked> 既読をつける
       </label>
-      <span style="cursor:pointer;" onclick="clearChat()">クリア</span>
+      <span style="cursor:pointer; color:#ff4444;" onclick="clearChat()">チャットクリア</span>
     </div>
   </div>
+
+  <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
+  <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
 </div>
 
 <script>
   let currentSender = 'me';
   let partnerAvatarUrl = 'https://via.placeholder.com/100/444444/ffffff?text=Icon';
+  
+  // 初期サンプルのデータ構築
+  const initialMessages = [
+    { sender: 'me', text: 'フライングしたのやっぱりこが', time: '19:51' },
+    { sender: 'me', text: '動画見た', time: '19:51' },
+    { sender: 'partner', text: 'がちか', time: '19:53' },
+    { sender: 'partner', text: '動画ほしい', time: '19:53' },
+    { sender: 'me', text: '俺のお父さん俺しか写してないからお前最後見れない、、', time: '20:02' },
+    { sender: 'me', text: '分かってない', time: '20:02' },
+    { sender: 'me', text: '途中しかないけどえーか？', time: '20:03' },
+    { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03' },
+    { sender: 'partner', text: 'あーー', time: '20:04' },
+    { sender: 'partner', text: 'とりまほしい', time: '20:04' },
+    { sender: 'me', text: '普通に意味がわからない', time: '20:06' },
+    { sender: 'me', text: '両親来なかったんか', time: '20:06' },
+    { sender: 'partner', text: '多分来れてない', time: '20:11' },
+    { sender: 'partner', text: 'ああお前しか映ってないのか', time: '20:11' }
+  ];
+
+  window.onload = function() {
+    initialMessages.forEach(msg => {
+      appendMessage(msg.sender, msg.text, msg.time, false, false);
+    });
+    renderChat();
+    scrollToBottom();
+  };
+
+  let messagesData = [];
 
   function setSender(sender) {
     currentSender = sender;
     document.getElementById('btn-me').className = 'switch-btn' + (sender === 'me' ? ' active me' : '');
     document.getElementById('btn-partner').className = 'switch-btn' + (sender === 'partner' ? ' active partner' : '');
-    document.getElementById('btn-system').className = 'switch-btn' + (sender === 'system' ? ' active partner' : '');
+    document.getElementById('btn-system').className = 'switch-btn' + (sender === 'system' ? ' active system' : '');
   }
 
   function getCurrentTime() {
@@ -405,45 +490,99 @@
     const text = input.value.trim();
     if (!text) return;
 
-    const chatArea = document.getElementById('chat-area');
     const timeStr = getCurrentTime();
+    const isRead = document.getElementById('read-status').checked;
 
-    if (currentSender === 'system') {
-      const sysDiv = document.createElement('div');
-      sysDiv.className = 'system-msg';
-      sysDiv.innerText = text;
-      chatArea.appendChild(sysDiv);
-    } else if (currentSender === 'me') {
-      const isRead = document.getElementById('read-status').checked;
+    appendMessage(currentSender, text, timeStr, isRead, false);
+    renderChat();
+    input.value = '';
+    scrollToBottom();
+  }
+
+  function appendMessage(sender, content, time, isRead, isImage) {
+    messagesData.push({
+      sender: sender,
+      content: content,
+      time: time,
+      isRead: isRead,
+      isImage: isImage
+    });
+  }
+
+  // LINEの連投時のアイコン隠し・時刻集約ロジックを反映した再レンダリング
+  function renderChat() {
+    const chatArea = document.getElementById('chat-area');
+    // 下移動ボタン以外を削除
+    const scrollBtn = chatArea.querySelector('.scroll-bottom-btn');
+    chatArea.innerHTML = '';
+    chatArea.appendChild(scrollBtn);
+
+    for (let i = 0; i < messagesData.length; i++) {
+      const msg = messagesData[i];
+      const nextMsg = messagesData[i + 1];
+      const prevMsg = messagesData[i - 1];
+
+      // 同じ送信者が連続しているか確認
+      const isContinuousFromPrev = prevMsg && prevMsg.sender === msg.sender;
+      const isContinuousToNext = nextMsg && nextMsg.sender === msg.sender && nextMsg.time === msg.time;
+
+      if (msg.sender === 'system') {
+        const sysDiv = document.createElement('div');
+        sysDiv.className = 'system-msg';
+        sysDiv.innerHTML = escapeHtml(msg.content);
+        chatArea.appendChild(sysDiv);
+        continue;
+      }
+
       const msgDiv = document.createElement('div');
-      msgDiv.className = 'msg-group me';
-      msgDiv.innerHTML = `
-        <div class="msg-content">
-          <div class="msg-bubble">${escapeHtml(text)}</div>
-        </div>
-        <div class="msg-meta">
-          ${isRead ? '<span>既読</span>' : ''}
-          <span>${timeStr}</span>
-        </div>
-      `;
-      chatArea.appendChild(msgDiv);
-    } else {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'msg-group partner';
-      msgDiv.innerHTML = `
-        <img src="${partnerAvatarUrl}" class="avatar" onclick="triggerAvatarUpload()">
-        <div class="msg-content">
-          <div class="msg-bubble">${escapeHtml(text)}</div>
-        </div>
-        <div class="msg-meta">
-          <span>${timeStr}</span>
-        </div>
-      `;
+      msgDiv.className = `msg-group ${msg.sender}${isContinuousFromPrev ? ' continuous' : ''}`;
+
+      let avatarHtml = '';
+      if (msg.sender === 'partner') {
+        if (!isContinuousFromPrev) {
+          avatarHtml = `
+            <div class="avatar-holder">
+              <img src="${partnerAvatarUrl}" class="avatar" onclick="triggerAvatarUpload()">
+            </div>`;
+        } else {
+          avatarHtml = `<div class="avatar-holder"></div>`;
+        }
+      }
+
+      // 時間と既読の表示（グループの最後のみ表示）
+      let metaHtml = '';
+      if (!isContinuousToNext) {
+        metaHtml = `
+          <div class="msg-meta">
+            ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
+            <span>${msg.time}</span>
+          </div>`;
+      } else {
+        metaHtml = `<div class="msg-meta"></div>`;
+      }
+
+      let contentHtml = '';
+      if (msg.isImage) {
+        contentHtml = `<img src="${msg.content}" class="msg-img">`;
+      } else {
+        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
+      }
+
+      if (msg.sender === 'partner') {
+        msgDiv.innerHTML = `
+          ${avatarHtml}
+          <div class="msg-content">${contentHtml}</div>
+          ${metaHtml}
+        `;
+      } else {
+        msgDiv.innerHTML = `
+          <div class="msg-content">${contentHtml}</div>
+          ${metaHtml}
+        `;
+      }
+
       chatArea.appendChild(msgDiv);
     }
-
-    input.value = '';
-    chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   function handleKeyPress(e) {
@@ -458,39 +597,11 @@
 
     const reader = new FileReader();
     reader.onload = function(e) {
-      const imgUrl = e.target.result;
-      const chatArea = document.getElementById('chat-area');
       const timeStr = getCurrentTime();
-
-      if (currentSender === 'me') {
-        const isRead = document.getElementById('read-status').checked;
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg-group me';
-        msgDiv.innerHTML = `
-          <div class="msg-content">
-            <img src="${imgUrl}" class="msg-img">
-          </div>
-          <div class="msg-meta">
-            ${isRead ? '<span>既読</span>' : ''}
-            <span>${timeStr}</span>
-          </div>
-        `;
-        chatArea.appendChild(msgDiv);
-      } else {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg-group partner';
-        msgDiv.innerHTML = `
-          <img src="${partnerAvatarUrl}" class="avatar" onclick="triggerAvatarUpload()">
-          <div class="msg-content">
-            <img src="${imgUrl}" class="msg-img">
-          </div>
-          <div class="msg-meta">
-            <span>${timeStr}</span>
-          </div>
-        `;
-        chatArea.appendChild(msgDiv);
-      }
-      chatArea.scrollTop = chatArea.scrollHeight;
+      const isRead = document.getElementById('read-status').checked;
+      appendMessage(currentSender, e.target.result, timeStr, isRead, true);
+      renderChat();
+      scrollToBottom();
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -523,8 +634,7 @@
     const reader = new FileReader();
     reader.onload = function(e) {
       partnerAvatarUrl = e.target.result;
-      const avatars = document.querySelectorAll('.partner .avatar');
-      avatars.forEach(img => img.src = partnerAvatarUrl);
+      renderChat();
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -532,8 +642,14 @@
 
   function clearChat() {
     if (confirm('チャット履歴を全消去しますか？')) {
-      document.getElementById('chat-area').innerHTML = '';
+      messagesData = [];
+      renderChat();
     }
+  }
+
+  function scrollToBottom() {
+    const chatArea = document.getElementById('chat-area');
+    chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   function escapeHtml(str) {
