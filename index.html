@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>LINE風チャット</title>
   <style>
     * {
@@ -11,6 +11,15 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #1a1a1a;            /* チャット・ヘッダー背景 */
+      --bar: #111111;           /* 入力バー背景 */
+      --bubble-partner: #2a2a2a;
+      --bubble-me: #69e779;
+      --meta: #8d8d8d;          /* 時刻・既読 */
+      --icon: #b7b7b7;
     }
 
     body {
@@ -27,23 +36,23 @@
       width: 100%;
       max-width: 430px;
       height: 100vh;
+      height: 100dvh;
       max-height: 932px;
-      background-color: #000000;
+      background-color: var(--bg);
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
     }
 
-    /* ヘッダー */
+    /* ---------- ヘッダー ---------- */
     .header {
-      background-color: #111111;
+      background-color: var(--bg);
       height: 52px;
-      padding: 0 16px;
+      padding: 0 20px 0 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #1a1a1a;
       z-index: 10;
       flex-shrink: 0;
     }
@@ -51,46 +60,58 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      min-width: 0;
     }
 
     .back-btn {
-      font-size: 24px;
-      font-weight: 300;
+      width: 24px;
+      height: 24px;
+      stroke: #ffffff;
+      fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       cursor: pointer;
-      color: #ffffff;
+      flex-shrink: 0;
     }
 
     .partner-name {
       font-weight: 700;
-      font-size: 17px;
+      font-size: 18px;
       cursor: pointer;
       color: #ffffff;
-      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header-icons {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 21px;
+      flex-shrink: 0;
     }
 
     .header-icon-svg {
-      width: 20px;
-      height: 20px;
-      fill: #ffffff;
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       cursor: pointer;
     }
 
     .calendar-icon-box {
       width: 20px;
-      height: 20px;
-      border: 1.5px solid #ffffff;
+      height: 22px;
+      border: 1.7px solid #ffffff;
       border-radius: 4px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
+      align-items: flex-end;
+      justify-content: center;
       position: relative;
       cursor: pointer;
     }
@@ -98,31 +119,33 @@
     .calendar-icon-box::before {
       content: '';
       position: absolute;
-      top: -3px;
+      top: -4px;
       left: 3px;
-      width: 2px;
-      height: 3px;
+      width: 1.7px;
+      height: 5px;
       background-color: #ffffff;
-      box-shadow: 8px 0 0 #ffffff;
+      box-shadow: 9px 0 0 #ffffff;
     }
 
     .calendar-date {
       font-size: 10px;
-      font-weight: bold;
+      font-weight: 700;
       line-height: 1;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
-    /* アナウンスバー */
+    /* ---------- アナウンスバー（角丸カード） ---------- */
     .announcement {
-      background-color: #1c1c1e;
-      padding: 10px 16px;
+      background-color: var(--bubble-partner);
+      margin: 6px 6px 0;
+      height: 46px;
+      padding: 0 16px;
+      border-radius: 12px;
       font-size: 14px;
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #28282a;
       z-index: 9;
       flex-shrink: 0;
     }
@@ -130,13 +153,18 @@
     .announcement-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 14px;
       overflow: hidden;
     }
 
     .announcement-icon {
-      color: #3f82f8;
-      font-size: 16px;
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: #4d73ff;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       flex-shrink: 0;
     }
 
@@ -145,48 +173,68 @@
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
-      font-size: 13.5px;
     }
 
     .announcement-arrow {
-      color: #666666;
-      font-size: 12px;
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: #606060;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
     }
 
-    /* チャットエリア */
+    /* ---------- チャットエリア ---------- */
+    .chat-wrap {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
     .chat-area {
       flex: 1;
-      padding: 12px 12px 20px 12px;
+      min-height: 0;
+      padding: 10px 8px 12px 8px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      background-color: #0b0b0b;
-      position: relative;
+      background-color: var(--bg);
     }
 
-    /* 下移動ボタン */
+    /* 下移動ボタン（スクロールしても画面に固定） */
     .scroll-bottom-btn {
       position: absolute;
-      right: 16px;
-      bottom: 80px;
+      right: 8px;
+      bottom: 9px;
       width: 36px;
       height: 36px;
-      background-color: rgba(30, 30, 30, 0.85);
-      border: 1px solid #333;
+      background-color: #2a2a2a;
       border-radius: 8px;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      color: #888888;
-      font-size: 18px;
       cursor: pointer;
       z-index: 5;
+    }
+
+    .scroll-bottom-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: #b7b7b7;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     /* システムメッセージ */
     .system-msg {
       align-self: center;
-      background-color: #1a1a1c;
+      background-color: #262626;
       color: #999999;
       font-size: 11px;
       padding: 6px 14px;
@@ -197,65 +245,72 @@
       line-height: 1.4;
     }
 
-    /* メッセージグループ・行 */
+    /* ---------- メッセージ行 ---------- */
     .msg-group {
       display: flex;
-      margin-bottom: 6px;
-      max-width: 82%;
+      align-items: flex-start;
+      margin-top: 7.5px;           /* 別グループとの間隔 */
     }
+    .msg-group:first-of-type { margin-top: 0; }
 
-    .msg-group.partner {
-      align-self: flex-start;
-    }
+    .msg-group.partner { align-self: flex-start; }
 
     .msg-group.me {
       align-self: flex-end;
       flex-direction: row-reverse;
     }
 
-    /* アイコンを円形に */
+    /* 同じ分が続く2通目以降: 間隔を詰め、しっぽ・アイコンを消す */
+    .msg-group.grouped { margin-top: 6px; }
+    .msg-group.grouped .avatar { visibility: hidden; pointer-events: none; }
+    .msg-group.grouped .msg-bubble::before,
+    .msg-group.grouped .msg-bubble::after { display: none; }
+
+    /* 相手の新グループ: アイコン上端が前の吹き出しから約3.5px下 */
+    .msg-group.partner:not(.grouped) { margin-top: 3.5px; }
+    .msg-group.partner:not(.grouped):first-of-type { margin-top: 0; }
+
+    /* アイコン（円形・直径30px） */
     .avatar {
-      width: 33px;
-      height: 33px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       object-fit: cover;
       flex: none;
-      margin-right: 8px;
+      margin-right: 6px;
       cursor: pointer;
       background-color: #333333;
     }
 
-    /* 相手の行: フキダシをアイコン上端より少し下げ、間隔を詰める */
-    .msg-group.partner { display: flex; align-items: flex-start; }
-    .partner .msg-bubble { margin-top: 4.5px; }
-
-    /* 同じ分が続く2通目以降 */
-    .msg-group.grouped { margin-top: 7px; }
-    .msg-group.grouped .avatar { visibility: hidden; }
-    .msg-group.grouped .msg-bubble::before,
-    .msg-group.grouped .msg-bubble::after { display: none; }
+    /* 吹き出しはアイコン上端より4px下げる */
+    .msg-group.partner .msg-bubble { margin-top: 4px; }
+    .msg-group.partner.grouped .msg-bubble { margin-top: 0; }
 
     .msg-content {
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
 
-    /* 吹き出し共通 */
+    /* ---------- 吹き出し共通 ---------- */
     .msg-bubble {
-      padding: 8px 12px;
-      font-size: 14.5px;
-      line-height: 1.35;
+      display: flex;
+      align-items: center;
+      min-height: 35px;
+      max-width: 252px;
+      padding: 7.5px 14px;
+      font-size: 14px;
+      line-height: 17.3px;
       word-break: break-word;
       white-space: pre-wrap;
-      letter-spacing: -0.1px;
       position: relative;
       isolation: isolate;
       border-radius: 19px;
     }
 
-    /* 自分（右） */
+    /* 自分（右）: しっぽは右上 */
     .me .msg-bubble {
-      background: #69e779;
+      background: var(--bubble-me);
       color: #000;
       font-weight: 500;
     }
@@ -266,14 +321,14 @@
       right: -4px;
       width: 14px;
       height: 12px;
-      background: #69e779;
+      background: var(--bubble-me);
       z-index: -1;
       clip-path: path("M 0 6 L 2.6 4.2 Q 10.5 4.3 12.9 0.8 C 12 5 10 8.6 7.6 11.2 L 0 11 Z");
     }
 
-    /* 相手（左） */
+    /* 相手（左）: しっぽは左上 */
     .partner .msg-bubble {
-      background: #2a2a2a;
+      background: var(--bubble-partner);
       color: #fff;
     }
     .partner .msg-bubble::before {
@@ -283,20 +338,23 @@
       left: -4px;
       width: 14px;
       height: 12px;
-      background: #2a2a2a;
+      background: var(--bubble-partner);
       z-index: -1;
       clip-path: path("M 14 6 L 11.4 4.2 Q 3.5 4.3 1.1 0.8 C 2 5 4 8.6 6.4 11.2 L 14 11 Z");
     }
 
+    /* 時刻・既読: 吹き出しの下端に揃える */
     .msg-meta {
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      font-size: 10px;
-      color: #777777;
-      margin: 0 5px;
-      min-width: 32px;
+      align-self: flex-end;
+      margin: 0 6px 4px;
+      font-size: 9px;
+      line-height: 12px;
+      color: var(--meta);
+      white-space: nowrap;
       user-select: none;
+      flex-shrink: 0;
     }
 
     .me .msg-meta {
@@ -315,12 +373,13 @@
       cursor: pointer;
       display: block;
     }
+    .msg-group.partner .msg-img { margin-top: 4px; }
+    .msg-group.partner.grouped .msg-img { margin-top: 0; }
 
-    /* 下部LINE入力バー */
+    /* ---------- 下部LINE入力バー ---------- */
     .input-bar {
-      background-color: #121212;
-      border-top: 1px solid #1f1f1f;
-      padding: 8px 10px;
+      background-color: var(--bar);
+      padding: 8px 12px 8px 10px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -333,61 +392,60 @@
       gap: 14px;
     }
 
-    .plus-btn {
-      font-size: 24px;
-      color: #8e8e93;
-      font-weight: 300;
-      cursor: pointer;
-      line-height: 1;
-    }
-
     .collapse-arrow {
-      font-size: 20px;
-      color: #8e8e93;
+      width: 24px;
+      height: 24px;
+      stroke: var(--icon);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       cursor: pointer;
       display: none;
-      font-weight: bold;
-      line-height: 1;
     }
 
     .tool-icon-svg {
-      width: 22px;
-      height: 22px;
-      fill: #8e8e93;
+      width: 25px;
+      height: 25px;
+      fill: none;
+      stroke: var(--icon);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .input-wrapper {
       flex: 1;
-      background-color: #262628;
+      min-width: 0;
+      background-color: #1f1f1f;
+      border: 1px solid #2a2a2a;
       border-radius: 20px;
-      padding: 6px 12px;
+      height: 34px;
+      padding: 0 8px 0 16px;
       display: flex;
       align-items: center;
+      gap: 8px;
     }
 
     .text-input {
-      width: 100%;
+      flex: 1;
+      min-width: 0;
       background: transparent;
       border: none;
       color: #ffffff;
-      font-size: 15px;
+      font-size: 16px;
       outline: none;
     }
 
     .text-input::placeholder {
-      color: #666666;
-    }
-
-    .input-icons-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
+      color: #616161;
     }
 
     .send-action-btn {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       background: transparent;
       border: none;
       display: flex;
@@ -395,22 +453,32 @@
       justify-content: center;
       cursor: pointer;
       padding: 0;
+      flex-shrink: 0;
+    }
+
+    .send-action-btn svg {
+      width: 25px;
+      height: 25px;
+      fill: none;
+      stroke: var(--icon);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .send-action-btn.active-blue {
       background-color: #2b82f6;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
     }
 
     .send-action-btn.active-blue svg {
       fill: #ffffff;
+      stroke: none;
       width: 16px;
       height: 16px;
     }
 
-    /* 管理用コントロールパネル */
+    /* ---------- 管理用コントロールパネル ---------- */
     .control-panel {
       background-color: #1a1a1c;
       border-top: 1px solid #2a2a2c;
@@ -481,21 +549,21 @@
   <!-- ヘッダー -->
   <div class="header">
     <div class="header-left">
-      <span class="back-btn">‹</span>
+      <svg class="back-btn" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
       <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">Ryo Murakami</span>
     </div>
     <div class="header-icons">
       <svg class="header-icon-svg" viewBox="0 0 24 24">
-        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        <circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/><path d="M10.5 6.5v4l2.6 1.6"/>
       </svg>
       <svg class="header-icon-svg" viewBox="0 0 24 24">
-        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/>
       </svg>
       <div class="calendar-icon-box" onclick="alert('カレンダー')">
-        <span class="calendar-date">17</span>
+        <span class="calendar-date">31</span>
       </div>
-      <svg class="header-icon-svg" viewBox="0 0 24 24" style="width:22px; height:22px;">
-        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      <svg class="header-icon-svg" viewBox="0 0 24 24">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
       </svg>
     </div>
   </div>
@@ -503,42 +571,45 @@
   <!-- アナウンスバー -->
   <div class="announcement">
     <div class="announcement-left">
-      <span class="announcement-icon">📢</span>
+      <svg class="announcement-icon" viewBox="0 0 24 24">
+        <path d="M3 10v4a1 1 0 0 0 1 1h3l9 4.5V5.5L7 9H4a1 1 0 0 0-1 1z"/><path d="M19.5 9.5a4 4 0 0 1 0 5"/><path d="M7.5 15l1.4 5h2.4l-1-4.6"/>
+      </svg>
       <span class="announcement-text" id="announcement-text" onclick="changeAnnouncement()">インスタ見るな</span>
     </div>
-    <span class="announcement-arrow">∨</span>
+    <svg class="announcement-arrow" viewBox="0 0 24 24"><path d="M4.5 8.5 12 16l7.5-7.5"/></svg>
   </div>
 
   <!-- チャットエリア -->
-  <div class="chat-area" id="chat-area" onclick="blurInput()">
-    <div class="scroll-bottom-btn" onclick="event.stopPropagation(); scrollToBottom()">↓</div>
+  <div class="chat-wrap">
+    <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
+    <div class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()">
+      <svg viewBox="0 0 24 24"><path d="M12 4v16M5.5 13.5 12 20l6.5-6.5"/></svg>
+    </div>
   </div>
 
   <!-- LINE風入力バー -->
   <div class="input-bar" id="input-bar">
     <div class="input-icons-left">
-      <span class="collapse-arrow" id="collapse-arrow" onclick="blurInput()">‹</span>
-      <span class="plus-btn" id="plus-btn" onclick="document.getElementById('file-input').click()">＋</span>
+      <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
+      <svg class="tool-icon-svg" id="plus-btn" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
+        <path d="M12 3.5v17M3.5 12h17"/>
+      </svg>
       <svg class="tool-icon-svg" id="cam-icon" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
-        <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+        <path d="M3 8.5a2 2 0 0 1 2-2h2.2l1.3-1.8h7l1.3 1.8H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/>
       </svg>
       <svg class="tool-icon-svg" id="img-icon" viewBox="0 0 24 24" onclick="document.getElementById('file-input').click()">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
+        <rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M4 17.5l5-5 3.5 3.5 2.5-2.5 5 5"/>
       </svg>
     </div>
     <div class="input-wrapper">
       <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
-    </div>
-    <div class="input-icons-right">
       <svg class="tool-icon-svg" id="emoji-icon" viewBox="0 0 24 24">
-        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+        <circle cx="12" cy="12" r="9"/><path d="M8.3 14c.9 1.5 2.1 2.2 3.7 2.2s2.8-.7 3.7-2.2"/><circle cx="9" cy="10" r=".7" fill="#b7b7b7"/><circle cx="15" cy="10" r=".7" fill="#b7b7b7"/>
       </svg>
-      <button class="send-action-btn" id="send-action-btn" onclick="handleSendButtonAction()">
-        <svg viewBox="0 0 24 24" id="send-mic-svg">
-          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-        </svg>
-      </button>
     </div>
+    <button class="send-action-btn" id="send-action-btn" onclick="handleSendButtonAction()">
+      <svg viewBox="0 0 24 24" id="send-mic-svg"></svg>
+    </button>
   </div>
 
   <!-- 管理用設定パネル -->
@@ -562,9 +633,16 @@
 
 <script>
   let currentSender = 'me';
-  let partnerAvatarUrl = 'https://via.placeholder.com/100/444444/ffffff?text=Icon';
+  // 画像未設定のときの初期アイコン（外部サービスに頼らないSVG）
+  let partnerAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#4a4a4a"/>' +
+    '<circle cx="50" cy="40" r="18" fill="#8a8a8a"/><path d="M14 100c0-22 16-36 36-36s36 14 36 36z" fill="#8a8a8a"/></svg>'
+  );
   let isInputFocused = false;
-  
+
+  const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
+  const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
+
   const initialMessages = [
     { sender: 'me', text: 'フライングしたのやっぱりこが', time: '19:51' },
     { sender: 'me', text: '動画見た', time: '19:51' },
@@ -582,15 +660,18 @@
     { sender: 'partner', text: 'ああお前しか映ってないのか', time: '20:11' }
   ];
 
+  let messagesData = [];
+
   window.onload = function() {
     initialMessages.forEach(msg => {
-      appendMessage(msg.sender, msg.text, msg.time, false, false);
+      // 自分のメッセージには既読をつける
+      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false);
     });
     renderChat();
+    updateSendButtonState();
     scrollToBottom();
+    document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
   };
-
-  let messagesData = [];
 
   function setSender(sender) {
     currentSender = sender;
@@ -636,10 +717,10 @@
 
     if (text.trim().length > 0 || isInputFocused) {
       btn.className = 'send-action-btn active-blue';
-      svgElem.innerHTML = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
+      svgElem.innerHTML = SEND_SVG;
     } else {
       btn.className = 'send-action-btn';
-      svgElem.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>';
+      svgElem.innerHTML = MIC_SVG;
     }
   }
 
@@ -677,9 +758,7 @@
 
   function renderChat() {
     const chatArea = document.getElementById('chat-area');
-    const scrollBtn = chatArea.querySelector('.scroll-bottom-btn');
     chatArea.innerHTML = '';
-    chatArea.appendChild(scrollBtn);
 
     for (let i = 0; i < messagesData.length; i++) {
       const msg = messagesData[i];
@@ -692,10 +771,9 @@
         continue;
       }
 
-      let isGrouped = false;
-      if (i > 0 && messagesData[i - 1].sender === msg.sender && messagesData[i - 1].sender !== 'system') {
-        isGrouped = true;
-      }
+      // 直前が同じ送信者・同じ時刻(分)なら「同グループの2通目以降」
+      const prev = messagesData[i - 1];
+      const isGrouped = !!(prev && prev.sender === msg.sender && prev.time === msg.time);
 
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
@@ -705,7 +783,7 @@
         avatarHtml = `<img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">`;
       }
 
-      let metaHtml = `
+      const metaHtml = `
         <div class="msg-meta">
           ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
           <span>${msg.time}</span>
@@ -733,6 +811,7 @@
 
       chatArea.appendChild(msgDiv);
     }
+    updateScrollButton();
   }
 
   function handleKeyPress(e) {
@@ -800,6 +879,15 @@
   function scrollToBottom() {
     const chatArea = document.getElementById('chat-area');
     chatArea.scrollTop = chatArea.scrollHeight;
+    updateScrollButton();
+  }
+
+  // 一番下にいないときだけ「↓」ボタンを出す
+  function updateScrollButton() {
+    const chatArea = document.getElementById('chat-area');
+    const btn = document.getElementById('scroll-bottom-btn');
+    const away = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight;
+    btn.style.display = away > 80 ? 'flex' : 'none';
   }
 
   function escapeHtml(str) {
