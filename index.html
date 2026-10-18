@@ -86,6 +86,16 @@
       text-overflow: ellipsis;
     }
 
+    /* 削除モード時のヘッダータイトル */
+    .delete-header-title {
+      font-weight: 700;
+      font-size: 17px;
+      color: #ffffff;
+      width: 100%;
+      text-align: center;
+      display: none;
+    }
+
     .header-icons {
       display: flex;
       align-items: center;
@@ -205,7 +215,7 @@
       background-color: var(--bg);
     }
 
-    /* 下移動ボタン（スクロールしても画面に固定） */
+    /* 下移動ボタン ---------- */
     .scroll-bottom-btn {
       position: absolute;
       right: 8px;
@@ -245,17 +255,18 @@
       line-height: 1.4;
     }
 
-    /* 送信取り消しシステムメッセージ風 */
-    .un-msg {
+    /* 送信取り消し（システムメッセージ形式・文字色白） */
+    .unsend-sys-msg {
       align-self: center;
-      color: #999999;
+      color: #ffffff;
       font-size: 11.5px;
       text-align: center;
       margin: 10px 0;
       line-height: 1.4;
+      user-select: none;
     }
-    .un-msg span {
-      color: #4b88ff;
+    .unsend-sys-msg span {
+      color: #ffffff;
       text-decoration: underline;
       cursor: pointer;
     }
@@ -264,7 +275,8 @@
     .msg-group {
       display: flex;
       align-items: flex-start;
-      margin-top: 7.5px;           /* 別グループとの間隔 */
+      margin-top: 7.5px;
+      position: relative;
     }
     .msg-group:first-of-type { margin-top: 0; }
 
@@ -305,6 +317,38 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
+    }
+
+    /* ---------- 削除用選択チェックボックス ---------- */
+    .select-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-right: 12px;
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .msg-group.me .select-checkbox {
+      margin-right: 0;
+      margin-left: 12px;
+    }
+    .select-checkbox.checked {
+      background-color: #00d26a;
+      border-color: #00d26a;
+    }
+    .select-checkbox.checked::after {
+      content: "";
+      width: 6px;
+      height: 10px;
+      border: solid #ffffff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      margin-bottom: 2px;
     }
 
     /* ---------- 吹き出し共通 ---------- */
@@ -496,6 +540,44 @@
       height: 16px;
     }
 
+    /* ---------- 削除モード専用ボトムバー ---------- */
+    .delete-bottom-bar {
+      background-color: #111111;
+      padding: 10px 14px 14px 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .delete-cancel-btn {
+      flex: 1;
+      background-color: #1a1a1c;
+      border: 1px solid #2a2a2c;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .delete-exec-btn {
+      flex: 1;
+      background-color: #ff3b30;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      border: none;
+    }
+
     /* ---------- 管理用コントロールパネル ---------- */
     .control-panel {
       background-color: #1a1a1c;
@@ -574,7 +656,7 @@
       justify-content: center;
     }
 
-    /* 1枚目のメニューボード */
+    /* 1枚目のアクションメニュー */
     .action-menu {
       position: absolute;
       background-color: #262628;
@@ -618,7 +700,7 @@
       stroke-linejoin: round;
     }
 
-    /* 2枚目の確認モーダル */
+    /* 2枚目の送信取消確認モーダル */
     .confirm-modal {
       background-color: #222224;
       border-radius: 16px;
@@ -690,6 +772,40 @@
       font-size: 14px;
       cursor: pointer;
       padding: 4px;
+    }
+
+    /* 削除実行確認ダイアログ（参考写真3枚目） */
+    .delete-dialog {
+      background-color: #222224;
+      border-radius: 16px;
+      width: 290px;
+      padding: 20px 16px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 103;
+    }
+
+    .delete-dialog-desc {
+      font-size: 13px;
+      color: #cccccc;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    .delete-dialog-btn-red {
+      width: 100%;
+      background-color: #ff3b30;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 8px;
     }
 
     /* ---------- 4枚目のプレミアムページ画面 ---------- */
@@ -862,7 +978,7 @@
 
 <div class="container">
   <!-- ヘッダー -->
-  <div class="header">
+  <div class="header" id="normal-header">
     <div class="header-left">
       <svg class="back-btn" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
       <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">Ryo Murakami</span>
@@ -881,6 +997,11 @@
         <path d="M3 6h18M3 12h18M3 18h18"/>
       </svg>
     </div>
+  </div>
+
+  <!-- 削除モード時のヘッダー -->
+  <div class="header" id="delete-header" style="display: none;">
+    <div class="delete-header-title" id="delete-header-title" style="display: block;">メッセージを削除</div>
   </div>
 
   <!-- アナウンスバー -->
@@ -902,7 +1023,7 @@
     </div>
   </div>
 
-  <!-- LINE風入力バー -->
+  <!-- 通常のLINE風入力バー -->
   <div class="input-bar" id="input-bar">
     <div class="input-icons-left">
       <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
@@ -927,8 +1048,14 @@
     </button>
   </div>
 
+  <!-- 削除モード用ボトムバー（参考写真1・2枚目） -->
+  <div class="delete-bottom-bar" id="delete-bottom-bar">
+    <div class="delete-cancel-btn" onclick="exitDeleteMode()">キャンセル</div>
+    <button class="delete-exec-btn" id="delete-exec-btn" onclick="openDeleteDialog()">削除 (0)</button>
+  </div>
+
   <!-- 管理用設定パネル -->
-  <div class="control-panel">
+  <div class="control-panel" id="control-panel">
     <div class="sender-switch">
       <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
       <button class="switch-btn partner" id="btn-partner" onclick="setSender('partner')">相手 (黒)</button>
@@ -949,7 +1076,7 @@
       <div class="action-item" onclick="alert('コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><span>コピー</span></div>
       <div class="action-item" onclick="alert('部分コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg></div><span>部分コピー</span></div>
       <div class="action-item" onclick="alert('Keepメモ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><span>Keepメモ</span></div>
-      <div class="action-item" onclick="alert('削除')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><span>削除</span></div>
+      <div class="action-item" onclick="enterDeleteMode()"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><span>削除</span></div>
       
       <div class="action-item" onclick="openConfirmModal()"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div><span>送信取消</span></div>
       <div class="action-item" onclick="alert('リプライ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></div><span>リプライ</span></div>
@@ -961,13 +1088,20 @@
       <div class="action-item" onclick="alert('カレンダー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>カレンダー</span></div>
     </div>
 
-    <!-- 2枚目の確認モーダル -->
-    <div class="confirm-modal" id="confirm-modal" onclick="event.stopPropagation()">
+    <!-- 送信取消確認モーダル -->
+    <div class="confirm-modal" id="confirm-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="confirm-title">メッセージの送信を<br>取り消しますか？</div>
       <div class="confirm-desc">このメッセージは未読のため、相手への<br>通知なしに取り消できます。</div>
       <button class="confirm-btn-green" onclick="openPremiumPage()">通知なしで送信取消 <span>プレミアム</span></button>
       <button class="confirm-btn-dark" onclick="executeUnsend()">送信取消</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">閉じる</button>
+    </div>
+
+    <!-- 削除確認ダイアログ（参考写真3枚目） -->
+    <div class="delete-dialog" id="delete-dialog" onclick="event.stopPropagation()" style="display: none;">
+      <div class="delete-dialog-desc">選択したメッセージはこの端末でのみ削除されます。相手の端末からは削除されません。</div>
+      <button class="delete-dialog-btn-red" onclick="executeDeleteSelected()">この端末でのみ削除</button>
+      <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
   </div>
 
@@ -1018,7 +1152,9 @@
     '<circle cx="50" cy="40" r="18" fill="#8a8a8a"/><path d="M14 100c0-22 16-36 36-36s36 14 36 36z" fill="#8a8a8a"/></svg>'
   );
   let isInputFocused = false;
-  let selectedMsgIndex = null; // 長押しされたメッセージのインデックス
+  let selectedMsgIndex = null; // 長押しで選択されたインデックス
+  let isDeleteMode = false;     // 削除選択モードかどうかのフラグ
+  let selectedToDelete = new Set(); // 削除選択されたインデックスの集合
 
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
@@ -1151,11 +1287,27 @@
         continue;
       }
 
-      // 送信取り消しされたメッセージの表示（3枚目の状態）
+      // 送信取り消しされたメッセージのシステム表示
       if (msg.unsend) {
         const unDiv = document.createElement('div');
-        unDiv.className = 'un-msg';
-        unDiv.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
+        unDiv.className = 'msg-group';
+        unDiv.style.width = '100%';
+        unDiv.style.justifyContent = 'center';
+
+        // 削除モード時のチェックボックス
+        if (isDeleteMode) {
+          const cb = document.createElement('div');
+          cb.className = 'select-checkbox' + (selectedToDelete.has(i) ? ' checked' : '');
+          cb.style.display = 'flex';
+          cb.onclick = (e) => { e.stopPropagation(); toggleSelectMessage(i); };
+          unDiv.appendChild(cb);
+        }
+
+        const msgContent = document.createElement('div');
+        msgContent.className = 'unsend-sys-msg';
+        msgContent.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
+        unDiv.appendChild(msgContent);
+
         chatArea.appendChild(unDiv);
         continue;
       }
@@ -1165,6 +1317,13 @@
 
       const msgDiv = document.createElement('div');
       msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
+
+      // 削除モード用チェックボックス
+      let cbHtml = '';
+      if (isDeleteMode) {
+        const isChecked = selectedToDelete.has(i);
+        cbHtml = `<div class="select-checkbox${isChecked ? ' checked' : ''}" style="display:flex;" onclick="event.stopPropagation(); toggleSelectMessage(${i})"></div>`;
+      }
 
       let avatarHtml = '';
       if (msg.sender === 'partner') {
@@ -1181,17 +1340,19 @@
       if (msg.isImage) {
         contentHtml = `<img src="${msg.content}" class="msg-img">`;
       } else {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()">${escapeHtml(msg.content)}</div>`;
+        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()" onclick="handleBubbleClick(${i})">${escapeHtml(msg.content)}</div>`;
       }
 
       if (msg.sender === 'partner') {
         msgDiv.innerHTML = `
+          ${cbHtml}
           ${avatarHtml}
           <div class="msg-content">${contentHtml}</div>
           ${metaHtml}
         `;
       } else {
         msgDiv.innerHTML = `
+          ${cbHtml}
           <div class="msg-content">${contentHtml}</div>
           ${metaHtml}
         `;
@@ -1202,20 +1363,28 @@
     updateScrollButton();
   }
 
-  // タッチ長押し・右クリック（長押し）のハンドリング
+  // タッチ長押し・右クリックハンドリング
   let touchTimer = null;
   function handleTouchStart(e, index) {
+    if (isDeleteMode) return;
     touchTimer = setTimeout(() => {
       e.preventDefault();
       showActionMenu(index);
-    }, 600); // 0.6秒長押し
+    }, 600);
   }
   function handleTouchEnd() {
     clearTimeout(touchTimer);
   }
   function handleLongPress(e, index) {
+    if (isDeleteMode) return;
     e.preventDefault();
     showActionMenu(index);
+  }
+
+  function handleBubbleClick(index) {
+    if (isDeleteMode) {
+      toggleSelectMessage(index);
+    }
   }
 
   function showActionMenu(index) {
@@ -1223,6 +1392,7 @@
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('action-menu').style.display = 'grid';
     document.getElementById('confirm-modal').style.display = 'none';
+    document.getElementById('delete-dialog').style.display = 'none';
   }
 
   function openConfirmModal() {
@@ -1234,15 +1404,87 @@
     document.getElementById('modal-overlay').style.display = 'none';
     document.getElementById('action-menu').style.display = 'none';
     document.getElementById('confirm-modal').style.display = 'none';
+    document.getElementById('delete-dialog').style.display = 'none';
   }
 
-  // 送信取消を実行して3枚目の状態にする（見た目のみ、実際のメッセージは削除せずフラグ立てる）
+  // 送信取消（システムメッセージ化）
   function executeUnsend() {
     if (selectedMsgIndex !== null) {
       messagesData[selectedMsgIndex].unsend = true;
       renderChat();
     }
     closeAllModals();
+  }
+
+  // 削除モードに入る（長押しメニューの「削除」タップ時）
+  function enterDeleteMode() {
+    closeAllModals();
+    isDeleteMode = true;
+    selectedToDelete.clear();
+    if (selectedMsgIndex !== null) {
+      selectedToDelete.add(selectedMsgIndex);
+    }
+
+    document.getElementById('normal-header').style.display = 'none';
+    document.getElementById('delete-header').style.display = 'flex';
+    document.getElementById('input-bar').style.display = 'none';
+    document.getElementById('control-panel').style.display = 'none';
+    document.getElementById('delete-bottom-bar').style.display = 'flex';
+
+    updateDeleteButtonState();
+    renderChat();
+  }
+
+  // 削除モードから抜ける
+  function exitDeleteMode() {
+    isDeleteMode = false;
+    selectedToDelete.clear();
+
+    document.getElementById('normal-header').style.display = 'flex';
+    document.getElementById('delete-header').style.display = 'none';
+    document.getElementById('input-bar').style.display = 'flex';
+    document.getElementById('control-panel').style.display = 'flex';
+    document.getElementById('delete-bottom-bar').style.display = 'none';
+
+    renderChat();
+  }
+
+  function toggleSelectMessage(index) {
+    if (selectedToDelete.has(index)) {
+      selectedToDelete.delete(index);
+    } else {
+      selectedToDelete.add(index);
+    }
+    updateDeleteButtonState();
+    renderChat();
+  }
+
+  function updateDeleteButtonState() {
+    const count = selectedToDelete.size;
+    const btn = document.getElementById('delete-exec-btn');
+    btn.innerText = `削除 (${count})`;
+    btn.style.opacity = count > 0 ? '1' : '0.5';
+    btn.style.pointerEvents = count > 0 ? 'auto' : 'none';
+  }
+
+  // 削除ボタン押下時の確認ダイアログオープン（参考写真3枚目）
+  function openDeleteDialog() {
+    if (selectedToDelete.size === 0) return;
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('action-menu').style.display = 'none';
+    document.getElementById('confirm-modal').style.display = 'none';
+    document.getElementById('delete-dialog').style.display = 'flex';
+  }
+
+  // 選択メッセージの完全削除実行（痕跡なく消す）
+  function executeDeleteSelected() {
+    // 降順にソートして削除（インデックスのズレを防ぐため）
+    const indices = Array.from(selectedToDelete).sort((a, b) => b - a);
+    indices.forEach(idx => {
+      messagesData.splice(idx, 1);
+    });
+    closeAllModals();
+    exitDeleteMode();
   }
 
   // 4枚目のプレミアムページを開く
@@ -1277,8 +1519,8 @@
   }
 
   function changePartnerName() {
-    const currentName = document.getElementById('partner-name-display的表现', document.getElementById('partner-name-display').innerText);
-    const newName = prompt('相手の名前を入力してください:', document.getElementById('partner-name-display').innerText);
+    const currentName = document.getElementById('partner-name-display').innerText;
+    const newName = prompt('相手の名前を入力してください:', currentName);
     if (newName !== null && newName.trim() !== '') {
       document.getElementById('partner-name-display').innerText = newName.trim();
     }
