@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>LINE風チャットアプリ</title>
+  <title>LINE-LIKE</title>
   <style>
     * {
       box-sizing: border-box;
@@ -39,14 +39,20 @@
       --reply-body-font-size: 14px;
     }
 
-    body {
+    html, body {
       background-color: #000000;
       color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
       padding: 0;
+      overflow: hidden;
+      position: fixed;
+      touch-action: none;
     }
 
     .container {
@@ -60,6 +66,7 @@
       flex-direction: column;
       position: relative;
       overflow: hidden;
+      touch-action: pan-y;
     }
 
     .screen {
@@ -1753,10 +1760,9 @@
 </div>
 
 <script>
-  // 初期フレンドリスト（森安の初期メッセージログを完全に削除、件数表示も削除）
   let friendsList = [];
 
-  let currentFriendId = 'moriyasu';
+  let currentFriendId = null;
   let currentMainTab = 'talk'; 
   let currentSender = 'me';
   let myName = '自分';
@@ -1828,7 +1834,6 @@
   function goToHomeScreen() {
     document.getElementById('chat-screen').classList.remove('active');
     document.getElementById('home-screen').classList.add('active');
-    // ホームに戻ったときはボトムタブバーを表示
     document.getElementById('main-tab-bar').style.display = 'flex';
     renderHomeView();
   }
@@ -1837,7 +1842,6 @@
     currentFriendId = friendId;
     document.getElementById('home-screen').classList.remove('active');
     document.getElementById('chat-screen').classList.add('active');
-    // トークを開いているときは下の写真のタブを非表示にする
     document.getElementById('main-tab-bar').style.display = 'none';
     renderChat();
     scrollToBottom();
@@ -1908,7 +1912,6 @@
             item.innerHTML = `
               <img src="${friend.avatar}" class="item-avatar">
               <div class="item-info">
-                <!-- フレンド名の横にあった件数表示を完全削除 -->
                 <div class="item-name">${escapeHtml(friend.name)}</div>
                 <div class="item-sub">${escapeHtml(subText)}</div>
               </div>
@@ -2131,6 +2134,7 @@
 
   function renderChat() {
     const friend = getCurrentActiveFriend();
+    if (!friend) return;
     document.getElementById('partner-name-display').innerText = friend.name;
 
     const chatArea = document.getElementById('chat-area');
@@ -2302,7 +2306,7 @@
     document.getElementById('my-avatar-preview').src = myAvatarUrl;
 
     const partnerSection = document.getElementById('partner-account-section');
-    if (document.getElementById('chat-screen').classList.contains('active')) {
+    if (document.getElementById('chat-screen').classList.contains('active') && friend) {
       partnerSection.style.display = 'flex';
       document.getElementById('partner-name-input').value = friend.name;
       document.getElementById('partner-avatar-preview').src = friend.avatar;
@@ -2321,7 +2325,7 @@
     if (document.getElementById('chat-screen').classList.contains('active')) {
       const newPartnerName = document.getElementById('partner-name-input').value.trim();
       const friend = getCurrentActiveFriend();
-      if (newPartnerName) friend.name = newPartnerName;
+      if (friend && newPartnerName) friend.name = newPartnerName;
       renderChat();
     } else {
       renderHomeView();
@@ -2389,6 +2393,7 @@
 
   function executeDeleteSelected() {
     const friend = getCurrentActiveFriend();
+    if (!friend) return;
     const indices = Array.from(selectedToDelete).sort((a, b) => b - a);
     indices.forEach(idx => friend.messages.splice(idx, 1));
     closeAllModals();
@@ -2413,6 +2418,7 @@
     const reader = new FileReader();
     reader.onload = function(e) {
       const friend = getCurrentActiveFriend();
+      if (!friend) return;
       let replyInfo = null;
       if (activeReplyTarget) {
         replyInfo = { sender: activeReplyTarget.sender, content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.text };
@@ -2453,9 +2459,12 @@
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-      getCurrentActiveFriend().avatar = e.target.result;
-      document.getElementById('partner-avatar-preview').src = e.target.result;
-      renderChat();
+      const friend = getCurrentActiveFriend();
+      if (friend) {
+        friend.avatar = e.target.result;
+        document.getElementById('partner-avatar-preview').src = e.target.result;
+        renderChat();
+      }
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -2478,7 +2487,8 @@
 
   function clearChat() {
     if (confirm('チャット履歴を全消去しますか？')) {
-      getCurrentActiveFriend().messages = [];
+      const friend = getCurrentActiveFriend();
+      if (friend) friend.messages = [];
       cancelReply();
       renderChat();
     }
