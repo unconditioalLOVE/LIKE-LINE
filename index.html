@@ -21,28 +21,23 @@
       --meta: #8d8d8d;
       --icon: #b7b7b7;
 
-      /* =========================================================
-         ▼ レイアウト調整用変数（ここを変更して微調整できます）
-         ========================================================= */
-      /* --- 通常メッセージ --- */
-      --msg-padding-y: 8px;        /* 上下余白 */
-      --msg-padding-x: 12px;       /* 左右余白 */
-      --msg-font-size: 14px;       /* 文字サイズ */
+      /* レイアウト調整用変数 */
+      --msg-padding-y: 8px;
+      --msg-padding-x: 12px;
+      --msg-font-size: 14px;
 
-      /* --- リプライ上段（引用部分） --- */
-      --reply-top-padding-y: 6px;  /* 上下余白 */
-      --reply-top-padding-x: 12px; /* 左右余白 */
-      --reply-top-shift-x:-6px;    /* X軸移動（マイナスで左、プラスで右） */
-      --reply-top-shift-y: 0px;    /* Y軸移動（マイナスで上、プラスで下） */
-      --reply-title-font-size: 10px;/* 名前の文字サイズ */
-      --reply-text-font-size: 10px; /* 引用本文の文字サイズ */
+      --reply-top-padding-y: 6px;
+      --reply-top-padding-x: 1px;
+      --reply-top-shift-x: 2px;
+      --reply-top-shift-y: 0px;
+      --reply-title-font-size: 10px;
+      --reply-text-font-size: 10px;
 
-      /* --- リプライ下段（送信本文） --- */
-      --reply-body-padding-y: 7px; /* 上下余白 */
-      --reply-body-padding-x: 12px;/* 左右余白 */
-      --reply-body-shift-x: -6px;   /* X軸移動（マイナスで左、プラスで右） */
-      --reply-body-shift-y: 2px;   /* Y軸移動（マイナスで上、プラスで下） */
-      --reply-body-font-size: 14px;/* 送信本文の文字サイズ */
+      --reply-body-padding-y: 7px;
+      --reply-body-padding-x: 12px;
+      --reply-body-shift-x: -5px;
+      --reply-body-shift-y: 3px;
+      --reply-body-font-size: 14px;
     }
 
     body {
@@ -400,6 +395,7 @@
       flex-direction: column;
       min-height: 35px;
       max-width: 252px;
+      width: 100%;
       padding: var(--msg-padding-y) var(--msg-padding-x);
       font-size: var(--msg-font-size);
       line-height: 1.3;
@@ -456,27 +452,20 @@
       left: var(--reply-top-shift-x);
       top: var(--reply-top-shift-y);
     }
-    .partner .bubble-reply-container {padding: var(--reply-top-padding-y) var(--reply-top-padding-x);
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.12); /* ← これが仕切り線です */
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  left: var(--reply-top-shift-x);
-  top: var(--reply-top-shift-y);
+    .partner .bubble-reply-container {
       border-bottom: 0.5px solid rgba(255, 255, 255, 0.15);
     }
 
     .bubble-reply-avatar {
-      position: relative;
-left: 0px;
-top: -3px;
-      width: 24px;
-      height: 24px;
+      width: 25px;
+      height: 25px;
       border-radius: 50%;
       object-fit: cover;
       flex-shrink: 0;
       background-color: #444;
+      position: relative;
+      left: 3px;
+      top: -3px;
     }
 
     .bubble-reply-info-col {
@@ -743,7 +732,7 @@ top: -3px;
       border: none;
     }
 
-    /* コントロールパネル */
+    /* 管理用設定パネル */
     .control-panel {
       background-color: #1a1a1c;
       border-top: 1px solid #2a2a2c;
@@ -803,7 +792,7 @@ top: -3px;
       cursor: pointer;
     }
 
-    #file-input, #avatar-input {
+    #file-input, #avatar-input, #my-avatar-input {
       display: none;
     }
 
@@ -968,6 +957,80 @@ top: -3px;
       font-weight: bold;
       cursor: pointer;
       margin-bottom: 8px;
+    }
+
+    /* アカウント情報設定モーダル */
+    .account-modal {
+      background-color: #222224;
+      border-radius: 16px;
+      width: 310px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 104;
+    }
+
+    .account-modal-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .account-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #1a1a1c;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .account-section-title {
+      font-size: 12px;
+      color: #8d8d8d;
+      font-weight: bold;
+    }
+
+    .account-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .account-avatar-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #333;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .account-input-name {
+      flex: 1;
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      border-radius: 6px;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .account-save-btn {
+      width: 100%;
+      background-color: #2b82f6;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     /* プレミアムページ */
@@ -1143,7 +1206,7 @@ top: -3px;
   <div class="header" id="normal-header">
     <div class="header-left">
       <svg class="back-btn" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
-      <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">森安</span>
+      <span class="partner-name" id="partner-name-display" onclick="openAccountModal()">森安</span>
     </div>
     <div class="header-icons">
       <svg class="header-icon-svg" viewBox="0 0 24 24">
@@ -1155,7 +1218,8 @@ top: -3px;
       <div class="calendar-icon-box" onclick="alert('カレンダー')">
         <span class="calendar-date">31</span>
       </div>
-      <svg class="header-icon-svg" viewBox="0 0 24 24">
+      <!-- 右上三本線アイコン（タップでアカウント設定モーダル起動） -->
+      <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openAccountModal()">
         <path d="M3 6h18M3 12h18M3 18h18"/>
       </svg>
     </div>
@@ -1240,8 +1304,9 @@ top: -3px;
     </div>
   </div>
 
-  <!-- モーダル -->
+  <!-- モーダル各種 -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeAllModals()">
+    <!-- アクションメニュー -->
     <div class="action-menu" id="action-menu" onclick="event.stopPropagation()">
       <div class="action-item" onclick="alert('コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><span>コピー</span></div>
       <div class="action-item" onclick="alert('部分コピー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg></div><span>部分コピー</span></div>
@@ -1258,6 +1323,7 @@ top: -3px;
       <div class="action-item" onclick="alert('カレンダー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>カレンダー</span></div>
     </div>
 
+    <!-- 送信取消モーダル -->
     <div class="confirm-modal" id="confirm-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="confirm-title">メッセージの送信を<br>取り消しますか？</div>
       <div class="confirm-desc">このメッセージは未読のため、相手への<br>通知なしに取り消できます。</div>
@@ -1266,9 +1332,36 @@ top: -3px;
       <button class="confirm-btn-cancel" onclick="closeAllModals()">閉じる</button>
     </div>
 
+    <!-- 削除確認ダイアログ -->
     <div class="delete-dialog" id="delete-dialog" onclick="event.stopPropagation()" style="display: none;">
       <div class="delete-dialog-desc">選択したメッセージはこの端末でのみ削除されます。相手の端末からは削除されません。</div>
       <button class="delete-dialog-btn-red" onclick="executeDeleteSelected()">この端末でのみ削除</button>
+      <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
+    </div>
+
+    <!-- アカウント情報編集モーダル -->
+    <div class="account-modal" id="account-modal" onclick="event.stopPropagation()" style="display: none;">
+      <div class="account-modal-title">アカウント情報の変更</div>
+      
+      <!-- 自分情報 -->
+      <div class="account-section">
+        <div class="account-section-title">自分のプロフィール</div>
+        <div class="account-row">
+          <img src="" id="my-avatar-preview" class="account-avatar-preview" onclick="triggerMyAvatarUpload()" title="タップして変更">
+          <input type="text" id="my-name-input" class="account-input-name" placeholder="自分の名前">
+        </div>
+      </div>
+
+      <!-- 相手情報 -->
+      <div class="account-section">
+        <div class="account-section-title">相手のプロフィール</div>
+        <div class="account-row">
+          <img src="" id="partner-avatar-preview" class="account-avatar-preview" onclick="triggerAvatarUpload()" title="タップして変更">
+          <input type="text" id="partner-name-input" class="account-input-name" placeholder="相手の名前">
+        </div>
+      </div>
+
+      <button class="account-save-btn" onclick="saveAccountSettings()">変更を保存</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
   </div>
@@ -1311,14 +1404,24 @@ top: -3px;
 
   <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
   <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
+  <input type="file" id="my-avatar-input" accept="image/*" onchange="changeMyAvatar(event)">
 </div>
 
 <script>
   let currentSender = 'me';
+  let myName = '自分';
+  let partnerName = '森安';
+
+  // 初期アイコン設定
+  let myAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d26a"/>' +
+    '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#fff"/></svg>'
+  );
   let partnerAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#2b2b2b"/>' +
     '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#888"/></svg>'
   );
+
   let isInputFocused = false;
   let selectedMsgIndex = null;
   let isDeleteMode = false;
@@ -1341,15 +1444,23 @@ top: -3px;
     { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03', unsend: false, date: '2026-08-20' },
     { sender: 'partner', text: 'あーー', time: '20:04', unsend: false, date: '2026-08-20' },
     { sender: 'partner', text: 'とりまほしい', time: '20:04', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '普通に意味がわからない', time: '20:06', unsend: false, date: '2026-08-20', replyTo: { senderLabel: '森安', content: '普通に意味がわからない', avatar: partnerAvatarUrl } },
+    { sender: 'me', text: '普通に意味がわからない', time: '20:06', unsend: false, date: '2026-08-20', replyTargetIndex: 9 },
     { sender: 'partner', text: 'だよな', time: '20:06', unsend: false, date: '2026-08-20' }
   ];
 
   let messagesData = [];
 
   window.onload = function() {
-    initialMessages.forEach(msg => {
-      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, msg.replyTo || null);
+    initialMessages.forEach((msg, idx) => {
+      let replyInfo = null;
+      if (msg.replyTargetIndex !== undefined && initialMessages[msg.replyTargetIndex]) {
+        const target = initialMessages[msg.replyTargetIndex];
+        replyInfo = {
+          sender: target.sender,
+          content: target.text
+        };
+      }
+      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, replyInfo);
     });
     renderChat();
     updateSendButtonState();
@@ -1462,12 +1573,9 @@ top: -3px;
 
     let replyInfo = null;
     if (activeReplyTarget) {
-      const currentPartnerName = document.getElementById('partner-name-display').innerText;
-      const label = activeReplyTarget.sender === 'me' ? 'あなた' : currentPartnerName;
       replyInfo = {
-        senderLabel: label,
-        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content,
-        avatar: partnerAvatarUrl
+        sender: activeReplyTarget.sender,
+        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content
       };
     }
 
@@ -1499,8 +1607,7 @@ top: -3px;
     if (!targetMsg || targetMsg.unsend || targetMsg.sender === 'system') return;
 
     activeReplyTarget = targetMsg;
-    const currentPartnerName = document.getElementById('partner-name-display').innerText;
-    const label = targetMsg.sender === 'me' ? 'あなた' : currentPartnerName;
+    const label = targetMsg.sender === 'me' ? myName : partnerName;
     const textSummary = targetMsg.isImage ? '[画像]' : targetMsg.content;
 
     document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
@@ -1522,10 +1629,12 @@ top: -3px;
   }
 
   function renderChat() {
+    // ヘッダーの名前を最新に設定
+    document.getElementById('partner-name-display').innerText = partnerName;
+
     const chatArea = document.getElementById('chat-area');
     chatArea.innerHTML = '';
 
-    const currentPartnerName = document.getElementById('partner-name-display').innerText;
     let lastDate = null;
 
     for (let i = 0; i < messagesData.length; i++) {
@@ -1600,8 +1709,9 @@ top: -3px;
       let replyPreviewHtml = '';
       if (msg.replyTo) {
         let shortText = msg.replyTo.content;
-        const replyAvatar = msg.replyTo.avatar || partnerAvatarUrl;
-        const senderLabel = msg.replyTo.senderLabel === 'あなた' ? 'あなた' : currentPartnerName;
+        const replySender = msg.replyTo.sender;
+        const replyAvatar = replySender === 'me' ? myAvatarUrl : partnerAvatarUrl;
+        const senderLabel = replySender === 'me' ? myName : partnerName;
 
         replyPreviewHtml = `
           <div class="bubble-reply-container">
@@ -1755,6 +1865,7 @@ top: -3px;
     document.getElementById('action-menu').style.display = 'grid';
     document.getElementById('confirm-modal').style.display = 'none';
     document.getElementById('delete-dialog').style.display = 'none';
+    document.getElementById('account-modal').style.display = 'none';
   }
 
   function openConfirmModal() {
@@ -1767,6 +1878,30 @@ top: -3px;
     document.getElementById('action-menu').style.display = 'none';
     document.getElementById('confirm-modal').style.display = 'none';
     document.getElementById('delete-dialog').style.display = 'none';
+    document.getElementById('account-modal').style.display = 'none';
+  }
+
+  /* アカウント情報設定モーダルの制御 */
+  function openAccountModal() {
+    closeAllModals();
+    document.getElementById('my-name-input').value = myName;
+    document.getElementById('partner-name-input').value = partnerName;
+    document.getElementById('my-avatar-preview').src = myAvatarUrl;
+    document.getElementById('partner-avatar-preview').src = partnerAvatarUrl;
+
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('account-modal').style.display = 'flex';
+  }
+
+  function saveAccountSettings() {
+    const newMyName = document.getElementById('my-name-input').value.trim();
+    const newPartnerName = document.getElementById('partner-name-input').value.trim();
+
+    if (newMyName) myName = newMyName;
+    if (newPartnerName) partnerName = newPartnerName;
+
+    closeAllModals();
+    renderChat(); // リアルタイム反映
   }
 
   function executeUnsend() {
@@ -1831,6 +1966,7 @@ top: -3px;
     document.getElementById('action-menu').style.display = 'none';
     document.getElementById('confirm-modal').style.display = 'none';
     document.getElementById('delete-dialog').style.display = 'flex';
+    document.getElementById('account-modal').style.display = 'none';
   }
 
   function executeDeleteSelected() {
@@ -1868,12 +2004,9 @@ top: -3px;
       
       let replyInfo = null;
       if (activeReplyTarget) {
-        const currentPartnerName = document.getElementById('partner-name-display').innerText;
-        const label = activeReplyTarget.sender === 'me' ? 'あなた' : currentPartnerName;
         replyInfo = {
-          senderLabel: label,
-          content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content,
-          avatar: partnerAvatarUrl
+          sender: activeReplyTarget.sender,
+          content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content
         };
       }
 
@@ -1884,15 +2017,6 @@ top: -3px;
     };
     reader.readAsDataURL(file);
     event.target.value = '';
-  }
-
-  function changePartnerName() {
-    const currentName = document.getElementById('partner-name-display').innerText;
-    const newName = prompt('相手の名前を入力してください:', currentName);
-    if (newName !== null && newName.trim() !== '') {
-      document.getElementById('partner-name-display').innerText = newName.trim();
-      renderChat();
-    }
   }
 
   function changeAnnouncement() {
@@ -1914,7 +2038,26 @@ top: -3px;
     const reader = new FileReader();
     reader.onload = function(e) {
       partnerAvatarUrl = e.target.result;
-      renderChat();
+      document.getElementById('partner-avatar-preview').src = partnerAvatarUrl;
+      renderChat(); // リアルタイム反映
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function triggerMyAvatarUpload() {
+    document.getElementById('my-avatar-input').click();
+  }
+
+  function changeMyAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      myAvatarUrl = e.target.result;
+      document.getElementById('my-avatar-preview').src = myAvatarUrl;
+      renderChat(); // リアルタイム反映
     };
     reader.readAsDataURL(file);
     event.target.value = '';
