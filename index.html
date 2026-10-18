@@ -246,39 +246,46 @@
       position: relative;
     }
 
-    /* 相手の吹き出し */
+    /* 相手の吹き出し（左側のしっぽ） */
     .partner .msg-bubble {
       background-color: #262628;
       color: #ffffff;
       border-radius: 18px;
-      border-top-left-radius: 0px;
+      position: relative;
     }
 
-    .partner-tail-img {
+    .partner .msg-bubble::before {
+      content: "";
       position: absolute;
+      display: block;
+      left: -9px;
       top: 0px;
-      left: -3px;
-      width: 13px;
-      height: auto;
+      width: 20px;
+      height: 30px;
+      border-radius: 0 18px 18px 6px/0 18px 18px 1px;
+      box-shadow: 10px -12px 0 -5px #262628 inset;
       z-index: 2;
-      transform: scaleX(-1);
     }
 
-    /* 自分の吹き出し（角の位置と大きさを調整してピッタリ重ねる） */
+    /* 自分の吹き出し（右側のしっぽ） */
     .me .msg-bubble {
       background-color: #6be779;
       color: #000000;
       border-radius: 18px;
-      border-top-right-radius: 0px;
       font-weight: 500;
+      position: relative;
     }
 
-    .me-tail-img {
+    .me .msg-bubble::after {
+      content: "";
       position: absolute;
+      display: block;
+      right: -9px;
       top: 0px;
-      right: -3px;
-      width: 13px;
-      height: auto;
+      width: 20px;
+      height: 30px;
+      border-radius: 18px 0 6px 18px/18px 0 1px 18px;
+      box-shadow: -10px -12px 0 -5px #6be779 inset;
       z-index: 2;
     }
 
@@ -557,7 +564,6 @@
 <script>
   let currentSender = 'me';
   let partnerAvatarUrl = 'https://via.placeholder.com/100/444444/ffffff?text=Icon';
-  let tailImageUrl = 'tail.jpg'; 
   let isInputFocused = false;
   
   const initialMessages = [
@@ -708,13 +714,7 @@
       if (msg.isImage) {
         contentHtml = `<img src="${msg.content}" class="msg-img">`;
       } else {
-        let tailImg = '';
-        if (msg.sender === 'me') {
-          tailImg = `<img src="${tailImageUrl}" class="me-tail-img">`;
-        } else {
-          tailImg = `<img src="${tailImageUrl}" class="partner-tail-img">`;
-        }
-        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}${tailImg}</div>`;
+        contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
       }
 
       if (msg.sender === 'partner') {
