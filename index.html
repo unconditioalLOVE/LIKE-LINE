@@ -371,6 +371,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding-left: 4px;
     }
 
     .delete-header-title {
@@ -805,7 +806,7 @@
 
     .input-bar {
       background-color: var(--bar);
-      padding: 8px 12px 34px 10px; /* 下部を広げて黒色で補完 */
+      padding: 8px 12px 34px 10px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -1273,13 +1274,28 @@
     .add-friend-modal {
       background-color: #222224;
       border-radius: 16px;
-      width: 310px;
+      width: 320px;
+      max-height: 90vh;
+      overflow-y: auto;
       padding: 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 205;
+    }
+
+    .import-textarea {
+      width: 100%;
+      height: 100px;
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      border-radius: 8px;
+      color: #fff;
+      padding: 8px;
+      font-size: 12px;
+      outline: none;
+      resize: none;
     }
 
     .premium-page {
@@ -1645,13 +1661,17 @@
     </div>
 
     <div class="add-friend-modal" id="add-friend-modal" onclick="event.stopPropagation()" style="display: none;">
-      <div class="account-modal-title">新しい友達を追加</div>
+      <div class="account-modal-title">新しい友達を追加 / トーク取込</div>
       <div class="account-section">
         <div class="account-section-title">友達のプロフィール</div>
         <div class="account-row">
           <img src="" id="new-friend-avatar-preview" class="account-avatar-preview" onclick="document.getElementById('add-friend-avatar-input').click()" title="タップして変更">
           <input type="text" id="new-friend-name-input" class="account-input-name" placeholder="友達の名前を入力">
         </div>
+      </div>
+      <div class="account-section">
+        <div class="account-section-title">LINEのトーク履歴を貼り付け（任意）</div>
+        <textarea id="import-text-area" class="import-textarea" placeholder="[LINE] トーク履歴をここにペースト"></textarea>
       </div>
       <button class="account-save-btn" onclick="executeAddFriend()">追加してトークを開始</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
@@ -1899,6 +1919,7 @@
   function openAddFriendModal() {
     closeAllModals();
     document.getElementById('new-friend-name-input').value = '';
+    document.getElementById('import-text-area').value = '';
     document.getElementById('new-friend-avatar-preview').src = newFriendTempAvatar;
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('add-friend-modal').style.display = 'flex';
@@ -1918,17 +1939,110 @@
 
   function executeAddFriend() {
     const nameInput = document.getElementById('new-friend-name-input').value.trim();
-    if (!nameInput) {
-      alert('名前を入力してください');
+    const rawText = document.getElementById('import-text-area').value.trim();
+    if (!nameInput && !rawText) {
+      alert('名前またはトーク履歴を入力してください');
       return;
+    }
+
+    let friendName = nameInput;
+    let parsedMessages = [];
+    let partnerName = null;
+
+    if (rawText) {
+      // 1. タイトル行「[LINE] 〇〇とのトーク」から相手の名前を確実に抽出（大文字小文字や空白の揺れにも対応）
+      const titleMatch = rawText.match(/(?:\[.*?LINE.*?\])?\s*(.+?)\s*とのトーク/);
+      if (titleMatch) {
+        partnerName = titleMatch[1].trim();
+      }
+
+      const lines = rawText.split('\n');
+      let currentDate = new Date().toISOString().split('T')[0];
+
+      // タイトルが見つからない場合、最初に出てくる発言者名を相手の名前とする
+      if (!partnerName) {
+        for (let line of lines) {
+          const timeMatch = line.trim().match(/^(\d{2}:\d{2})/);
+          if (timeMatch) {
+            const remainder = line.trim().substring(timeMatch[1].length).trim();
+            const tokens = remainder.split(/[\t\s]+/);
+            if (tokens.length >= 2 && tokens[0] !== 'メッセージの送信を取り消しました' && !tokens[0].includes('がアナウンスしました')) {
+              partnerName = tokens[0];
+              break;
+            }
+          }
+        }
+      }
+
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+
+        // 日付行の判定 (例: 2026/04/19(日))
+        const dateMatch = line.match(/^(\d{4}\/\d{2}\/\d{2})/);
+        if (dateMatch) {
+          currentDate = dateMatch[1].replace(/\//g, '-');
+          continue;
+        }
+
+        const timeMatch = line.match(/^(\d{2}:\d{2})/);
+        if (timeMatch) {
+          const timeStr = timeMatch[1];
+          const remainder = line.substring(timeStr.length).trim();
+          
+          let senderName = '';
+          let messageText = '';
+
+          const tokens = remainder.split(/[\t\s]+/);
+          
+          if (tokens.length >= 2) {
+            const potentialSender = tokens[0];
+            if (potentialSender && potentialSender !== 'メッセージの送信を取り消しました' && !potentialSender.includes('がアナウンスしました')) {
+              senderName = potentialSender;
+              messageText = remainder.substring(senderName.length).trim();
+            } else {
+              messageText = remainder;
+            }
+          } else {
+            messageText = remainder;
+          }
+
+          if (senderName.includes('がアナウンスしました') || messageText.includes('がアナウンスしました')) {
+            continue;
+          }
+
+          // 発言者が相手の名前と一致する場合は partner、それ以外（自分や別名）は me
+          const isMe = (senderName && partnerName && senderName !== partnerName);
+          const isUnsend = messageText.includes('メッセージの送信を取り消しました');
+
+          parsedMessages.push({
+            sender: isMe ? 'me' : 'partner',
+            text: isUnsend ? 'メッセージの送信を取り消しました' : messageText,
+            time: timeStr,
+            isRead: true,
+            isImage: messageText === '[写真]' || messageText === '[動画]',
+            unsend: isUnsend,
+            date: currentDate,
+            replyTo: null
+          });
+        }
+      }
+
+      if (!friendName && partnerName) {
+        friendName = partnerName;
+      }
+    }
+
+    if (!friendName) {
+      friendName = partnerName || 'てすとくん';
     }
 
     const newId = 'friend_' + new Date().getTime();
     const newFriend = {
       id: newId,
-      name: nameInput,
+      name: friendName,
       avatar: newFriendTempAvatar,
-      messages: []
+      messages: parsedMessages
     };
 
     friendsList.push(newFriend);
@@ -2140,7 +2254,7 @@
 
       let contentHtml = '';
       if (msg.isImage) {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<img src="${msg.text}" class="msg-img"></div>`;
+        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<div style="padding:4px 0; font-size:13px; color:#ccc;">[画像]</div></div>`;
       } else {
         const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.text)}</div>` : escapeHtml(msg.text);
         contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${bodyContent}</div>`;
