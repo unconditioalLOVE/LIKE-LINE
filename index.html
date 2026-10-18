@@ -383,12 +383,10 @@
       word-break: break-word;
       white-space: pre-wrap;
       position: relative;
-      isolation: isolate;
       border-radius: 19px;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      overflow: hidden;
     }
 
     .me .msg-bubble {
@@ -404,7 +402,7 @@
       width: 14px;
       height: 12px;
       background: var(--bubble-me);
-      z-index: -1;
+      z-index: 1;
       clip-path: path("M 0 6 L 2.6 4.2 Q 10.5 4.3 12.9 0.8 C 12 5 10 8.6 7.6 11.2 L 0 11 Z");
     }
 
@@ -420,17 +418,17 @@
       width: 14px;
       height: 12px;
       background: var(--bubble-partner);
-      z-index: -1;
+      z-index: 1;
       clip-path: path("M 14 6 L 11.4 4.2 Q 3.5 4.3 1.1 0.8 C 2 5 4 8.6 6.4 11.2 L 14 11 Z");
     }
 
-    /* リプライ引用部分（アイコン付き、上下区切りライン） */
+    /* リプライ引用部分（アイコンが飛び出さない位置 ＆ 文字サイズは通常文の0.67倍 ≈ 9.38px） */
     .bubble-reply-container {
-      padding: 8px 12px 7px 12px;
+      padding: 5px 12px 4px 12px;
       border-bottom: 0.5px solid rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
     }
     .partner .bubble-reply-container {
       border-bottom: 0.5px solid rgba(255, 255, 255, 0.18);
@@ -440,11 +438,13 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      margin-left: 0px; /* 飛び出さない安全な位置に変更 */
+      height: 14px;
     }
 
     .bubble-reply-avatar {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       object-fit: cover;
       flex-shrink: 0;
@@ -453,24 +453,25 @@
 
     .bubble-reply-sender {
       font-weight: bold;
-      font-size: 12px;
-      color: rgba(0, 0, 0, 0.7);
+      font-size: 9.38px; /* 14px * 0.67 */
+      color: rgba(0, 0, 0, 0.85);
+      line-height: 1;
     }
     .partner .bubble-reply-sender {
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.85);
     }
 
     .bubble-reply-text {
-      font-size: 12.5px;
-      color: rgba(0, 0, 0, 0.85);
+      font-size: 9.38px; /* 14px * 0.67 */
+      color: rgba(0, 0, 0, 0.65);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      padding-left: 26px; /* アイコンの幅＋gap分揃える */
-      line-height: 1.3;
+      padding-left: 24px;
+      line-height: 1.2;
     }
     .partner .bubble-reply-text {
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.65);
     }
 
     .bubble-text-body {
@@ -1413,12 +1414,12 @@
 
     let replyInfo = null;
     if (activeReplyTarget) {
-      const partnerName = document.getElementById('partner-name-display').innerText;
-      const targetSenderLabel = activeReplyTarget.sender === 'me' ? partnerName : partnerName; // 画像のように相手アイコンと名前を表示する場合
+      const currentPartnerName = document.getElementById('partner-name-display').innerText;
+      const label = activeReplyTarget.sender === 'me' ? 'あなた' : currentPartnerName;
       replyInfo = {
-        senderLabel: targetSenderLabel,
+        senderLabel: label,
         content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content,
-        avatar: activeReplyTarget.sender === 'me' ? partnerAvatarUrl : partnerAvatarUrl
+        avatar: partnerAvatarUrl
       };
     }
 
@@ -1450,10 +1451,11 @@
     if (!targetMsg || targetMsg.unsend || targetMsg.sender === 'system') return;
 
     activeReplyTarget = targetMsg;
-    const partnerName = document.getElementById('partner-name-display').innerText;
+    const currentPartnerName = document.getElementById('partner-name-display').innerText;
+    const label = targetMsg.sender === 'me' ? 'あなた' : currentPartnerName;
     const textSummary = targetMsg.isImage ? '[画像]' : targetMsg.content;
 
-    document.getElementById('reply-preview-sender').innerText = `返信先: ${partnerName}`;
+    document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
     document.getElementById('reply-preview-text').innerText = textSummary;
     document.getElementById('input-reply-bar').style.display = 'flex';
 
@@ -1475,6 +1477,7 @@
     const chatArea = document.getElementById('chat-area');
     chatArea.innerHTML = '';
 
+    const currentPartnerName = document.getElementById('partner-name-display').innerText;
     let lastDate = null;
 
     for (let i = 0; i < messagesData.length; i++) {
@@ -1553,11 +1556,13 @@
           shortText = shortText.substring(0, 25) + '…';
         }
         const replyAvatar = msg.replyTo.avatar || partnerAvatarUrl;
+        const senderLabel = msg.replyTo.senderLabel === 'あなた' ? 'あなた' : currentPartnerName;
+
         replyPreviewHtml = `
           <div class="bubble-reply-container">
             <div class="bubble-reply-top">
               <img src="${replyAvatar}" class="bubble-reply-avatar">
-              <div class="bubble-reply-sender">${escapeHtml(msg.replyTo.senderLabel)}</div>
+              <div class="bubble-reply-sender">${escapeHtml(senderLabel)}</div>
             </div>
             <div class="bubble-reply-text">${escapeHtml(shortText)}</div>
           </div>
@@ -1817,10 +1822,10 @@
       
       let replyInfo = null;
       if (activeReplyTarget) {
-        const partnerName = document.getElementById('partner-name-display').innerText;
-        const targetSenderLabel = partnerName;
+        const currentPartnerName = document.getElementById('partner-name-display').innerText;
+        const label = activeReplyTarget.sender === 'me' ? 'あなた' : currentPartnerName;
         replyInfo = {
-          senderLabel: targetSenderLabel,
+          senderLabel: label,
           content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content,
           avatar: partnerAvatarUrl
         };
@@ -1840,6 +1845,7 @@
     const newName = prompt('相手の名前を入力してください:', currentName);
     if (newName !== null && newName.trim() !== '') {
       document.getElementById('partner-name-display').innerText = newName.trim();
+      renderChat();
     }
   }
 
@@ -1868,7 +1874,7 @@
     event.target.value = '';
   }
 
-    function clearChat() {
+  function clearChat() {
     if (confirm('チャット履歴を全消去しますか？')) {
       messagesData = [];
       cancelReply();
