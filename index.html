@@ -17,7 +17,7 @@
 
     :root {
       --bg: #1a1a1a;
-      --home-bg: #111111;
+      --home-bg: #000000;
       --header-bg: #111111;
       --search-bg: #111111;
       --bar: #111111;
@@ -66,7 +66,7 @@
       height: 100vh;
       height: 100dvh;
       max-height: 932px;
-      background-color: var(--home-bg);
+      background-color: var(--bg);
       display: flex;
       flex-direction: column;
       position: relative;
@@ -197,6 +197,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      background-color: var(--home-bg);
     }
 
     .banner-area {
@@ -256,7 +257,6 @@
       padding: 10px 16px;
       gap: 12px;
       cursor: pointer;
-      position: relative;
     }
     .list-item:hover {
       background-color: rgba(255,255,255,0.03);
@@ -294,18 +294,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .friend-delete-btn {
-      background-color: #ff3b30;
-      color: #ffffff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      flex-shrink: 0;
     }
 
     .section-header {
@@ -767,19 +755,29 @@
       text-align: left;
     }
 
-    .msg-img {
+    .raw-media-container {
       max-width: 210px;
       max-height: 250px;
       border-radius: 12px;
       cursor: pointer;
       display: block;
       margin: 4px 0;
+      overflow: hidden;
+    }
+    .raw-media-container img,
+    .raw-media-container video {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
+      display: block;
+      border-radius: 12px;
     }
 
     .imported-media-placeholder {
-      padding: 6px 0;
+      padding: 6px 10px;
       font-size: 13px;
+      background: #2a2a2a;
+      border-radius: 12px;
       color: #4da6ff;
       text-decoration: underline;
       cursor: pointer;
@@ -1310,18 +1308,6 @@
       z-index: 205;
     }
 
-    .import-textarea {
-      width: 100%;
-      height: 100px;
-      background: #2a2a2c;
-      border: 1px solid #3a3a3c;
-      border-radius: 8px;
-      color: #fff;
-      padding: 8px;
-      font-size: 12px;
-      outline: none;
-      resize: none;
-    }
 
     .premium-page {
       position: absolute;
@@ -1607,6 +1593,9 @@
         <label class="checkbox-label">
           <input type="checkbox" id="read-status" checked> 既読をつける
         </label>
+        <button class="now-btn" onclick="openScheduleModal()" style="background:#2b82f6; border-color:#2b82f6; color:#fff;">予約投稿を設定</button>
+      </div>
+      <div class="option-row" style="margin-top:4px;">
         <span style="cursor:pointer; color:#ff4444;" onclick="clearChat()">チャットクリア</span>
       </div>
     </div>
@@ -1686,19 +1675,39 @@
     </div>
 
     <div class="add-friend-modal" id="add-friend-modal" onclick="event.stopPropagation()" style="display: none;">
-      <div class="account-modal-title">新しい友達を追加 / トーク取込</div>
+      <div class="account-modal-title">新しい友達を追加</div>
       <div class="account-section">
-        <div class="account-section-title">友達のプロフィール</div>
+        <div class="account-section-title">友達の名前</div>
         <div class="account-row">
           <img src="" id="new-friend-avatar-preview" class="account-avatar-preview" onclick="document.getElementById('add-friend-avatar-input').click()" title="タップして変更">
           <input type="text" id="new-friend-name-input" class="account-input-name" placeholder="友達の名前を入力">
         </div>
       </div>
-      <div class="account-section">
-        <div class="account-section-title">LINEのトーク履歴を貼り付け（任意）</div>
-        <textarea id="import-text-area" class="import-textarea" placeholder="[LINE] トーク履歴をここにペースト"></textarea>
-      </div>
       <button class="account-save-btn" onclick="executeAddFriend()">追加してトークを開始</button>
+      <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
+    </div>
+
+    <!-- 予約投稿モーダル -->
+    <div class="account-modal" id="schedule-modal" onclick="event.stopPropagation()" style="display: none;">
+      <div class="account-modal-title">予約投稿の設定</div>
+      <div class="account-section">
+        <div class="account-section-title">投稿予定メッセージ</div>
+        <input type="text" id="schedule-text-input" class="account-input-name" placeholder="送信するメッセージ内容">
+      </div>
+      <div class="account-section">
+        <div class="account-section-title">送信予定日時</div>
+        <div style="display:flex; gap:8px;">
+          <input type="date" id="schedule-date-input" class="picker-input" style="flex:1;">
+          <input type="time" id="schedule-time-input" class="picker-input" style="flex:1;">
+        </div>
+      </div>
+      <div class="account-section">
+        <div class="account-section-title">プッシュ通知（ntfyアプリ）</div>
+        <input type="text" id="ntfy-topic-input" class="account-input-name" placeholder="トピック名" autocapitalize="off" autocorrect="off" spellcheck="false" onchange="saveNtfyTopic()">
+        <button class="now-btn" style="margin-top:8px;" onclick="sendNtfyTest()">テスト通知を送る</button>
+        <div id="push-status" style="font-size:11px; color:#999; margin-top:6px; line-height:1.5;">iPhoneのntfyアプリで、上のトピック名を購読してください</div>
+      </div>
+      <button class="account-save-btn" onclick="saveScheduledMessage()">予約を登録する</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
   </div>
@@ -1752,6 +1761,7 @@
   let currentSender = 'me';
   let myName = '自分';
   let targetEmbedMsgIndex = null;
+  let scheduledMessages = [];
 
   let myAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d26a"/>' +
@@ -1777,6 +1787,7 @@
     setNowDateTime();
     renderHomeView();
     updateSendButtonState();
+    setInterval(checkScheduledMessages, 1000);
   };
 
   function saveToLocalStorage() {
@@ -1784,6 +1795,7 @@
       localStorage.setItem('line_like_friends', JSON.stringify(friendsList));
       localStorage.setItem('line_like_my_name', myName);
       localStorage.setItem('line_like_my_avatar', myAvatarUrl);
+      localStorage.setItem('line_like_scheduled', JSON.stringify(scheduledMessages));
     } catch(e) {
       console.error('Failed to save to localStorage', e);
     }
@@ -1792,17 +1804,13 @@
   function loadFromLocalStorage() {
     try {
       const savedFriends = localStorage.getItem('line_like_friends');
-      if (savedFriends) {
-        friendsList = JSON.parse(savedFriends);
-      }
+      if (savedFriends) friendsList = JSON.parse(savedFriends);
       const savedName = localStorage.getItem('line_like_my_name');
-      if (savedName) {
-        myName = savedName;
-      }
+      if (savedName) myName = savedName;
       const savedAvatar = localStorage.getItem('line_like_my_avatar');
-      if (savedAvatar) {
-        myAvatarUrl = savedAvatar;
-      }
+      if (savedAvatar) myAvatarUrl = savedAvatar;
+      const savedSched = localStorage.getItem('line_like_scheduled');
+      if (savedSched) scheduledMessages = JSON.parse(savedSched);
     } catch(e) {
       console.error('Failed to load from localStorage', e);
     }
@@ -1940,7 +1948,7 @@
                 <div class="item-name">${escapeHtml(friend.name)}</div>
                 <div class="item-sub">${escapeHtml(subText)}</div>
               </div>
-              <button class="friend-delete-btn" onclick="deleteFriend(event, '${friend.id}')">削除</button>
+              <button class="friend-delete-btn" style="background-color:#ff3b30; color:#ffffff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; flex-shrink:0;" onclick="deleteFriend(event, '${friend.id}')">削除</button>
             `;
             container.appendChild(item);
           });
@@ -1974,7 +1982,7 @@
                 <div class="item-name">${escapeHtml(friend.name)}</div>
                 <div class="item-sub">プロフィール詳細</div>
               </div>
-              <button class="friend-delete-btn" onclick="deleteFriend(event, '${friend.id}')">削除</button>
+              <button class="friend-delete-btn" style="background-color:#ff3b30; color:#ffffff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; flex-shrink:0;" onclick="deleteFriend(event, '${friend.id}')">削除</button>
             `;
             container.appendChild(item);
           });
@@ -1986,7 +1994,6 @@
   function openAddFriendModal() {
     closeAllModals();
     document.getElementById('new-friend-name-input').value = '';
-    document.getElementById('import-text-area').value = '';
     document.getElementById('new-friend-avatar-preview').src = newFriendTempAvatar;
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('add-friend-modal').style.display = 'flex';
@@ -2006,145 +2013,17 @@
 
   function executeAddFriend() {
     const nameInput = document.getElementById('new-friend-name-input').value.trim();
-    const rawText = document.getElementById('import-text-area').value.trim();
-    if (!nameInput && !rawText) {
-      alert('名前またはトーク履歴を入力してください');
+    if (!nameInput) {
+      alert('友達の名前を入力してください');
       return;
-    }
-
-    let friendName = nameInput;
-    let partnerNames = new Set();
-    let parsedMessages = [];
-
-    if (rawText) {
-      const cleanText = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      
-      // 苗字と名前の間の半角・全角空白を考慮してタイトルからパートナー名を抽出
-      const titleMatch = cleanText.match(/(?:\[.*?LINE.*?\])?\s*([^\n]+?)\s*とのトーク/);
-      if (titleMatch) {
-        let rawPartner = titleMatch[1].replace(/\[.*$/, '').trim();
-        rawPartner = rawPartner.replace(/\s+/g, ' ');
-        partnerNames.add(rawPartner);
-      }
-
-      const lines = cleanText.split('\n');
-      let currentDate = new Date().toISOString().split('T')[0];
-
-      // 本文中の各行から複数のトークン（名字・名前の半角スペース分割対応）をパートナー候補として収集
-      for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-
-        const dateMatch = line.match(/^(\d{4}\/\d{2}\/\d{2})/);
-        if (dateMatch) {
-          currentDate = dateMatch[1].replace(/\//g, '-');
-          continue;
-        }
-
-        const timeMatch = line.match(/^(\d{2}:\d{2})/);
-        if (timeMatch) {
-          const timeStr = timeMatch[1];
-          const remainder = line.substring(timeStr.length).trim();
-          
-          const tokens = remainder.split(/[\t\s]+/);
-          if (tokens.length >= 2) {
-            const potentialSender = tokens[0];
-            if (potentialSender && potentialSender !== 'メッセージの送信を取り消しました' && !potentialSender.includes('がアナウンスしました')) {
-              partnerNames.add(potentialSender);
-              if (tokens.length >= 3 && tokens[1].length > 0 && !tokens[1].match(/^\d{2}:\d{2}$/)) {
-                partnerNames.add(potentialSender + ' ' + tokens[1]);
-              }
-            }
-          }
-        }
-      }
-
-      let mainPartnerName = nameInput;
-      if (!mainPartnerName && partnerNames.size > 0) {
-        mainPartnerName = Array.from(partnerNames)[0];
-      }
-      if (!mainPartnerName) {
-        mainPartnerName = 'てすとくん';
-      }
-      partnerNames.add(mainPartnerName);
-
-      for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-
-        const dateMatch = line.match(/^(\d{4}\/\d{2}\/\d{2})/);
-        if (dateMatch) {
-          currentDate = dateMatch[1].replace(/\//g, '-');
-          continue;
-        }
-
-        const timeMatch = line.match(/^(\d{2}:\d{2})/);
-        if (timeMatch) {
-          const timeStr = timeMatch[1];
-          const remainder = line.substring(timeStr.length).trim();
-          
-          let senderName = '';
-          let messageText = '';
-
-          const tokens = remainder.split(/[\t\s]+/);
-          
-          if (tokens.length >= 2) {
-            const potentialSender = tokens[0];
-            const twoTokenSender = tokens.length >= 3 ? tokens[0] + ' ' + tokens[1] : '';
-
-            if (partnerNames.has(twoTokenSender)) {
-              senderName = twoTokenSender;
-              messageText = remainder.substring(senderName.length).trim();
-            } else if (partnerNames.has(potentialSender)) {
-              senderName = potentialSender;
-              messageText = remainder.substring(senderName.length).trim();
-            } else if (potentialSender && potentialSender !== 'メッセージの送信を取り消しました' && !potentialSender.includes('がアナウンスしました')) {
-              senderName = potentialSender;
-              messageText = remainder.substring(senderName.length).trim();
-            } else {
-              messageText = remainder;
-            }
-          } else {
-            messageText = remainder;
-          }
-
-          if (senderName.includes('がアナウンスしました') || messageText.includes('がアナウンスしました')) {
-            continue;
-          }
-
-          const isPartner = senderName && partnerNames.has(senderName);
-          const isUnsend = messageText.includes('メッセージの送信を取り消しました');
-          const isImg = messageText === '[写真]' || messageText === '[画像]';
-          const isVid = messageText === '[動画]';
-
-          parsedMessages.push({
-            sender: isPartner ? 'partner' : 'me',
-            text: isUnsend ? 'メッセージの送信を取り消しました' : messageText,
-            time: timeStr,
-            isRead: true,
-            isImage: isImg,
-            isVideo: isVid,
-            mediaUrl: null,
-            unsend: isUnsend,
-            date: currentDate,
-            replyTo: null
-          });
-        }
-      }
-
-      friendName = mainPartnerName;
-    }
-
-    if (!friendName) {
-      friendName = 'てすとくん';
     }
 
     const newId = 'friend_' + new Date().getTime();
     const newFriend = {
       id: newId,
-      name: friendName,
+      name: nameInput,
       avatar: newFriendTempAvatar,
-      messages: parsedMessages
+      messages: []
     };
 
     friendsList.push(newFriend);
@@ -2212,7 +2091,7 @@
     const btn = document.getElementById('send-action-btn');
     const svgElem = document.getElementById('send-mic-svg');
 
-    if (text.trim().length > 0 || isInputFocused) {
+    if (text.length > 0 || isInputFocused) {
       btn.className = 'send-action-btn active-blue';
       svgElem.innerHTML = SEND_SVG;
     } else {
@@ -2223,14 +2102,14 @@
 
   function handleSendButtonAction() {
     const text = document.getElementById('message-input').value;
-    if (text.trim().length > 0) {
+    if (text.length > 0) {
       sendMessage();
     }
   }
 
   function sendMessage() {
     const input = document.getElementById('message-input');
-    const text = input.value.trim();
+    const text = input.value;
     if (!text) return;
 
     const friend = getCurrentActiveFriend();
@@ -2267,6 +2146,82 @@
     input.value = '';
     updateSendButtonState();
     scrollToBottom();
+  }
+
+  function openScheduleModal() {
+    closeAllModals();
+    document.getElementById('schedule-text-input').value = document.getElementById('message-input').value;
+    document.getElementById('schedule-date-input').value = document.getElementById('override-date-input').value;
+    document.getElementById('schedule-time-input').value = document.getElementById('override-time-input').value;
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('schedule-modal').style.display = 'flex';
+  }
+
+  function saveScheduledMessage() {
+    const text = document.getElementById('schedule-text-input').value;
+    const date = document.getElementById('schedule-date-input').value;
+    const time = document.getElementById('schedule-time-input').value;
+    if (!text || !date || !time) {
+      alert('すべての項目を入力してください');
+      return;
+    }
+    const entry = {
+      friendId: currentFriendId,
+      text: text,
+      date: date,
+      time: time,
+      sender: currentSender
+    };
+    scheduledMessages.push(entry);
+    saveToLocalStorage();
+    closeAllModals();
+
+    const friend = friendsList.find(f => f.id === currentFriendId);
+    scheduleNtfyPush(entry, friend ? friend.name : '').then(err => {
+      alert(err
+        ? 'メッセージの予約投稿を設定しました\n（プッシュ通知は予約できませんでした：' + err + '）'
+        : 'メッセージの予約投稿を設定しました（プッシュ通知も予約済み）');
+    });
+  }
+
+  function checkScheduledMessages() {
+    if (scheduledMessages.length === 0) return;
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const currentDate = `${yyyy}-${mm}-${dd}`;
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    let triggered = false;
+    scheduledMessages = scheduledMessages.filter(item => {
+      if (item.date === currentDate && item.time === currentTime) {
+        const friend = friendsList.find(f => f.id === item.friendId);
+        if (friend) {
+          friend.messages.push({
+            sender: item.sender,
+            text: item.text,
+            time: currentTime,
+            isRead: true,
+            isImage: false,
+            isVideo: false,
+            mediaUrl: null,
+            unsend: false,
+            date: currentDate,
+            replyTo: null
+          });
+          triggered = true;
+        }
+        return false;
+      }
+      return true;
+    });
+
+    if (triggered) {
+      saveToLocalStorage();
+      if (currentFriendId) renderChat();
+      renderHomeView();
+    }
   }
 
   function startReply(index) {
@@ -2362,13 +2317,13 @@
       if (msg.isImage || msg.isVideo) {
         if (msg.mediaUrl) {
           if (msg.isVideo) {
-            contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<video src="${msg.mediaUrl}" controls class="msg-img"></video></div>`;
+            contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><video src="${msg.mediaUrl}" controls style="width:100%; height:100%; border-radius:12px; display:block;"></video></div>`;
           } else {
-            contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<img src="${msg.mediaUrl}" class="msg-img"></div>`;
+            contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><img src="${msg.mediaUrl}"></div>`;
           }
         } else {
-          const label = msg.isImage ? '[画像]' : '[動画]';
-          contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<span class="imported-media-placeholder" onclick="event.stopPropagation(); triggerMediaEmbed(${i})">${label} (タップして追加)</span></div>`;
+          const label = msg.isImage ? '[写真]' : '[動画]';
+          contentHtml = `<span class="imported-media-placeholder" onclick="event.stopPropagation(); triggerMediaEmbed(${i})">${label} (タップして追加)</span>`;
         }
       } else {
         const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.text)}</div>` : escapeHtml(msg.text);
@@ -2481,6 +2436,7 @@
     document.getElementById('delete-dialog').style.display = 'none';
     document.getElementById('account-modal').style.display = 'none';
     document.getElementById('add-friend-modal').style.display = 'none';
+    document.getElementById('schedule-modal').style.display = 'none';
   }
 
   function openConfirmModal() {
@@ -2495,6 +2451,7 @@
     document.getElementById('delete-dialog').style.display = 'none';
     document.getElementById('account-modal').style.display = 'none';
     document.getElementById('add-friend-modal').style.display = 'none';
+    document.getElementById('schedule-modal').style.display = 'none';
   }
 
   function openAccountModal() {
@@ -2711,6 +2668,86 @@
   function escapeHtml(str) {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
+</script>
+
+<script>
+  // ===== ntfy によるプッシュ通知（無料・登録不要） =====
+  const NTFY_SERVER = 'https://ntfy.sh';
+  const NTFY_TOPIC_KEY = 'line_like_ntfy_topic';
+  const NTFY_MAX_DELAY_SEC = 3 * 24 * 3600 - 300; // ntfy.shの上限は3日
+
+  function generateNtfyTopic() {
+    const a = new Uint8Array(9);
+    crypto.getRandomValues(a);
+    return 'linelike-' + Array.from(a, b => b.toString(36).padStart(2, '0')).join('').slice(0, 14);
+  }
+
+  function getNtfyTopic() {
+    let t = localStorage.getItem(NTFY_TOPIC_KEY);
+    if (!t) {
+      t = generateNtfyTopic();
+      localStorage.setItem(NTFY_TOPIC_KEY, t);
+    }
+    return t;
+  }
+
+  function saveNtfyTopic() {
+    const input = document.getElementById('ntfy-topic-input');
+    const v = input.value.trim();
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(v)) {
+      alert('トピック名は半角英数字と - _ のみ（64文字まで）で入力してください');
+      input.value = getNtfyTopic();
+      return;
+    }
+    localStorage.setItem(NTFY_TOPIC_KEY, v);
+  }
+
+  function setPushStatus(msg, color) {
+    const el = document.getElementById('push-status');
+    if (el) { el.textContent = msg; el.style.color = color || '#999'; }
+  }
+
+  // 成功なら null、失敗なら理由の文字列を返す
+  async function scheduleNtfyPush(entry, friendName) {
+    try {
+      const sendAtSec = Math.floor(new Date(entry.date + 'T' + entry.time).getTime() / 1000);
+      const diff = sendAtSec - Math.floor(Date.now() / 1000);
+      if (diff <= 0) return '過去の時刻です';
+      if (diff > NTFY_MAX_DELAY_SEC) return '3日より先は予約できません';
+
+      const payload = {
+        topic: getNtfyTopic(),
+        title: friendName || 'LINE-LIKE',
+        message: entry.text
+      };
+      if (diff >= 15) payload.delay = String(sendAtSec); // 15秒未満は即時送信
+      const res = await fetch(NTFY_SERVER + '/', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) return '送信エラー (' + res.status + ')';
+      return null;
+    } catch (e) {
+      console.error('scheduleNtfyPush failed', e);
+      return '通信に失敗しました';
+    }
+  }
+
+  async function sendNtfyTest() {
+    setPushStatus('送信中…');
+    try {
+      const res = await fetch(NTFY_SERVER + '/', {
+        method: 'POST',
+        body: JSON.stringify({ topic: getNtfyTopic(), title: 'LINE-LIKE', message: 'テスト通知です' })
+      });
+      if (res.ok) setPushStatus('送信しました。届かなければntfyアプリで購読を確認してください', '#34c759');
+      else setPushStatus('送信エラー (' + res.status + ')', '#ff3b30');
+    } catch (e) {
+      setPushStatus('通信に失敗しました', '#ff3b30');
+    }
+  }
+
+  document.getElementById('ntfy-topic-input').value = getNtfyTopic();
 </script>
 
 </body>
