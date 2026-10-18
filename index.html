@@ -257,7 +257,6 @@
 
     /* 送信取り消し（システムメッセージ形式・文字色白） */
     .unsend-sys-msg {
-      align-self: center;
       color: #ffffff;
       font-size: 11.5px;
       text-align: center;
@@ -280,23 +279,22 @@
     }
     .msg-group:first-of-type { margin-top: 0; }
 
-    /* 削除モード時：行全体を横軸の当たり判定にするためフレックス配置を調整 */
-    .msg-group.delete-mode-row {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
+    /* 通常時の配置 */
     .msg-group.partner { align-self: flex-start; }
-
     .msg-group.me {
       align-self: flex-end;
       flex-direction: row-reverse;
     }
-    /* 削除モード時は自分のメッセージも左側にチェックボックスを置くため順序を制御 */
-    .msg-group.delete-mode-row.me {
-      flex-direction: row;
-      justify-content: flex-end;
+
+    /* 削除選択モード時：行全体を行として扱い、常に左端にチェック、右側にメッセージ本体を保持 */
+    .msg-group.delete-mode-row {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      justify-content: flex-start !important;
+      flex-direction: row !important;
+      gap: 12px;
+      padding: 2px 0;
     }
 
     /* 同じ分が続く2通目以降: 間隔を詰め、しっぽ・アイコンを消す */
@@ -341,7 +339,6 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      margin-right: 12px;
     }
     .select-checkbox.checked {
       background-color: #00d26a;
@@ -1293,27 +1290,37 @@
         continue;
       }
 
-      // 送信取り消しされたメッセージ
+      // 送信取り消しされたメッセージ（中央のシステムメッセージ形式）
       if (msg.unsend) {
         const unDiv = document.createElement('div');
-        unDiv.className = 'msg-group' + (isDeleteMode ? ' delete-mode-row' : '');
+        // 削除選択モード時は行全体をクリッカブルにして左にチェックを置く
         if (isDeleteMode) {
+          unDiv.className = 'msg-group delete-mode-row';
           unDiv.onclick = () => toggleSelectMessage(i);
-        }
 
-        // 削除モード時の左側チェックボックス
-        if (isDeleteMode) {
           const cb = document.createElement('div');
           cb.className = 'select-checkbox' + (selectedToDelete.has(i) ? ' checked' : '');
           cb.style.display = 'flex';
           unDiv.appendChild(cb);
+
+          const wrapper = document.createElement('div');
+          wrapper.style.flex = '1';
+          wrapper.style.textAlign = 'center';
+          const msgContent = document.createElement('div');
+          msgContent.className = 'unsend-sys-msg';
+          msgContent.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
+          wrapper.appendChild(msgContent);
+          unDiv.appendChild(wrapper);
+        } else {
+          unDiv.className = 'msg-group';
+          unDiv.style.width = '100%';
+          unDiv.style.justifyContent = 'center';
+          const msgContent = document.createElement('div');
+          msgContent.className = 'unsend-sys-msg';
+          msgContent.style.textAlign = 'center';
+          msgContent.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
+          unDiv.appendChild(msgContent);
         }
-
-        const msgContent = document.createElement('div');
-        msgContent.className = 'unsend-sys-msg';
-        msgContent.innerHTML = 'メッセージの送信を取り消しました<br><span onclick="openPremiumPage()">通知なしで送信を取り消す方法</span>';
-        unDiv.appendChild(msgContent);
-
         chatArea.appendChild(unDiv);
         continue;
       }
@@ -1322,52 +1329,87 @@
       const isGrouped = !!(prev && !prev.unsend && prev.sender === msg.sender && prev.time === msg.time);
 
       const msgDiv = document.createElement('div');
-      // 削除モード時は行全体で当たり判定を持たせるためクラスを付与
-      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}${isDeleteMode ? ' delete-mode-row' : ''}`;
-
+      
       if (isDeleteMode) {
+        // 削除選択モード：行全体を横軸判定にし、左端にチェック、その右側に通常のメッセージ要素をそのまま配置
+        msgDiv.className = `msg-group delete-mode-row`;
         msgDiv.onclick = () => toggleSelectMessage(i);
-      }
 
-      // 削除モード時はすべての行で左側にチェックボックスを配置
-      let cbHtml = '';
-      if (isDeleteMode) {
         const isChecked = selectedToDelete.has(i);
-        cbHtml = `<div class="select-checkbox${isChecked ? ' checked' : ''}" style="display:flex;"></div>`;
-      }
+        const cbHtml = `<div class="select-checkbox${isChecked ? ' checked' : ''}" style="display:flex;"></div>`;
 
-      let avatarHtml = '';
-      if (msg.sender === 'partner') {
-        avatarHtml = `<img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">`;
-      }
+        let avatarHtml = '';
+        if (msg.sender === 'partner') {
+          avatarHtml = `<img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">`;
+        }
 
-      const metaHtml = `
-        <div class="msg-meta">
-          ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
-          <span>${msg.time}</span>
-        </div>`;
+        const metaHtml = `
+          <div class="msg-meta">
+            ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
+            <span>${msg.time}</span>
+          </div>`;
 
-      let contentHtml = '';
-      if (msg.isImage) {
-        contentHtml = `<img src="${msg.content}" class="msg-img">`;
+        let contentHtml = '';
+        if (msg.isImage) {
+          contentHtml = `<img src="${msg.content}" class="msg-img">`;
+        } else {
+          contentHtml = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
+        }
+
+        // 削除モード時でも、自分/相手それぞれのメッセージの元々の並び順（自分なら右側、相手なら左側）を維持しつつ左端にチェック
+        if (msg.sender === 'partner') {
+          msgDiv.innerHTML = `
+            ${cbHtml}
+            <div style="display:flex; align-items:flex-start; flex:1; min-width:0; gap:6px;">
+              ${avatarHtml}
+              <div class="msg-content">${contentHtml}</div>
+              ${metaHtml}
+            </div>
+          `;
+        } else {
+          msgDiv.innerHTML = `
+            ${cbHtml}
+            <div style="display:flex; align-items:flex-start; flex:1; min-width:0; justify-content:flex-end; gap:6px;">
+              ${metaHtml}
+              <div class="msg-content">${contentHtml}</div>
+            </div>
+          `;
+        }
+
       } else {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()" onclick="handleBubbleClick(event, ${i})">${escapeHtml(msg.content)}</div>`;
-      }
+        // 通常時
+        msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
 
-      // 削除モードの有無に関わらず、HTML構造を統一（削除モード時は自分のメッセージも含めてチェックボックスが左にくる）
-      if (msg.sender === 'partner') {
-        msgDiv.innerHTML = `
-          ${cbHtml}
-          ${avatarHtml}
-          <div class="msg-content">${contentHtml}</div>
-          ${metaHtml}
-        `;
-      } else {
-        msgDiv.innerHTML = `
-          ${cbHtml}
-          <div class="msg-content">${contentHtml}</div>
-          ${metaHtml}
-        `;
+        let avatarHtml = '';
+        if (msg.sender === 'partner') {
+          avatarHtml = `<img src="${partnerAvatarUrl}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">`;
+        }
+
+        const metaHtml = `
+          <div class="msg-meta">
+            ${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}
+            <span>${msg.time}</span>
+          </div>`;
+
+        let contentHtml = '';
+        if (msg.isImage) {
+          contentHtml = `<img src="${msg.content}" class="msg-img">`;
+        } else {
+          contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i})" ontouchend="handleTouchEnd()">${escapeHtml(msg.content)}</div>`;
+        }
+
+        if (msg.sender === 'partner') {
+          msgDiv.innerHTML = `
+            ${avatarHtml}
+            <div class="msg-content">${contentHtml}</div>
+            ${metaHtml}
+          `;
+        } else {
+          msgDiv.innerHTML = `
+            <div class="msg-content">${contentHtml}</div>
+            ${metaHtml}
+          `;
+        }
       }
 
       chatArea.appendChild(msgDiv);
@@ -1391,13 +1433,6 @@
     if (isDeleteMode) return;
     e.preventDefault();
     showActionMenu(index);
-  }
-
-  function handleBubbleClick(e, index) {
-    if (isDeleteMode) {
-      e.stopPropagation(); // バブリングを防ぎつつ行全体クリックで処理
-      toggleSelectMessage(index);
-    }
   }
 
   function showActionMenu(index) {
