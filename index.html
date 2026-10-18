@@ -377,7 +377,7 @@
       flex-direction: column;
       min-height: 35px;
       max-width: 252px;
-      padding: 7.5px 14px;
+      padding: 0;
       font-size: 14px;
       line-height: 17.3px;
       word-break: break-word;
@@ -388,6 +388,7 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      overflow: hidden;
     }
 
     .me .msg-bubble {
@@ -423,29 +424,57 @@
       clip-path: path("M 14 6 L 11.4 4.2 Q 3.5 4.3 1.1 0.8 C 2 5 4 8.6 6.4 11.2 L 14 11 Z");
     }
 
-    /* 吹き出し内の引用プレビュー */
-    .bubble-reply-preview {
-      background-color: rgba(0, 0, 0, 0.08);
-      border-left: 3px solid rgba(0, 0, 0, 0.4);
-      padding: 4px 8px;
-      margin-bottom: 4px;
-      border-radius: 4px;
-      font-size: 11px;
-      line-height: 1.3;
+    /* リプライ引用部分（アイコン付き、上下区切りライン） */
+    .bubble-reply-container {
+      padding: 8px 12px 7px 12px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    .partner .bubble-reply-preview {
-      background-color: rgba(255, 255, 255, 0.08);
-      border-left: 3px solid rgba(255, 255, 255, 0.5);
-      color: #dddddd;
+    .partner .bubble-reply-container {
+      border-bottom: 0.5px solid rgba(255, 255, 255, 0.18);
     }
+
+    .bubble-reply-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bubble-reply-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background-color: #444;
+    }
+
     .bubble-reply-sender {
       font-weight: bold;
-      margin-bottom: 1px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.7);
     }
+    .partner .bubble-reply-sender {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
     .bubble-reply-text {
+      font-size: 12.5px;
+      color: rgba(0, 0, 0, 0.85);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding-left: 26px; /* アイコンの幅＋gap分揃える */
+      line-height: 1.3;
+    }
+    .partner .bubble-reply-text {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .bubble-text-body {
+      padding: 8px 12px 9px 12px;
     }
 
     .msg-meta {
@@ -476,6 +505,7 @@
       border-radius: 14px;
       cursor: pointer;
       display: block;
+      margin: 8px;
     }
     .msg-group.partner .msg-img { margin-top: 4px; }
     .msg-group.partner.grouped .msg-img { margin-top: 0; }
@@ -1064,7 +1094,7 @@
   <div class="header" id="normal-header">
     <div class="header-left">
       <svg class="back-btn" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
-      <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">Ryo Murakami</span>
+      <span class="partner-name" id="partner-name-display" onclick="changePartnerName()">森安</span>
     </div>
     <div class="header-icons">
       <svg class="header-icon-svg" viewBox="0 0 24 24">
@@ -1237,8 +1267,8 @@
 <script>
   let currentSender = 'me';
   let partnerAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#4a4a4a"/>' +
-    '<circle cx="50" cy="40" r="18" fill="#8a8a8a"/><path d="M14 100c0-22 16-36 36-36s36 14 36 36z" fill="#8a8a8a"/></svg>'
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#2b2b2b"/>' +
+    '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#888"/></svg>'
   );
   let isInputFocused = false;
   let selectedMsgIndex = null;
@@ -1246,8 +1276,7 @@
   let selectedToDelete = new Set();
   let lastTapTime = 0;
 
-  // リプライ関連の状態管理変数
-  let activeReplyTarget = null; // リプライ対象のメッセージオブジェクト
+  let activeReplyTarget = null;
 
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
@@ -1263,17 +1292,15 @@
     { sender: 'me', text: 'だから俺とお前の差がみれない', time: '20:03', unsend: false, date: '2026-08-20' },
     { sender: 'partner', text: 'あーー', time: '20:04', unsend: false, date: '2026-08-20' },
     { sender: 'partner', text: 'とりまほしい', time: '20:04', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '普通に意味がわからない', time: '20:06', unsend: false, date: '2026-08-20' },
-    { sender: 'me', text: '両親来なかったんか', time: '20:06', unsend: false, date: '2026-08-20' },
-    { sender: 'partner', text: '多分来れてない', time: '20:11', unsend: false, date: '2026-08-20' },
-    { sender: 'partner', text: 'ああお前しか映ってないのか', time: '20:11', unsend: false, date: '2026-08-20' }
+    { sender: 'me', text: '普通に意味がわからない', time: '20:06', unsend: false, date: '2026-08-20', replyTo: { senderLabel: '森安', content: '普通に意味がわからない', avatar: partnerAvatarUrl } },
+    { sender: 'partner', text: 'だよな', time: '20:06', unsend: false, date: '2026-08-20' }
   ];
 
   let messagesData = [];
 
   window.onload = function() {
     initialMessages.forEach(msg => {
-      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, null);
+      appendMessage(msg.sender, msg.text, msg.time, msg.sender === 'me', false, false, msg.date, msg.replyTo || null);
     });
     renderChat();
     updateSendButtonState();
@@ -1384,20 +1411,18 @@
     const isRead = document.getElementById('read-status').checked;
     const todayStr = getTodayDateString();
 
-    // リプライ情報があれば保持する（常に「そのメッセージそのもの」を直接対象にする）
     let replyInfo = null;
     if (activeReplyTarget) {
       const partnerName = document.getElementById('partner-name-display').innerText;
-      const targetSenderLabel = activeReplyTarget.sender === 'me' ? 'あなた' : partnerName;
+      const targetSenderLabel = activeReplyTarget.sender === 'me' ? partnerName : partnerName; // 画像のように相手アイコンと名前を表示する場合
       replyInfo = {
         senderLabel: targetSenderLabel,
-        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content
+        content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content,
+        avatar: activeReplyTarget.sender === 'me' ? partnerAvatarUrl : partnerAvatarUrl
       };
     }
 
     appendMessage(currentSender, text, timeStr, isRead, false, false, todayStr, replyInfo);
-    
-    // 送信後にリプライ状態を解除
     cancelReply();
 
     renderChat();
@@ -1419,7 +1444,6 @@
     });
   }
 
-  // リプライモードを開始する関数
   function startReply(index) {
     closeAllModals();
     const targetMsg = messagesData[index];
@@ -1427,24 +1451,20 @@
 
     activeReplyTarget = targetMsg;
     const partnerName = document.getElementById('partner-name-display').innerText;
-    const senderName = targetMsg.sender === 'me' ? 'あなた' : partnerName;
     const textSummary = targetMsg.isImage ? '[画像]' : targetMsg.content;
 
-    document.getElementById('reply-preview-sender').innerText = `返信先: ${senderName}`;
+    document.getElementById('reply-preview-sender').innerText = `返信先: ${partnerName}`;
     document.getElementById('reply-preview-text').innerText = textSummary;
     document.getElementById('input-reply-bar').style.display = 'flex';
 
-    // 入力欄にフォーカスを当てる
     document.getElementById('message-input').focus();
   }
 
-  // リプライをキャンセルする関数
   function cancelReply() {
     activeReplyTarget = null;
     document.getElementById('input-reply-bar').style.display = 'none';
   }
 
-  // 長押しメニューからのリプライ実行
   function triggerReplyFromMenu() {
     if (selectedMsgIndex !== null) {
       startReply(selectedMsgIndex);
@@ -1526,16 +1546,19 @@
 
       let contentHtml = '';
       
-      // リプライ引用部分の生成
       let replyPreviewHtml = '';
       if (msg.replyTo) {
         let shortText = msg.replyTo.content;
         if (shortText.length > 25) {
           shortText = shortText.substring(0, 25) + '…';
         }
+        const replyAvatar = msg.replyTo.avatar || partnerAvatarUrl;
         replyPreviewHtml = `
-          <div class="bubble-reply-preview">
-            <div class="bubble-reply-sender">${escapeHtml(msg.replyTo.senderLabel)}</div>
+          <div class="bubble-reply-container">
+            <div class="bubble-reply-top">
+              <img src="${replyAvatar}" class="bubble-reply-avatar">
+              <div class="bubble-reply-sender">${escapeHtml(msg.replyTo.senderLabel)}</div>
+            </div>
             <div class="bubble-reply-text">${escapeHtml(shortText)}</div>
           </div>
         `;
@@ -1544,7 +1567,7 @@
       if (msg.isImage) {
         contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<img src="${msg.content}" class="msg-img"></div>`;
       } else {
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${escapeHtml(msg.content)}</div>`;
+        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}<div class="bubble-text-body">${escapeHtml(msg.content)}</div></div>`;
       }
       
       const wrappedContent = `<div class="msg-content">${contentHtml}</div>`;
@@ -1597,7 +1620,6 @@
     updateScrollButton();
   }
 
-  // タッチ操作・スワイプによるリプライ開始の実装
   let touchTimer = null;
   let startX = 0;
   let startY = 0;
@@ -1612,25 +1634,21 @@
     currentSwipeRow = bubbleElem.closest('.msg-group');
     isSwiping = false;
 
-    // 長押しタイマー（600ms）
     touchTimer = setTimeout(() => {
       if (!isSwiping) {
         showActionMenu(index);
       }
     }, 600);
 
-    // スワイプイベントの登録
     const moveHandler = (moveEvent) => {
       const currentTouch = moveEvent.touches[0];
       const diffX = currentTouch.clientX - startX;
       const diffY = currentTouch.clientY - startY;
 
-      // 横方向のスワイプが優勢な場合のみ処理
       if (Math.abs(diffX) > Math.abs(diffY) && diffX < -10) {
         isSwiping = true;
-        clearTimeout(touchTimer); // 長押しをキャンセル
+        clearTimeout(touchTimer);
 
-        // 右から左への移動量を制限（最大-60px）構文
         const translateX = Math.max(diffX, -60);
         if (currentSwipeRow) {
           currentSwipeRow.style.transform = `translateX(${translateX}px)`;
@@ -1643,10 +1661,9 @@
       if (currentSwipeRow) {
         const transformStyle = currentSwipeRow.style.transform;
         const match = transformStyle.match(/translateX\(([-\.]+)px\)/);
-        // 一定の距離（例: -45px以上）スワイプされたらリプライを確定
         const movedX = match ? parseFloat(match[1]) : 0;
         
-        currentSwipeRow.style.transform = 'translateX(0px)'; // 元の位置に戻すアニメーション
+        currentSwipeRow.style.transform = 'translateX(0px)';
 
         if (movedX < -45) {
           startReply(index);
@@ -1801,10 +1818,11 @@
       let replyInfo = null;
       if (activeReplyTarget) {
         const partnerName = document.getElementById('partner-name-display').innerText;
-        const targetSenderLabel = activeReplyTarget.sender === 'me' ? 'あなた' : partnerName;
+        const targetSenderLabel = partnerName;
         replyInfo = {
           senderLabel: targetSenderLabel,
-          content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content
+          content: activeReplyTarget.isImage ? '[画像]' : activeReplyTarget.content,
+          avatar: partnerAvatarUrl
         };
       }
 
@@ -1850,7 +1868,7 @@
     event.target.value = '';
   }
 
-  function clearChat() {
+    function clearChat() {
     if (confirm('チャット履歴を全消去しますか？')) {
       messagesData = [];
       cancelReply();
