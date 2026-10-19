@@ -1472,6 +1472,51 @@
       text-decoration: underline;
       cursor: pointer;
     }
+
+    /* ===== LINEトーク履歴の取り込み ===== */
+    .import-open-btn {
+      width: 100%;
+      background-color: #2a2a2c;
+      color: #ffffff;
+      border: 1px solid #3a3a3c;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .import-modal {
+      width: 330px;
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto;
+      z-index: 206;
+    }
+    .import-textarea {
+      width: 100%;
+      height: 150px;
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      border-radius: 6px;
+      color: #ffffff;
+      padding: 8px 10px;
+      font-size: 16px;
+      line-height: 1.4;
+      outline: none;
+      resize: none;
+      white-space: pre;
+      overflow: auto;
+    }
+    .import-textarea::placeholder { color: #616161; }
+    .import-preview {
+      font-size: 12px;
+      color: #aaaaaa;
+      line-height: 1.6;
+      white-space: pre-line;
+      word-break: break-all;
+    }
+    .import-preview.error { color: #ff6b6b; }
+    #import-exec-btn:disabled { opacity: 0.4; cursor: default; }
   </style>
 </head>
 <body>
@@ -1684,6 +1729,7 @@
         </div>
       </div>
       <button class="account-save-btn" onclick="executeAddFriend()">追加してトークを開始</button>
+      <button class="import-open-btn" onclick="openImportModal()">LINEのトーク履歴を取り込む</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
 
@@ -1708,6 +1754,18 @@
         <div id="push-status" style="font-size:11px; color:#999; margin-top:6px; line-height:1.5;">iPhoneのntfyアプリで、上のトピック名を購読してください</div>
       </div>
       <button class="account-save-btn" onclick="saveScheduledMessage()">予約を登録する</button>
+      <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
+    </div>
+
+    <!-- LINEトーク履歴 取り込みモーダル -->
+    <div class="account-modal import-modal" id="import-modal" onclick="event.stopPropagation()" style="display: none;">
+      <div class="account-modal-title">LINEのトーク履歴を取り込む</div>
+      <div class="account-section">
+        <div class="account-section-title">本物のLINEで「トーク履歴を送信」したテキストを貼り付け</div>
+        <textarea id="import-textarea" class="import-textarea" wrap="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="updateImportPreview()" placeholder="[LINE] ○○とのトーク履歴&#10;保存日時：2026/10/19 19:52&#10;&#10;2026/10/19(月)&#10;19:52&#9;○○&#9;こんにちは"></textarea>
+        <div id="import-preview" class="import-preview">貼り付けると、ここに取り込み内容の確認が出ます</div>
+      </div>
+      <button class="account-save-btn" id="import-exec-btn" onclick="executeImportHistory()" disabled>取り込んでトークを作成</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
   </div>
@@ -2445,6 +2503,7 @@
   }
 
   function closeAllModals() {
+    document.getElementById('import-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
     document.getElementById('action-menu').style.display = 'none';
     document.getElementById('confirm-modal').style.display = 'none';
@@ -2748,6 +2807,173 @@
   }
 
   document.getElementById('ntfy-topic-input').value = getNtfyTopic();
+</script>
+
+<script>
+  // ================= LINEトーク履歴の取り込み =================
+  const IMPORT_DEFAULT_AVATAR = newFriendTempAvatar;
+  const IMPORT_UNSEND_TEXT = 'メッセージの送信を取り消しました';
+
+  // 名前の比較用: 空白（全角・半角）を全部除き、全角英数なども揃える
+  function normalizeImportName(s) {
+    return String(s).normalize('NFKC').replace(/\s+/g, '').toLowerCase();
+  }
+
+  function parseLineHistory(raw) {
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const lines = String(raw).replace(/\r\n?/g, '\n').split('\n');
+
+    let i = 0;
+    while (i < lines.length && lines[i].trim() === '') i++;
+    const headerMatch = i < lines.length ? lines[i].trim().match(/^\[LINE\]\s*(.+?)\s*とのトーク履歴$/) : null;
+    if (!headerMatch) {
+      return { ok: false, error: '先頭の行が「[LINE] ○○とのトーク履歴」の形になっていません。' };
+    }
+    const partnerName = headerMatch[1].trim();
+    const partnerKey = normalizeImportName(partnerName);
+    i++;
+
+    const messages = [];
+    const myNames = new Set();
+    let curDate = null;
+    let skipped = 0;
+    let countMe = 0, countPartner = 0;
+
+    for (; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.trim() === '') continue;
+      if (/^保存日時/.test(line.trim())) continue;
+
+      // 日付の行（例: 2026/08/01(土)）
+      if (line.indexOf('\t') === -1) {
+        const dm = line.trim().match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})(?!\d)/);
+        if (dm) {
+          curDate = dm[1] + '-' + pad2(dm[2]) + '-' + pad2(dm[3]);
+          continue;
+        }
+      }
+
+      // メッセージの行（時刻 TAB 名前 TAB 本文）。本文は一切trimしない
+      const mm = line.match(/^(\d{1,2}):(\d{2})\t([^\t]*)\t([\s\S]*)$/);
+      if (!mm || !curDate) { skipped++; continue; }
+
+      const time = pad2(mm[1]) + ':' + mm[2];
+      const name = mm[3].trim();
+      let body = mm[4];
+
+      // 改行を含むメッセージは " で囲まれて複数行になる
+      if (body.charAt(0) === '"' && !(body.length >= 2 && body.charAt(body.length - 1) === '"')) {
+        const buf = [body.slice(1)];
+        let closed = false;
+        let j = i + 1;
+        for (; j < lines.length; j++) {
+          if (lines[j].charAt(lines[j].length - 1) === '"') {
+            buf.push(lines[j].slice(0, -1));
+            closed = true;
+            break;
+          }
+          buf.push(lines[j]);
+        }
+        if (closed) { body = buf.join('\n'); i = j; }
+      }
+
+      if (body === '') { skipped++; continue; }
+
+      const isUnsend = body.trim() === IMPORT_UNSEND_TEXT;
+
+      // 名前が空の行は送信取消、またはシステム的な表示
+      if (name === '') {
+        messages.push({
+          sender: isUnsend ? 'partner' : 'system',
+          text: body, time: time, isRead: false,
+          isImage: false, isVideo: false, mediaUrl: null,
+          unsend: isUnsend, date: curDate, replyTo: null
+        });
+        continue;
+      }
+
+      const sender = normalizeImportName(name) === partnerKey ? 'partner' : 'me';
+      if (sender === 'me') { myNames.add(name); countMe++; } else { countPartner++; }
+
+      messages.push({
+        sender: sender,
+        text: body, time: time, isRead: sender === 'me',
+        isImage: false, isVideo: false, mediaUrl: null,
+        unsend: isUnsend, date: curDate, replyTo: null
+      });
+    }
+
+    if (messages.length === 0) {
+      return { ok: false, error: 'メッセージが見つかりません。「時刻 ⇥ 名前 ⇥ 本文」の形の行が必要です。' };
+    }
+
+    return {
+      ok: true,
+      partnerName: partnerName,
+      myNames: Array.from(myNames),
+      messages: messages,
+      skipped: skipped,
+      countMe: countMe,
+      countPartner: countPartner,
+      firstDate: messages[0].date,
+      lastDate: messages[messages.length - 1].date
+    };
+  }
+
+  function openImportModal() {
+    closeAllModals();
+    document.getElementById('import-textarea').value = '';
+    updateImportPreview();
+    document.getElementById('modal-overlay').style.display = 'flex';
+    document.getElementById('import-modal').style.display = 'flex';
+  }
+
+  function updateImportPreview() {
+    const raw = document.getElementById('import-textarea').value;
+    const preview = document.getElementById('import-preview');
+    const btn = document.getElementById('import-exec-btn');
+
+    if (raw.trim() === '') {
+      preview.className = 'import-preview';
+      preview.textContent = '貼り付けると、ここに取り込み内容の確認が出ます';
+      btn.disabled = true;
+      return;
+    }
+
+    const res = parseLineHistory(raw);
+    if (!res.ok) {
+      preview.className = 'import-preview error';
+      preview.textContent = res.error;
+      btn.disabled = true;
+      return;
+    }
+
+    const me = res.myNames.length ? res.myNames.join(' / ') : '（自分の発言なし）';
+    let text = '相手（左・グレー）: ' + res.partnerName + '\n' +
+               '自分（右・緑）: ' + me + '\n' +
+               'メッセージ: ' + res.messages.length + '件（自分 ' + res.countMe + ' / 相手 ' + res.countPartner + '）\n' +
+               '期間: ' + res.firstDate.replace(/-/g, '/') + ' 〜 ' + res.lastDate.replace(/-/g, '/');
+    if (res.skipped > 0) text += '\n読み取れなかった行: ' + res.skipped + '件（無視します）';
+    preview.className = 'import-preview';
+    preview.textContent = text;
+    btn.disabled = false;
+  }
+
+  function executeImportHistory() {
+    const res = parseLineHistory(document.getElementById('import-textarea').value);
+    if (!res.ok) { alert(res.error); return; }
+
+    const newId = 'friend_' + new Date().getTime();
+    friendsList.push({
+      id: newId,
+      name: res.partnerName,
+      avatar: IMPORT_DEFAULT_AVATAR,
+      messages: res.messages
+    });
+    saveToLocalStorage();
+    closeAllModals();
+    openChat(newId);
+  }
 </script>
 
 </body>
