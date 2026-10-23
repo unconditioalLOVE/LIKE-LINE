@@ -14,7 +14,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-
+ 
     :root {
       --bg: #1a1a1a;
       --home-bg: #000000;
@@ -25,25 +25,25 @@
       --bubble-me: #69e779;
       --meta: #8d8d8d;
       --icon: #b7b7b7;
-
+ 
       --msg-padding-y: 8px;
       --msg-padding-x: 12px;
       --msg-font-size: 14px;
-
+ 
       --reply-top-padding-y: 6px;
       --reply-top-padding-x: 1px;
       --reply-top-shift-x: 2px;
       --reply-top-shift-y: 0px;
       --reply-title-font-size: 10px;
       --reply-text-font-size: 10px;
-
+ 
       --reply-body-padding-y: 7px;
       --reply-body-padding-x: 12px;
       --reply-body-shift-x: -5px;
       --reply-body-shift-y: 3px;
       --reply-body-font-size: 14px;
     }
-
+ 
     html, body {
       background-color: #000000;
       color: #ffffff;
@@ -59,7 +59,7 @@
       position: fixed;
       touch-action: none;
     }
-
+ 
     .container {
       width: 100%;
       max-width: 430px;
@@ -73,7 +73,7 @@
       overflow: hidden;
       touch-action: pan-y;
     }
-
+ 
     .screen {
       display: none;
       flex-direction: column;
@@ -84,7 +84,7 @@
     .screen.active {
       display: flex;
     }
-
+ 
     .tab-bar {
       height: 60px;
       background-color: #111111;
@@ -96,7 +96,7 @@
       z-index: 150;
       padding-bottom: env(safe-area-inset-bottom);
     }
-
+ 
     .tab-item {
       display: flex;
       flex-direction: column;
@@ -107,11 +107,11 @@
       font-size: 10px;
       flex: 1;
     }
-
+ 
     .tab-item.active {
       color: #ffffff;
     }
-
+ 
     .tab-item svg {
       width: 22px;
       height: 22px;
@@ -121,7 +121,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-
+ 
     .top-header {
       background-color: var(--header-bg);
       height: 52px;
@@ -132,13 +132,13 @@
       flex-shrink: 0;
       z-index: 10;
     }
-
+ 
     .top-header-left {
       display: flex;
       align-items: center;
       gap: 16px;
     }
-
+ 
     .top-header-title {
       font-size: 20px;
       font-weight: bold;
@@ -148,13 +148,13 @@
     .top-header-title.inactive {
       color: #777777;
     }
-
+ 
     .top-header-icons {
       display: flex;
       align-items: center;
       gap: 16px;
     }
-
+ 
     .top-icon-btn {
       width: 22px;
       height: 22px;
@@ -165,13 +165,13 @@
       stroke-linejoin: round;
       cursor: pointer;
     }
-
+ 
     .search-bar-container {
       padding: 6px 16px 12px 16px;
       background-color: var(--search-bg);
       flex-shrink: 0;
     }
-
+ 
     .search-box {
       background-color: #262628;
       border-radius: 10px;
@@ -183,7 +183,7 @@
       color: #888888;
       font-size: 14px;
     }
-
+ 
     .search-box svg {
       width: 16px;
       height: 16px;
@@ -191,7 +191,7 @@
       stroke: #888888;
       stroke-width: 2;
     }
-
+ 
     .content-body {
       flex: 1;
       overflow-y: auto;
@@ -199,7 +199,7 @@
       flex-direction: column;
       background-color: var(--home-bg);
     }
-
+ 
     .banner-area {
       margin: 8px 16px;
       background-color: #262628;
@@ -216,7 +216,7 @@
       color: #ffffff;
       flex: 1;
     }
-
+ 
     .empty-state {
       flex: 1;
       display: flex;
@@ -228,18 +228,18 @@
       gap: 16px;
       color: #888888;
     }
-
+ 
     .empty-title {
       font-size: 16px;
       font-weight: bold;
       color: #ffffff;
     }
-
+ 
     .empty-desc {
       font-size: 12px;
       color: #888888;
     }
-
+ 
     .action-button {
       background-color: #262628;
       color: #ffffff;
@@ -250,7 +250,7 @@
       font-weight: 500;
       cursor: pointer;
     }
-
+ 
     .list-item {
       display: flex;
       align-items: center;
@@ -261,7 +261,7 @@
     .list-item:hover {
       background-color: rgba(255,255,255,0.03);
     }
-
+ 
     .item-avatar {
       width: 45px;
       height: 45px;
@@ -270,7 +270,7 @@
       background-color: #333333;
       flex-shrink: 0;
     }
-
+ 
     .item-info {
       flex: 1;
       min-width: 0;
@@ -278,7 +278,7 @@
       flex-direction: column;
       gap: 4px;
     }
-
+ 
     .item-name {
       font-size: 15px;
       font-weight: 600;
@@ -287,7 +287,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
+ 
     .item-sub {
       font-size: 12px;
       color: #888888;
@@ -295,14 +295,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
+ 
     .section-header {
       padding: 8px 16px;
       font-size: 12px;
       color: #888888;
       font-weight: bold;
     }
-
+ 
     .home-profile-card {
       margin: 16px;
       background-color: #262628;
@@ -335,7 +335,7 @@
       font-size: 13px;
       cursor: pointer;
     }
-
+ 
     /* チャット画面側 */
     .header {
       background-color: var(--bg);
@@ -347,14 +347,14 @@
       z-index: 10;
       flex-shrink: 0;
     }
-
+ 
     .header-left {
       display: flex;
       align-items: center;
       gap: 10px;
       min-width: 0;
     }
-
+ 
     .back-btn {
       width: 24px;
       height: 24px;
@@ -366,7 +366,7 @@
       cursor: pointer;
       flex-shrink: 0;
     }
-
+ 
     .partner-name {
       font-weight: 700;
       font-size: 18px;
@@ -377,7 +377,7 @@
       text-overflow: ellipsis;
       padding-left: 4px;
     }
-
+ 
     .delete-header-title {
       font-weight: 700;
       font-size: 17px;
@@ -386,14 +386,14 @@
       text-align: center;
       display: block;
     }
-
+ 
     .header-icons {
       display: flex;
       align-items: center;
       gap: 21px;
       flex-shrink: 0;
     }
-
+ 
     .header-icon-svg {
       width: 22px;
       height: 22px;
@@ -404,7 +404,7 @@
       stroke-linejoin: round;
       cursor: pointer;
     }
-
+ 
     .calendar-icon-box {
       width: 20px;
       height: 22px;
@@ -416,7 +416,7 @@
       position: relative;
       cursor: pointer;
     }
-
+ 
     .calendar-icon-box::before {
       content: '';
       position: absolute;
@@ -427,14 +427,14 @@
       background-color: #ffffff;
       box-shadow: 9px 0 0 #ffffff;
     }
-
+ 
     .calendar-date {
       font-size: 10px;
       font-weight: 700;
       line-height: 1;
       margin-bottom: 3px;
     }
-
+ 
     .chat-wrap {
       flex: 1;
       min-height: 0;
@@ -442,7 +442,7 @@
       display: flex;
       flex-direction: column;
     }
-
+ 
     .chat-area {
       flex: 1;
       min-height: 0;
@@ -452,7 +452,7 @@
       flex-direction: column;
       background-color: var(--bg);
     }
-
+ 
     .scroll-bottom-btn {
       position: absolute;
       right: 8px;
@@ -467,7 +467,7 @@
       cursor: pointer;
       z-index: 5;
     }
-
+ 
     .scroll-bottom-btn svg {
       width: 20px;
       height: 20px;
@@ -477,7 +477,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-
+ 
     .system-msg {
       align-self: center;
       background-color: #161616;
@@ -490,7 +490,7 @@
       margin: 9px 0;
       line-height: 1.4;
     }
-
+ 
     .date-divider-msg {
       align-self: center;
       background-color: #161616;
@@ -503,7 +503,7 @@
       margin: 12px 0;
       user-select: none;
     }
-
+ 
     .unsend-sys-msg-wrap {
       display: flex;
       justify-content: center;
@@ -511,7 +511,7 @@
       margin-top: 10px;
     }
     .unsend-sys-msg-wrap:first-of-type { margin-top: 0; }
-
+ 
     .unsend-sys-msg-box {
       background-color: #161616;
       color: #ffffff;
@@ -530,7 +530,7 @@
       display: inline-block;
       margin-top: 1px;
     }
-
+ 
     .msg-group {
       display: flex;
       align-items: flex-start;
@@ -540,13 +540,13 @@
       transition: transform 0.1s ease-out;
     }
     .msg-group:first-of-type { margin-top: 0; }
-
+ 
     .msg-group.partner { align-self: flex-start; }
     .msg-group.me {
       align-self: flex-end;
       flex-direction: row-reverse;
     }
-
+ 
     .msg-group.delete-mode-row {
       display: flex;
       align-items: center;
@@ -556,15 +556,15 @@
       gap: 12px;
       padding: 4px 0;
     }
-
+ 
     .msg-group.grouped { margin-top: 6px; }
     .msg-group.grouped .avatar { visibility: hidden; pointer-events: none; }
     .msg-group.grouped .msg-bubble::before,
     .msg-group.grouped .msg-bubble::after { display: none; }
-
+ 
     .msg-group.partner:not(.grouped) { margin-top: 3.5px; }
     .msg-group.partner:not(.grouped):first-of-type { margin-top: 0; }
-
+ 
     .avatar {
       width: 30px;
       height: 30px;
@@ -575,16 +575,16 @@
       cursor: pointer;
       background-color: #333333;
     }
-
+ 
     .msg-group.partner .msg-bubble { margin-top: 4px; }
     .msg-group.partner.grouped .msg-bubble { margin-top: 0; }
-
+ 
     .msg-content {
       display: flex;
       flex-direction: column;
       min-width: 0;
     }
-
+ 
     .select-checkbox {
       width: 22px;
       height: 22px;
@@ -608,7 +608,7 @@
       transform: rotate(45deg);
       margin-bottom: 2px;
     }
-
+ 
     .msg-bubble {
       display: flex;
       flex-direction: column;
@@ -626,7 +626,7 @@
       user-select: none;
       -webkit-user-select: none;
     }
-
+ 
     .me .msg-bubble {
       background: var(--bubble-me);
       color: #000;
@@ -643,7 +643,7 @@
       z-index: 1;
       clip-path: path("M 0 6 L 2.6 4.2 Q 10.5 4.3 12.9 0.8 C 12 5 10 8.6 7.6 11.2 L 0 11 Z");
     }
-
+ 
     .partner .msg-bubble {
       background: var(--bubble-partner);
       color: #fff;
@@ -659,7 +659,7 @@
       z-index: 1;
       clip-path: path("M 14 6 L 11.4 4.2 Q 3.5 4.3 1.1 0.8 C 2 5 4 8.6 6.4 11.2 L 14 11 Z");
     }
-
+ 
     .bubble-reply-container {
       padding: var(--reply-top-padding-y) var(--reply-top-padding-x);
       border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
@@ -673,7 +673,7 @@
     .partner .bubble-reply-container {
       border-bottom: 0.5px solid rgba(255, 255, 255, 0.15);
     }
-
+ 
     .bubble-reply-avatar {
       width: 25px;
       height: 25px;
@@ -685,7 +685,7 @@
       left: 3px;
       top: -3px;
     }
-
+ 
     .bubble-reply-info-col {
       display: flex;
       flex-direction: column;
@@ -693,7 +693,7 @@
       min-width: 0;
       flex: 1;
     }
-
+ 
     .bubble-reply-sender {
       font-weight: bold;
       font-size: var(--reply-title-font-size);
@@ -706,7 +706,7 @@
     .partner .bubble-reply-sender {
       color: rgba(255, 255, 255, 0.85);
     }
-
+ 
     .bubble-reply-text {
       font-size: var(--reply-text-font-size);
       color: #0e5015;
@@ -721,7 +721,7 @@
     .partner .bubble-reply-text {
       color: rgba(255, 255, 255, 0.65);
     }
-
+ 
     .bubble-text-body {
       padding: var(--reply-body-padding-y) var(--reply-body-padding-x);
       font-size: var(--reply-body-font-size);
@@ -731,7 +731,7 @@
       left: var(--reply-body-shift-x);
       top: var(--reply-body-shift-y);
     }
-
+ 
     .msg-meta {
       display: flex;
       flex-direction: column;
@@ -744,17 +744,17 @@
       user-select: none;
       flex-shrink: 0;
     }
-
+ 
     .me .msg-meta {
       align-items: flex-end;
       text-align: right;
     }
-
+ 
     .partner .msg-meta {
       align-items: flex-start;
       text-align: left;
     }
-
+ 
     .raw-media-container {
       max-width: 210px;
       max-height: 250px;
@@ -772,7 +772,7 @@
       display: block;
       border-radius: 12px;
     }
-
+ 
     .imported-media-placeholder {
       padding: 6px 10px;
       font-size: 13px;
@@ -783,7 +783,7 @@
       cursor: pointer;
       display: inline-block;
     }
-
+ 
     .input-reply-bar {
       background-color: #262628;
       padding: 8px 12px;
@@ -826,7 +826,7 @@
       flex-shrink: 0;
       margin-left: 8px;
     }
-
+ 
     .input-bar {
       background-color: var(--bar);
       padding: 8px 12px 34px 10px;
@@ -835,13 +835,13 @@
       gap: 10px;
       flex-shrink: 0;
     }
-
+ 
     .input-icons-left {
       display: flex;
       align-items: center;
       gap: 14px;
     }
-
+ 
     .collapse-arrow {
       width: 24px;
       height: 24px;
@@ -853,7 +853,7 @@
       cursor: pointer;
       display: none;
     }
-
+ 
     .tool-icon-svg {
       width: 25px;
       height: 25px;
@@ -865,7 +865,7 @@
       cursor: pointer;
       flex-shrink: 0;
     }
-
+ 
     .input-wrapper {
       flex: 1;
       min-width: 0;
@@ -878,7 +878,7 @@
       align-items: center;
       gap: 8px;
     }
-
+ 
     .text-input {
       flex: 1;
       min-width: 0;
@@ -888,11 +888,11 @@
       font-size: 16px;
       outline: none;
     }
-
+ 
     .text-input::placeholder {
       color: #616161;
     }
-
+ 
     .send-action-btn {
       width: 30px;
       height: 30px;
@@ -905,7 +905,7 @@
       padding: 0;
       flex-shrink: 0;
     }
-
+ 
     .send-action-btn svg {
       width: 25px;
       height: 25px;
@@ -915,19 +915,19 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-
+ 
     .send-action-btn.active-blue {
       background-color: #2b82f6;
       border-radius: 50%;
     }
-
+ 
     .send-action-btn.active-blue svg {
       fill: #ffffff;
       stroke: none;
       width: 16px;
       height: 16px;
     }
-
+ 
     .delete-bottom-bar {
       background-color: #111111;
       padding: 10px 14px 34px 14px;
@@ -938,7 +938,7 @@
       flex-shrink: 0;
       z-index: 10;
     }
-
+ 
     .delete-cancel-btn {
       flex: 1;
       background-color: #1a1a1c;
@@ -951,7 +951,7 @@
       cursor: pointer;
       text-align: center;
     }
-
+ 
     .delete-exec-btn {
       flex: 1;
       background-color: #ff3b30;
@@ -964,7 +964,7 @@
       text-align: center;
       border: none;
     }
-
+ 
     .control-panel {
       background-color: #1a1a1c;
       border-top: 1px solid #2a2a2c;
@@ -974,14 +974,14 @@
       gap: 8px;
       flex-shrink: 0;
     }
-
+ 
     .sender-switch {
       display: flex;
       background-color: #0d0d0d;
       border-radius: 8px;
       padding: 2px;
     }
-
+ 
     .switch-btn {
       flex: 1;
       padding: 5px;
@@ -993,22 +993,22 @@
       border-radius: 6px;
       cursor: pointer;
     }
-
+ 
     .switch-btn.active.me {
       background-color: #69e779;
       color: #000000;
     }
-
+ 
     .switch-btn.active.partner {
       background-color: #333333;
       color: #ffffff;
     }
-
+ 
     .switch-btn.active.system {
       background-color: #444444;
       color: #ffffff;
     }
-
+ 
     .option-row {
       display: flex;
       justify-content: space-between;
@@ -1016,14 +1016,14 @@
       font-size: 11px;
       color: #aaaaaa;
     }
-
+ 
     .checkbox-label {
       display: flex;
       align-items: center;
       gap: 4px;
       cursor: pointer;
     }
-
+ 
     .time-override-row {
       display: flex;
       align-items: center;
@@ -1054,11 +1054,11 @@
     .now-btn:active {
       background: #444;
     }
-
+ 
     #file-input, #avatar-input, #my-avatar-input, #add-friend-avatar-input, #media-embed-input {
       display: none;
     }
-
+ 
     .modal-overlay {
       position: absolute;
       top: 0;
@@ -1071,7 +1071,7 @@
       align-items: center;
       justify-content: center;
     }
-
+ 
     .action-menu {
       position: absolute;
       background-color: #262628;
@@ -1084,7 +1084,7 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       z-index: 201;
     }
-
+ 
     .action-item {
       display: flex;
       flex-direction: column;
@@ -1094,7 +1094,7 @@
       color: #ffffff;
       font-size: 10px;
     }
-
+ 
     .action-icon-box {
       width: 42px;
       height: 42px;
@@ -1104,7 +1104,7 @@
       align-items: center;
       justify-content: center;
     }
-
+ 
     .action-icon-box svg {
       width: 22px;
       height: 22px;
@@ -1114,7 +1114,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-
+ 
     .confirm-modal {
       background-color: #222224;
       border-radius: 16px;
@@ -1127,21 +1127,21 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 202;
     }
-
+ 
     .confirm-title {
       font-size: 16px;
       font-weight: bold;
       color: #ffffff;
       margin-bottom: 8px;
     }
-
+ 
     .confirm-desc {
       font-size: 12px;
       color: #999999;
       line-height: 1.4;
       margin-bottom: 20px;
     }
-
+ 
     .confirm-btn-green {
       width: 100%;
       background: linear-gradient(90deg, #00d26a, #00c2cb);
@@ -1156,7 +1156,7 @@
       position: relative;
       overflow: hidden;
     }
-
+ 
     .confirm-btn-green span {
       background: rgba(0,0,0,0.25);
       font-size: 9px;
@@ -1165,7 +1165,7 @@
       margin-left: 4px;
       vertical-align: middle;
     }
-
+ 
     .confirm-btn-dark {
       width: 100%;
       background-color: #2c2c2e;
@@ -1178,7 +1178,7 @@
       cursor: pointer;
       margin-bottom: 12px;
     }
-
+ 
     .confirm-btn-cancel {
       background: none;
       border: none;
@@ -1187,7 +1187,7 @@
       cursor: pointer;
       padding: 4px;
     }
-
+ 
     .delete-dialog {
       background-color: #222224;
       border-radius: 16px;
@@ -1200,14 +1200,14 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 203;
     }
-
+ 
     .delete-dialog-desc {
       font-size: 13px;
       color: #cccccc;
       line-height: 1.4;
       margin-bottom: 20px;
     }
-
+ 
     .delete-dialog-btn-red {
       width: 100%;
       background-color: #ff3b30;
@@ -1220,7 +1220,7 @@
       cursor: pointer;
       margin-bottom: 8px;
     }
-
+ 
     .account-modal {
       background-color: #222224;
       border-radius: 16px;
@@ -1232,14 +1232,14 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 204;
     }
-
+ 
     .account-modal-title {
       font-size: 16px;
       font-weight: bold;
       color: #ffffff;
       text-align: center;
     }
-
+ 
     .account-section {
       display: flex;
       flex-direction: column;
@@ -1248,19 +1248,19 @@
       padding: 12px;
       border-radius: 10px;
     }
-
+ 
     .account-section-title {
       font-size: 12px;
       color: #8d8d8d;
       font-weight: bold;
     }
-
+ 
     .account-row {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
+ 
     .account-avatar-preview {
       width: 40px;
       height: 40px;
@@ -1270,7 +1270,7 @@
       cursor: pointer;
       flex-shrink: 0;
     }
-
+ 
     .account-input-name {
       flex: 1;
       background: #2a2a2c;
@@ -1281,7 +1281,7 @@
       font-size: 13px;
       outline: none;
     }
-
+ 
     .account-save-btn {
       width: 100%;
       background-color: #2b82f6;
@@ -1293,7 +1293,7 @@
       font-weight: bold;
       cursor: pointer;
     }
-
+ 
     .add-friend-modal {
       background-color: #222224;
       border-radius: 16px;
@@ -1307,8 +1307,8 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 205;
     }
-
-
+ 
+ 
     .premium-page {
       position: absolute;
       top: 0;
@@ -1322,14 +1322,14 @@
       flex-direction: column;
       overflow-y: auto;
     }
-
+ 
     .prem-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 16px 20px;
     }
-
+ 
     .prem-title-area {
       display: flex;
       align-items: center;
@@ -1337,20 +1337,20 @@
       font-weight: bold;
       font-size: 17px;
     }
-
+ 
     .prem-title-area svg {
       width: 22px;
       height: 22px;
       fill: #2f65ff;
     }
-
+ 
     .prem-close {
       font-size: 24px;
       cursor: pointer;
       color: #333333;
       font-weight: 300;
     }
-
+ 
     .prem-notice-box {
       margin: 0 16px;
       border: 1px solid #eeeeee;
@@ -1360,7 +1360,7 @@
       flex-direction: column;
       gap: 12px;
     }
-
+ 
     .prem-notice-row {
       display: flex;
       justify-content: space-between;
@@ -1369,11 +1369,11 @@
       color: #333333;
       cursor: pointer;
     }
-
+ 
     .prem-notice-row span:last-child {
       color: #999999;
     }
-
+ 
     .prem-hero-card {
       margin: 16px;
       background: linear-gradient(135deg, #2b70ff, #1a56db);
@@ -1385,20 +1385,20 @@
       align-items: center;
       text-align: center;
     }
-
+ 
     .prem-hero-subtitle {
       font-size: 13px;
       opacity: 0.9;
       margin-bottom: 6px;
     }
-
+ 
     .prem-hero-title {
       font-size: 20px;
       font-weight: bold;
       line-height: 1.4;
       margin-bottom: 16px;
     }
-
+ 
     .prem-mockup {
       background-color: #d8e3ff;
       width: 100%;
@@ -1412,7 +1412,7 @@
       align-items: center;
       justify-content: center;
     }
-
+ 
     .prem-check-list {
       background-color: #ffffff;
       color: #333333;
@@ -1425,7 +1425,7 @@
       gap: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-
+ 
     .prem-check-item {
       display: flex;
       align-items: flex-start;
@@ -1433,7 +1433,7 @@
       font-size: 13px;
       color: #222222;
     }
-
+ 
     .prem-check-item svg {
       width: 18px;
       height: 18px;
@@ -1442,7 +1442,7 @@
       fill: none;
       flex-shrink: 0;
     }
-
+ 
     .prem-footer {
       margin-top: auto;
       padding: 20px 16px;
@@ -1452,7 +1452,7 @@
       text-align: center;
       gap: 12px;
     }
-
+ 
     .prem-start-btn {
       width: 100%;
       background: linear-gradient(90deg, #2b70ff, #1e4fd8);
@@ -1465,14 +1465,14 @@
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(43,112,255,0.3);
     }
-
+ 
     .prem-footer-sub {
       font-size: 11px;
       color: #666666;
       text-decoration: underline;
       cursor: pointer;
     }
-
+ 
     /* ===== LINEトーク履歴の取り込み ===== */
     .import-open-btn {
       width: 100%;
@@ -1517,12 +1517,108 @@
     }
     .import-preview.error { color: #ff6b6b; }
     #import-exec-btn:disabled { opacity: 0.4; cursor: default; }
+ 
+    /* ===== 通話メニュー（ヘッダー下） ===== */
+    .call-menu { display: none; height: 81px; background: #111111; flex-shrink: 0; }
+    .call-menu.open { display: flex; }
+    .call-menu-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 20px; cursor: pointer; }
+    .call-menu-icon { height: 21px; display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
+    .call-menu-icon svg { fill: #c8c8c8; }
+    .call-menu-label { font-size: 10px; line-height: 12px; color: #949494; }
+ 
+    /* ===== 通話メッセージ（吹き出し） ===== */
+    .msg-bubble.call-bubble {
+      width: 190px; max-width: 190px; height: 95px; min-height: 95px;
+      padding: 0; border-radius: 20px; white-space: normal; line-height: normal;
+      --call-bg: #2a2a2a; --call-circle: #3f3f3f; --call-divider: #373737;
+      --call-glyph: #ffffff; --call-title: #ffffff; --call-sub: #9c9c9c; --call-ring: #838383;
+    }
+    .me .msg-bubble.call-bubble {
+      background: #8ee386;
+      --call-circle: #7fd977; --call-divider: #80d578;
+      --call-glyph: rgba(0,0,0,0.68); --call-title: #000000; --call-sub: #24681b; --call-ring: #24681b;
+    }
+    .me .msg-bubble.call-bubble::after { background: #8ee386; }
+    .call-main { height: 62px; display: flex; align-items: center; padding: 1px 12px 0; border-bottom: 0.67px solid var(--call-divider); }
+    .call-icon-circle { width: 38px; height: 38px; border-radius: 50%; background: var(--call-circle); display: flex; align-items: center; justify-content: center; flex: none; }
+    .call-icon-circle svg { fill: var(--call-glyph); }
+    .call-texts { margin-left: 10.7px; min-width: 0; }
+    .call-title { font-size: 11px; line-height: 14px; font-weight: 700; color: var(--call-title); }
+    .call-sub { font-size: 10px; line-height: 12px; margin-top: 2.5px; color: var(--call-sub); font-weight: 400; }
+    .call-ringtone { height: 33px; display: flex; align-items: center; padding: 0 13px 0 10px; }
+    .call-note { width: 13.7px; height: 13.7px; flex: none; display: flex; }
+    .call-ringtone-text { margin-left: 5.3px; font-size: 10.3px; font-weight: 600; color: var(--call-ring); flex: 1; white-space: nowrap; }
+    .call-chevron { width: 4.4px; height: 7.4px; flex: none; fill: none; stroke: var(--call-ring); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+ 
+    /* ===== 偽通話画面 ===== */
+    .call-screen {
+      position: absolute; inset: 0; z-index: 400; display: none; overflow: hidden;
+      color: #ffffff; background: #555555;
+      --call-top: max(env(safe-area-inset-top, 0px), 59px);
+      --av-top: calc(var(--call-top) + 82px);
+      user-select: none; -webkit-user-select: none;
+    }
+    .call-screen.show { display: block; }
+    .call-bg { position: absolute; inset: 0; overflow: hidden; }
+    .call-bg img { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%, -50%) scale(1.7); filter: blur(30px); }
+    .call-dim { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 68%, rgba(0,0,0,0.64) 100%); }
+    .call-pip { position: absolute; left: 18px; top: calc(var(--call-top) + 14px); }
+    .call-line-logo { position: absolute; right: 17px; top: calc(var(--call-top) + 12px); }
+    .call-noanswer-chip {
+      position: absolute; left: 50%; transform: translateX(-50%); top: calc(var(--call-top) + 12px);
+      font-size: 11px; line-height: 1; padding: 6px 12px; border-radius: 14px; border: none;
+      background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.88); cursor: pointer;
+    }
+    .call-avatar { position: absolute; left: 50%; top: var(--av-top); width: 150px; height: 150px; margin-left: -75px; border-radius: 50%; object-fit: cover; background: #333333; }
+    .call-name { position: absolute; left: 0; right: 0; top: calc(var(--av-top) + 167.5px); height: 26px; line-height: 26px; padding: 0 24px; text-align: center; font-size: 21.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .call-dots { position: absolute; left: 0; right: 0; top: calc(var(--av-top) + 201.5px); height: 6px; display: flex; justify-content: center; align-items: center; gap: 2.7px; }
+    .call-dots i { display: block; width: 5px; height: 5px; border-radius: 50%; background: #2fd36d; animation: callDot 1.2s infinite ease-in-out; }
+    .call-dots i:nth-child(2) { animation-delay: 0.15s; }
+    .call-dots i:nth-child(3) { animation-delay: 0.3s; }
+    .call-dots i:nth-child(4) { animation-delay: 0.45s; }
+    @keyframes callDot { 0%, 100% { transform: scale(0.45); opacity: 0.6; } 40% { transform: scale(1); opacity: 1; } }
+    .call-timer { position: absolute; left: 50%; transform: translateX(-50%); top: calc(var(--av-top) + 197px); height: 19px; line-height: 19px; font-size: 15px; padding: 0 14px; font-variant-numeric: tabular-nums; cursor: pointer; white-space: nowrap; }
+    .call-wave { position: absolute; left: 0; right: 0; top: calc(var(--av-top) + 255px); height: 4px; display: flex; justify-content: center; align-items: center; gap: 4.8px; }
+    .call-wave i { display: block; width: 3px; height: 3px; border-radius: 50%; animation: callWave 1.4s infinite ease-in-out; }
+    .call-wave i:nth-child(1) { background: #4fb3d1; } .call-wave i:nth-child(2) { background: #42b7c0; }
+    .call-wave i:nth-child(3) { background: #35bbaf; } .call-wave i:nth-child(4) { background: #29bf9f; }
+    .call-wave i:nth-child(5) { background: #1dc390; } .call-wave i:nth-child(6) { background: #11c680; }
+    .call-wave i:nth-child(n+7) { background: #08ca74; }
+    .call-wave i:nth-child(2n) { animation-delay: 0.2s; } .call-wave i:nth-child(3n) { animation-delay: 0.4s; }
+    @keyframes callWave { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.35); opacity: 1; } }
+    .call-screen.calling .call-timer, .call-screen.calling .call-wave { display: none; }
+    .call-screen.connected .call-dots { display: none; }
+ 
+    .call-controls { position: absolute; left: 12px; right: 12px; bottom: 0; height: 240px; pointer-events: none; }
+    .call-ctl { position: absolute; top: 7.7px; width: 25%; display: flex; flex-direction: column; align-items: center; pointer-events: auto; }
+    .call-ctl:nth-child(1) { left: 0; } .call-ctl:nth-child(2) { left: 25%; }
+    .call-ctl:nth-child(3) { left: 50%; } .call-ctl:nth-child(4) { left: 75%; }
+    .call-screen.calling .call-ctl { top: 106.3px; }
+    .call-screen.calling .call-ctl.only-connected { visibility: hidden; }
+    .call-ctl-icon { height: 30px; display: flex; align-items: center; justify-content: center; }
+    .call-ctl-label { margin-top: 4.6px; font-size: 8.8px; line-height: 10.7px; text-align: center; white-space: pre-line; color: #ffffff; letter-spacing: -0.1px; }
+    .call-arc { fill: none; stroke-width: 1.7; stroke-linecap: round; }
+    .call-screen.connected .call-arc { stroke: #14d62c; }
+    .call-screen.calling .call-arc { stroke: rgba(255,255,255,0.4); }
+    .call-hangup { position: absolute; left: 50%; bottom: 84px; margin-left: -30px; width: 60px; height: 60px; border-radius: 50%; border: none; background: #ff334b; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+ 
+    .call-edit-overlay { position: absolute; inset: 0; z-index: 5; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
+    .call-edit-overlay.show { display: flex; }
+    .call-edit-panel { width: 280px; background: #2c2c2e; border-radius: 14px; padding: 18px 16px 14px; }
+    .call-edit-title { text-align: center; font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+    .call-edit-fields { display: flex; gap: 8px; justify-content: center; }
+    .call-edit-fields label { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: #aaaaaa; }
+    .call-edit-fields input { width: 72px; height: 42px; text-align: center; font-size: 20px; color: #ffffff; background: #1c1c1e; border: 1px solid #48484a; border-radius: 8px; outline: none; }
+    .call-edit-note { margin-top: 10px; text-align: center; font-size: 10.5px; color: #8e8e93; }
+    .call-edit-btns { display: flex; gap: 8px; margin-top: 14px; }
+    .call-edit-btns button { flex: 1; height: 40px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; background: #3a3a3c; color: #ffffff; cursor: pointer; }
+    .call-edit-btns button.primary { background: #2f80ff; }
   </style>
 </head>
 <body>
-
+ 
 <div class="container">
-
+ 
   <!-- ================= 1. ホーム画面 ================= -->
   <div class="screen active" id="home-screen">
     <div class="top-header">
@@ -1539,17 +1635,17 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="search-bar-container">
       <div class="search-box">
         <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/></svg>
         <span>検索</span>
       </div>
     </div>
-
+ 
     <div class="content-body" id="home-content-body"></div>
   </div>
-
+ 
   <!-- ================= 2. 個別チャット画面 ================= -->
   <div class="screen" id="chat-screen">
     <div class="header" id="normal-header">
@@ -1561,7 +1657,7 @@
         <svg class="header-icon-svg" viewBox="0 0 24 24">
           <circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/><path d="M10.5 6.5v4l2.6 1.6"/>
         </svg>
-        <svg class="header-icon-svg" viewBox="0 0 24 24">
+        <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="toggleCallMenu()">
           <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/>
         </svg>
         <div class="calendar-icon-box" onclick="alert('カレンダー')">
@@ -1572,18 +1668,29 @@
         </svg>
       </div>
     </div>
-
+ 
     <div class="header" id="delete-header" style="display: none;">
       <div class="delete-header-title" id="delete-header-title">メッセージを削除</div>
     </div>
-
+ 
+    <div class="call-menu" id="call-menu">
+      <div class="call-menu-item" onclick="startCall('voice')">
+        <div class="call-menu-icon"><svg width="19" height="19" viewBox="3 3 18 18"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+        <div class="call-menu-label">音声通話</div>
+      </div>
+      <div class="call-menu-item" onclick="startCall('video')">
+        <div class="call-menu-icon"><svg width="21" height="14" viewBox="3 6 18 12"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg></div>
+        <div class="call-menu-label">ビデオ通話</div>
+      </div>
+    </div>
+ 
     <div class="chat-wrap">
       <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
       <div class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()">
         <svg viewBox="0 0 24 24"><path d="M12 4v16M5.5 13.5 12 20l6.5-6.5"/></svg>
       </div>
     </div>
-
+ 
     <div class="input-reply-bar" id="input-reply-bar">
       <div class="input-reply-info">
         <div class="input-reply-title" id="reply-preview-sender">返信先: 相手</div>
@@ -1591,7 +1698,7 @@
       </div>
       <svg class="input-reply-close" viewBox="0 0 24 24" onclick="cancelReply()"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </div>
-
+ 
     <div class="input-bar" id="input-bar">
       <div class="input-icons-left">
         <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
@@ -1615,12 +1722,12 @@
         <svg viewBox="0 0 24 24" id="send-mic-svg"></svg>
       </button>
     </div>
-
+ 
     <div class="delete-bottom-bar" id="delete-bottom-bar">
       <div class="delete-cancel-btn" onclick="exitDeleteMode()">キャンセル</div>
       <button class="delete-exec-btn" id="delete-exec-btn" onclick="openDeleteDialog()">削除 (0)</button>
     </div>
-
+ 
     <div class="control-panel" id="control-panel">
       <div class="sender-switch">
         <button class="switch-btn active me" id="btn-me" onclick="setSender('me')">自分 (緑)</button>
@@ -1645,7 +1752,7 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- ================= ボトムタブバー ================= -->
   <div class="tab-bar" id="main-tab-bar">
     <div class="tab-item" id="tab-home" onclick="switchMainTab('home_tab')">
@@ -1669,7 +1776,7 @@
       <span>アプリ</span>
     </div>
   </div>
-
+ 
   <!-- モーダル類 -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeAllModals()">
     <div class="action-menu" id="action-menu" onclick="event.stopPropagation()">
@@ -1684,7 +1791,7 @@
       <div class="action-item" onclick="alert('スクショ')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><span>スクショ</span></div>
       <div class="action-item" onclick="alert('カレンダー')"><div class="action-icon-box"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span>カレンダー</span></div>
     </div>
-
+ 
     <div class="confirm-modal" id="confirm-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="confirm-title">メッセージの送信を<br>取り消しますか？</div>
       <div class="confirm-desc">このメッセージは未読のため、相手への<br>通知なしに取り消できます。</div>
@@ -1692,13 +1799,13 @@
       <button class="confirm-btn-dark" onclick="executeUnsend()">送信取消</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">閉じる</button>
     </div>
-
+ 
     <div class="delete-dialog" id="delete-dialog" onclick="event.stopPropagation()" style="display: none;">
       <div class="delete-dialog-desc">選択したメッセージはこの端末でのみ削除されます。相手の端末からは削除されません。</div>
       <button class="delete-dialog-btn-red" onclick="executeDeleteSelected()">この端末でのみ削除</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
-
+ 
     <div class="account-modal" id="account-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title">アカウント情報の変更</div>
       <div class="account-section">
@@ -1718,7 +1825,7 @@
       <button class="account-save-btn" onclick="saveAccountSettings()">変更を保存</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
-
+ 
     <div class="add-friend-modal" id="add-friend-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title">新しい友達を追加</div>
       <div class="account-section">
@@ -1732,7 +1839,7 @@
       <button class="import-open-btn" onclick="openImportModal()">LINEのトーク履歴を取り込む</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
-
+ 
     <!-- 予約投稿モーダル -->
     <div class="account-modal" id="schedule-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title">予約投稿の設定</div>
@@ -1756,7 +1863,7 @@
       <button class="account-save-btn" onclick="saveScheduledMessage()">予約を登録する</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
-
+ 
     <!-- LINEトーク履歴 取り込みモーダル -->
     <div class="account-modal import-modal" id="import-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title">LINEのトーク履歴を取り込む</div>
@@ -1769,7 +1876,7 @@
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
   </div>
-
+ 
   <div class="premium-page" id="premium-page">
     <div class="prem-header">
       <div class="prem-title-area">
@@ -1804,14 +1911,69 @@
       <span class="prem-footer-sub">アプリから登録した場合は、ここから会員情報を復元</span>
     </div>
   </div>
-
+ 
+  <div class="call-screen" id="call-screen">
+    <div class="call-bg"><img id="call-bg-img" alt=""></div>
+    <div class="call-dim"></div>
+ 
+    <svg class="call-pip" width="19" height="17" viewBox="0 0 19 17"><rect x="1" y="1" width="17" height="15" rx="2.8" fill="none" stroke="#fff" stroke-width="1.6"/><rect x="9.6" y="8.8" width="7.6" height="6.4" rx="1.4" fill="#fff"/><path d="M4 4l4.4 4.4M8.4 8.4H5.4M8.4 8.4V5.4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="call-noanswer-chip" onclick="endCall('noanswer')">応答なし</button>
+    <svg class="call-line-logo" width="25" height="24" viewBox="0 0 22 21"><path d="M11 .8C5.2.8.8 4.6.8 9.3c0 4.1 3.4 7.5 8.1 8.3l.1 2.5c0 .5.5.7.9.4l4.1-3C18.6 16.5 21.2 13.2 21.2 9.3 21.2 4.6 16.8.8 11 .8z" fill="rgba(210,210,210,0.8)"/><text x="11" y="11.4" text-anchor="middle" font-size="6.4" font-weight="800" fill="rgba(125,125,125,1)" font-family="Arial, sans-serif">LINE</text></svg>
+ 
+    <img class="call-avatar" id="call-avatar" alt="">
+    <div class="call-name" id="call-name"></div>
+    <div class="call-dots"><i></i><i></i><i></i><i></i></div>
+    <div class="call-timer" id="call-timer" onclick="openCallTimeEdit()">00:01</div>
+    <div class="call-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+ 
+    <div class="call-controls">
+      <div class="call-ctl">
+        <div class="call-ctl-icon"><svg width="22" height="28" viewBox="0 0 22 28"><rect x="6.5" y="1" width="9" height="16" rx="4.5" fill="#fff"/><path d="M2.2 12.5a8.8 8.8 0 0 0 17.6 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M11 21.3V27" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="call-ctl-label">マイクを
+オフ</div>
+      </div>
+      <div class="call-ctl only-connected">
+        <div class="call-ctl-icon"><svg width="24" height="16" viewBox="3 6 18 12" fill="#fff"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg></div>
+        <div class="call-ctl-label">ビデオ通話を
+開始</div>
+      </div>
+      <div class="call-ctl only-connected">
+        <div class="call-ctl-icon"><svg width="24" height="23" viewBox="0 0 24 23" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6V3a2 2 0 0 1 2-2h3M18 1h3a2 2 0 0 1 2 2v3M23 17v3a2 2 0 0 1-2 2h-3M6 22H3a2 2 0 0 1-2-2v-3"/><circle cx="9" cy="11.5" r="4.6" fill="#fff" stroke="none"/><circle cx="15.5" cy="11.5" r="4.6"/></svg></div>
+        <div class="call-ctl-label">LINE プリ</div>
+      </div>
+      <div class="call-ctl">
+        <div class="call-ctl-icon"><svg width="31" height="26" viewBox="0 0 26 22"><path d="M1 7.5h4.5l6-5v17l-6-5H1z" fill="#fff"/><path class="call-arc" d="M14.6 7.2a5 5 0 0 1 0 7.6"/><path class="call-arc" d="M17.6 4.6a9 9 0 0 1 0 12.8"/></svg></div>
+        <div class="call-ctl-label">オーディオ
+設定</div>
+      </div>
+    </div>
+ 
+    <button class="call-hangup" onclick="endCall('done')"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 3l14 14M17 3L3 17" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/></svg></button>
+ 
+    <div class="call-edit-overlay" id="call-edit-overlay">
+      <div class="call-edit-panel">
+        <div class="call-edit-title">経過時間を指定</div>
+        <div class="call-edit-fields">
+          <label><input id="call-edit-h" type="number" inputmode="numeric" min="0" max="14"><span>時間（0〜14）</span></label>
+          <label><input id="call-edit-m" type="number" inputmode="numeric" min="0" max="99"><span>分（0〜99）</span></label>
+          <label><input id="call-edit-s" type="number" inputmode="numeric" min="0" max="99"><span>秒（0〜99）</span></label>
+        </div>
+        <div class="call-edit-note">決定すると、その時間から1秒ごとに進みます</div>
+        <div class="call-edit-btns">
+          <button onclick="cancelCallTimeEdit()">キャンセル</button>
+          <button class="primary" onclick="confirmCallTimeEdit()">決定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
   <input type="file" id="file-input" accept="image/*" onchange="sendImage(event)">
   <input type="file" id="avatar-input" accept="image/*" onchange="changeAvatar(event)">
   <input type="file" id="my-avatar-input" accept="image/*" onchange="changeMyAvatar(event)">
   <input type="file" id="add-friend-avatar-input" accept="image/*" onchange="changeNewFriendAvatar(event)">
   <input type="file" id="media-embed-input" accept="image/*,video/*" onchange="embedMediaFile(event)">
 </div>
-
+ 
 <script>
   let friendsList = [];
   let currentFriendId = null;
@@ -1820,26 +1982,26 @@
   let myName = '自分';
   let targetEmbedMsgIndex = null;
   let scheduledMessages = [];
-
+ 
   let myAvatarUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#00d26a"/>' +
     '<path d="M50 48c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-13.3 0-40 6.7-40 20v10h80V78c0-13.3-26.7-20-40-20z" fill="#fff"/></svg>'
   );
-
+ 
   let newFriendTempAvatar = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#444"/><circle cx="50" cy="40" r="20" fill="#888"/><path d="M20 85c0-16.6 13.4-30 30-30s30 13.4 30 30" fill="#888"/></svg>'
   );
-
+ 
   let isInputFocused = false;
   let selectedMsgIndex = null;
   let isDeleteMode = false;
   let selectedToDelete = new Set();
   let lastTapTime = 0;
   let activeReplyTarget = null;
-
+ 
   const MIC_SVG = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>';
   const SEND_SVG = '<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>';
-
+ 
   window.onload = function() {
     loadFromLocalStorage();
     setNowDateTime();
@@ -1847,7 +2009,7 @@
     updateSendButtonState();
     setInterval(checkScheduledMessages, 1000);
   };
-
+ 
   function saveToLocalStorage() {
     try {
       localStorage.setItem('line_like_friends', JSON.stringify(friendsList));
@@ -1858,7 +2020,7 @@
       console.error('Failed to save to localStorage', e);
     }
   }
-
+ 
   function loadFromLocalStorage() {
     try {
       const savedFriends = localStorage.getItem('line_like_friends');
@@ -1873,7 +2035,7 @@
       console.error('Failed to load from localStorage', e);
     }
   }
-
+ 
   function setNowDateTime() {
     const now = new Date();
     const yyyy = now.getFullYear();
@@ -1881,11 +2043,11 @@
     const dd = String(now.getDate()).padStart(2, '0');
     const hh = String(now.getHours()).padStart(2, '0');
     const min = String(now.getMinutes()).padStart(2, '0');
-
+ 
     document.getElementById('override-date-input').value = `${yyyy}-${mm}-${dd}`;
     document.getElementById('override-time-input').value = `${hh}:${min}`;
   }
-
+ 
   function switchMainTab(tabName) {
     document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
     
@@ -1899,12 +2061,12 @@
       currentMainTab = 'friends_sub';
       document.getElementById('tab-talk').classList.add('active');
     }
-
+ 
     document.getElementById('home-screen').classList.add('active');
     document.getElementById('chat-screen').classList.remove('active');
     renderHomeView();
   }
-
+ 
   function switchHomeTab(subTab) {
     if (subTab === 'talks') {
       switchMainTab('talk');
@@ -1912,14 +2074,14 @@
       switchMainTab('friends_sub');
     }
   }
-
+ 
   function goToHomeScreen() {
     document.getElementById('chat-screen').classList.remove('active');
     document.getElementById('home-screen').classList.add('active');
     document.getElementById('main-tab-bar').style.display = 'flex';
     renderHomeView();
   }
-
+ 
   function openChat(friendId) {
     currentFriendId = friendId;
     document.getElementById('home-screen').classList.remove('active');
@@ -1929,7 +2091,7 @@
     scrollToBottom();
     document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
   }
-
+ 
   function deleteFriend(event, friendId) {
     event.stopPropagation();
     if (confirm('この友達およびトーク履歴を削除しますか？')) {
@@ -1938,18 +2100,18 @@
       renderHomeView();
     }
   }
-
+ 
   function renderHomeView() {
     const talkTab = document.getElementById('nav-talks-tab');
     const friendTab = document.getElementById('nav-friends-tab');
     const container = document.getElementById('home-content-body');
     container.innerHTML = '';
-
+ 
     if (currentMainTab === 'home_tab') {
       talkTab.style.display = 'none';
       friendTab.style.display = 'none';
       document.querySelector('.search-bar-container').style.display = 'none';
-
+ 
       const card = document.createElement('div');
       card.className = 'home-profile-card';
       card.innerHTML = `
@@ -1959,30 +2121,30 @@
         <button class="home-profile-btn" onclick="openAccountModal()">アカウント情報を編集</button>
       `;
       container.appendChild(card);
-
+ 
       const banner = document.createElement('div');
       banner.className = 'banner-area';
       banner.innerHTML = `
         <div class="banner-text"><b>Geminiでスマートに！</b><br>AIと一緒に文章作成やプログラミングを始めよう！<br><span style="font-size:11px; color:#4d73ff; cursor:pointer;" onclick="window.open('https://gemini.google.com', '_blank')">今すぐGeminiを使ってみる ›</span></div>
       `;
       container.appendChild(banner);
-
+ 
     } else {
       talkTab.style.display = 'block';
       friendTab.style.display = 'block';
       document.querySelector('.search-bar-container').style.display = 'block';
-
+ 
       if (currentMainTab === 'talk') {
         talkTab.className = 'top-header-title';
         friendTab.className = 'top-header-title inactive';
-
+ 
         const banner = document.createElement('div');
         banner.className = 'banner-area';
         banner.innerHTML = `
           <div class="banner-text"><b>Gemini宣伝：</b>AIを活用して効率アップ！<br><span style="font-size:11px; color:#aaa;">広告・Google Gemini</span></div>
         `;
         container.appendChild(banner);
-
+ 
         if (friendsList.length === 0) {
           const emptyDiv = document.createElement('div');
           emptyDiv.className = 'empty-state';
@@ -2011,16 +2173,16 @@
             container.appendChild(item);
           });
         }
-
+ 
       } else if (currentMainTab === 'friends_sub') {
         talkTab.className = 'top-header-title inactive';
         friendTab.className = 'top-header-title';
-
+ 
         const sec = document.createElement('div');
         sec.className = 'section-header';
         sec.innerText = `友だち (${friendsList.length}人)`;
         container.appendChild(sec);
-
+ 
         if (friendsList.length === 0) {
           const emptyDiv = document.createElement('div');
           emptyDiv.className = 'empty-state';
@@ -2048,7 +2210,7 @@
       }
     }
   }
-
+ 
   function openAddFriendModal() {
     closeAllModals();
     document.getElementById('new-friend-name-input').value = '';
@@ -2056,7 +2218,7 @@
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('add-friend-modal').style.display = 'flex';
   }
-
+ 
   function changeNewFriendAvatar(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -2068,14 +2230,14 @@
     reader.readAsDataURL(file);
     event.target.value = '';
   }
-
+ 
   function executeAddFriend() {
     const nameInput = document.getElementById('new-friend-name-input').value.trim();
     if (!nameInput) {
       alert('友達の名前を入力してください');
       return;
     }
-
+ 
     const newId = 'friend_' + new Date().getTime();
     const newFriend = {
       id: newId,
@@ -2083,17 +2245,17 @@
       avatar: newFriendTempAvatar,
       messages: []
     };
-
+ 
     friendsList.push(newFriend);
     saveToLocalStorage();
     closeAllModals();
     openChat(newId);
   }
-
+ 
   function getCurrentActiveFriend() {
     return friendsList.find(f => f.id === currentFriendId) || friendsList[0];
   }
-
+ 
   function getFormattedDateString(dateStr) {
     const today = new Date();
     const targetDate = new Date(dateStr);
@@ -2108,19 +2270,19 @@
     const w = ['日', '月', '火', '水', '木', '金', '土'][targetDate.getDay()];
     return `${m}/${d}(${w})`;
   }
-
+ 
   function toggleControlPanel() {
     const panel = document.getElementById('control-panel');
     panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
   }
-
+ 
   function setSender(sender) {
     currentSender = sender;
     document.getElementById('btn-me').className = 'switch-btn' + (sender === 'me' ? ' active me' : '');
     document.getElementById('btn-partner').className = 'switch-btn' + (sender === 'partner' ? ' active partner' : '');
     document.getElementById('btn-system').className = 'switch-btn' + (sender === 'system' ? ' active system' : '');
   }
-
+ 
   function focusInput() {
     isInputFocused = true;
     document.getElementById('collapse-arrow').style.display = 'block';
@@ -2129,7 +2291,7 @@
     document.getElementById('img-icon').style.display = 'none';
     updateSendButtonState();
   }
-
+ 
   function blurInput() {
     isInputFocused = false;
     document.getElementById('message-input').blur();
@@ -2139,16 +2301,16 @@
     document.getElementById('img-icon').style.display = 'block';
     updateSendButtonState();
   }
-
+ 
   function handleInput() {
     updateSendButtonState();
   }
-
+ 
   function updateSendButtonState() {
     const text = document.getElementById('message-input').value;
     const btn = document.getElementById('send-action-btn');
     const svgElem = document.getElementById('send-mic-svg');
-
+ 
     if (text.length > 0 || isInputFocused) {
       btn.className = 'send-action-btn active-blue';
       svgElem.innerHTML = SEND_SVG;
@@ -2157,19 +2319,19 @@
       svgElem.innerHTML = MIC_SVG;
     }
   }
-
+ 
   function handleSendButtonAction() {
     const text = document.getElementById('message-input').value;
     if (text.length > 0) {
       sendMessage();
     }
   }
-
+ 
   function sendMessage() {
     const input = document.getElementById('message-input');
     const text = input.value;
     if (!text) return;
-
+ 
     const friend = getCurrentActiveFriend();
     let replyInfo = null;
     if (activeReplyTarget) {
@@ -2178,13 +2340,13 @@
         content: (activeReplyTarget.isImage || activeReplyTarget.isVideo) ? (activeReplyTarget.isImage ? '[画像]' : '[動画]') : activeReplyTarget.text
       };
     }
-
+ 
     const overrideDate = document.getElementById('override-date-input').value;
     const overrideTime = document.getElementById('override-time-input').value;
-
+ 
     const dateStr = overrideDate !== '' ? overrideDate : new Date().toISOString().split('T')[0];
     const timeStr = overrideTime !== '' ? overrideTime : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
-
+ 
     friend.messages.push({
       sender: currentSender,
       text: text,
@@ -2197,7 +2359,7 @@
       date: dateStr,
       replyTo: replyInfo
     });
-
+ 
     saveToLocalStorage();
     cancelReply();
     renderChat();
@@ -2205,7 +2367,7 @@
     updateSendButtonState();
     scrollToBottom();
   }
-
+ 
   function openScheduleModal() {
     closeAllModals();
     document.getElementById('schedule-text-input').value = document.getElementById('message-input').value;
@@ -2214,7 +2376,7 @@
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('schedule-modal').style.display = 'flex';
   }
-
+ 
   function saveScheduledMessage() {
     const text = document.getElementById('schedule-text-input').value;
     const date = document.getElementById('schedule-date-input').value;
@@ -2233,7 +2395,7 @@
     scheduledMessages.push(entry);
     saveToLocalStorage();
     closeAllModals();
-
+ 
     const friend = friendsList.find(f => f.id === currentFriendId);
     scheduleNtfyPush(entry, friend ? friend.name : '').then(err => {
       alert(err
@@ -2241,7 +2403,7 @@
         : 'メッセージの予約投稿を設定しました（プッシュ通知も予約済み）');
     });
   }
-
+ 
   function checkScheduledMessages() {
     if (scheduledMessages.length === 0) return;
     const now = new Date();
@@ -2250,7 +2412,7 @@
     const dd = String(now.getDate()).padStart(2, '0');
     const currentDate = `${yyyy}-${mm}-${dd}`;
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
+ 
     let triggered = false;
     scheduledMessages = scheduledMessages.filter(item => {
       if (item.date === currentDate && item.time === currentTime) {
@@ -2274,20 +2436,20 @@
       }
       return true;
     });
-
+ 
     if (triggered) {
       saveToLocalStorage();
       if (currentFriendId) renderChat();
       renderHomeView();
     }
   }
-
+ 
   function startReply(index) {
     closeAllModals();
     const friend = getCurrentActiveFriend();
     const targetMsg = friend.messages[index];
     if (!targetMsg || targetMsg.unsend || targetMsg.sender === 'system') return;
-
+ 
     activeReplyTarget = targetMsg;
     const label = targetMsg.sender === 'me' ? myName : friend.name;
     document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
@@ -2295,25 +2457,25 @@
     document.getElementById('input-reply-bar').style.display = 'flex';
     document.getElementById('message-input').focus();
   }
-
+ 
   function cancelReply() {
     activeReplyTarget = null;
     document.getElementById('input-reply-bar').style.display = 'none';
   }
-
+ 
   function triggerReplyFromMenu() {
     if (selectedMsgIndex !== null) startReply(selectedMsgIndex);
   }
-
+ 
   function renderChat() {
     const friend = getCurrentActiveFriend();
     if (!friend) return;
     document.getElementById('partner-name-display').innerText = friend.name;
-
+ 
     const chatArea = document.getElementById('chat-area');
     chatArea.innerHTML = '';
     let lastDate = null;
-
+ 
     friend.messages.forEach((msg, i) => {
       if (msg.date && msg.date !== lastDate) {
         lastDate = msg.date;
@@ -2322,7 +2484,7 @@
         dateDiv.innerText = getFormattedDateString(msg.date);
         chatArea.appendChild(dateDiv);
       }
-
+ 
       if (msg.sender === 'system') {
         const sysDiv = document.createElement('div');
         sysDiv.className = 'system-msg';
@@ -2330,7 +2492,7 @@
         chatArea.appendChild(sysDiv);
         return;
       }
-
+ 
       if (msg.unsend) {
         const unDiv = document.createElement('div');
         if (isDeleteMode) {
@@ -2348,14 +2510,14 @@
         chatArea.appendChild(unDiv);
         return;
       }
-
+ 
       const prev = friend.messages[i - 1];
       const isGrouped = !!(prev && !prev.unsend && prev.sender === msg.sender && prev.time === msg.time && prev.date === msg.date);
       const msgDiv = document.createElement('div');
-
+ 
       let avatarHtml = msg.sender === 'partner' ? `<img src="${friend.avatar}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">` : '';
       const metaHtml = `<div class="msg-meta">${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}<span>${msg.time}</span></div>`;
-
+ 
       let replyPreviewHtml = '';
       if (msg.replyTo) {
         const replyAvatar = msg.replyTo.sender === 'me' ? myAvatarUrl : friend.avatar;
@@ -2370,9 +2532,11 @@
           </div>
         `;
       }
-
+ 
       let contentHtml = '';
-      if (msg.isImage || msg.isVideo) {
+      if (msg.call) {
+        contentHtml = buildCallBubbleHtml(msg, i);
+      } else if (msg.isImage || msg.isVideo) {
         if (msg.mediaUrl) {
           if (msg.isVideo) {
             contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><video src="${msg.mediaUrl}" controls style="width:100%; height:100%; border-radius:12px; display:block;"></video></div>`;
@@ -2387,9 +2551,9 @@
         const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.text)}</div>` : escapeHtml(msg.text);
         contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${bodyContent}</div>`;
       }
-
+ 
       const wrappedContent = `<div class="msg-content">${contentHtml}</div>`;
-
+ 
       if (isDeleteMode) {
         msgDiv.className = `msg-group delete-mode-row ${msg.sender}${isGrouped ? ' grouped' : ''}`;
         msgDiv.onclick = () => toggleSelectMessage(i);
@@ -2399,17 +2563,17 @@
         msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
         msgDiv.innerHTML = msg.sender === 'partner' ? `${avatarHtml}${wrappedContent}${metaHtml}` : `${wrappedContent}${metaHtml}`;
       }
-
+ 
       chatArea.appendChild(msgDiv);
     });
     updateScrollButton();
   }
-
+ 
   function triggerMediaEmbed(index) {
     targetEmbedMsgIndex = index;
     document.getElementById('media-embed-input').click();
   }
-
+ 
   function embedMediaFile(event) {
     const file = event.target.files[0];
     if (!file || targetEmbedMsgIndex === null) return;
@@ -2433,9 +2597,9 @@
     reader.readAsDataURL(file);
     event.target.value = '';
   }
-
+ 
   let touchTimer = null, startX = 0, startY = 0, currentSwipeRow = null, isSwiping = false;
-
+ 
   function handleTouchStart(e, index, bubbleElem) {
     if (isDeleteMode) return;
     const touch = e.touches[0];
@@ -2443,11 +2607,11 @@
     startY = touch.clientY;
     currentSwipeRow = bubbleElem.closest('.msg-group');
     isSwiping = false;
-
+ 
     touchTimer = setTimeout(() => {
       if (!isSwiping) showActionMenu(index);
     }, 600);
-
+ 
     const moveHandler = (me) => {
       const diffX = me.touches[0].clientX - startX;
       const diffY = me.touches[0].clientY - startY;
@@ -2457,7 +2621,7 @@
         if (currentSwipeRow) currentSwipeRow.style.transform = `translateX(${Math.max(diffX, -60)}px)`;
       }
     };
-
+ 
     const endHandler = () => {
       clearTimeout(touchTimer);
       if (currentSwipeRow) {
@@ -2469,11 +2633,11 @@
       document.removeEventListener('touchmove', moveHandler);
       document.removeEventListener('touchend', endHandler);
     };
-
+ 
     document.addEventListener('touchmove', moveHandler, { passive: true });
     document.addEventListener('touchend', endHandler, { passive: true });
   }
-
+ 
   function handleTouchEnd() { clearTimeout(touchTimer); }
   function handleLongPress(e, index) { if (!isDeleteMode) { e.preventDefault(); showActionMenu(index); } }
   function handleMessageClick(e, index) {
@@ -2485,7 +2649,7 @@
     }
     lastTapTime = currentTime;
   }
-
+ 
   function showActionMenu(index) {
     selectedMsgIndex = index;
     document.getElementById('modal-overlay').style.display = 'flex';
@@ -2496,12 +2660,12 @@
     document.getElementById('add-friend-modal').style.display = 'none';
     document.getElementById('schedule-modal').style.display = 'none';
   }
-
+ 
   function openConfirmModal() {
     document.getElementById('action-menu').style.display = 'none';
     document.getElementById('confirm-modal').style.display = 'flex';
   }
-
+ 
   function closeAllModals() {
     document.getElementById('import-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
@@ -2512,13 +2676,13 @@
     document.getElementById('add-friend-modal').style.display = 'none';
     document.getElementById('schedule-modal').style.display = 'none';
   }
-
+ 
   function openAccountModal() {
     closeAllModals();
     const friend = getCurrentActiveFriend();
     document.getElementById('my-name-input').value = myName;
     document.getElementById('my-avatar-preview').src = myAvatarUrl;
-
+ 
     const partnerSection = document.getElementById('partner-account-section');
     if (document.getElementById('chat-screen').classList.contains('active') && friend) {
       partnerSection.style.display = 'flex';
@@ -2527,15 +2691,15 @@
     } else {
       partnerSection.style.display = 'none';
     }
-
+ 
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('account-modal').style.display = 'flex';
   }
-
+ 
   function saveAccountSettings() {
     const newMyName = document.getElementById('my-name-input').value.trim();
     if (newMyName) myName = newMyName;
-
+ 
     if (document.getElementById('chat-screen').classList.contains('active')) {
       const newPartnerName = document.getElementById('partner-name-input').value.trim();
       const friend = getCurrentActiveFriend();
@@ -2547,7 +2711,7 @@
     saveToLocalStorage();
     closeAllModals();
   }
-
+ 
   function executeUnsend() {
     if (selectedMsgIndex !== null) {
       getCurrentActiveFriend().messages[selectedMsgIndex].unsend = true;
@@ -2556,23 +2720,23 @@
     }
     closeAllModals();
   }
-
+ 
   function enterDeleteMode() {
     closeAllModals();
     isDeleteMode = true;
     selectedToDelete.clear();
     if (selectedMsgIndex !== null) selectedToDelete.add(selectedMsgIndex);
-
+ 
     document.getElementById('normal-header').style.display = 'none';
     document.getElementById('delete-header').style.display = 'flex';
     document.getElementById('input-bar').style.display = 'none';
     document.getElementById('control-panel').style.display = 'none';
     document.getElementById('delete-bottom-bar').style.display = 'flex';
-
+ 
     updateDeleteButtonState();
     renderChat();
   }
-
+ 
   function exitDeleteMode() {
     isDeleteMode = false;
     selectedToDelete.clear();
@@ -2582,14 +2746,14 @@
     document.getElementById('delete-bottom-bar').style.display = 'none';
     renderChat();
   }
-
+ 
   function toggleSelectMessage(index) {
     if (selectedToDelete.has(index)) selectedToDelete.delete(index);
     else selectedToDelete.add(index);
     updateDeleteButtonState();
     renderChat();
   }
-
+ 
   function updateDeleteButtonState() {
     const count = selectedToDelete.size;
     const btn = document.getElementById('delete-exec-btn');
@@ -2597,7 +2761,7 @@
     btn.style.opacity = count > 0 ? '1' : '0.5';
     btn.style.pointerEvents = count > 0 ? 'auto' : 'none';
   }
-
+ 
   function openDeleteDialog() {
     if (selectedToDelete.size === 0) return;
     document.getElementById('modal-overlay').style.display = 'flex';
@@ -2606,7 +2770,7 @@
     document.getElementById('delete-dialog').style.display = 'flex';
     document.getElementById('account-modal').style.display = 'none';
   }
-
+ 
   function executeDeleteSelected() {
     const friend = getCurrentActiveFriend();
     if (!friend) return;
@@ -2616,7 +2780,7 @@
     closeAllModals();
     exitDeleteMode();
   }
-
+ 
   function openPremiumPage() {
     closeAllModals();
     document.getElementById('premium-page').style.display = 'flex';
@@ -2624,11 +2788,11 @@
   function closePremiumPage() {
     document.getElementById('premium-page').style.display = 'none';
   }
-
+ 
   function handleKeyPress(e) {
     if (e.key === 'Enter') sendMessage();
   }
-
+ 
   function sendImage(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -2642,10 +2806,10 @@
       }
       const overrideDate = document.getElementById('override-date-input').value;
       const overrideTime = document.getElementById('override-time-input').value;
-
+ 
       const dateStr = overrideDate !== '' ? overrideDate : new Date().toISOString().split('T')[0];
       const timeStr = overrideTime !== '' ? overrideTime : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
-
+ 
       friend.messages.push({
         sender: currentSender,
         text: e.target.result,
@@ -2666,7 +2830,7 @@
     reader.readAsDataURL(file);
     event.target.value = '';
   }
-
+ 
   function triggerAvatarUpload() { document.getElementById('avatar-input').click(); }
   function changeAvatar(event) {
     const file = event.target.files[0];
@@ -2684,7 +2848,7 @@
     reader.readAsDataURL(file);
     event.target.value = '';
   }
-
+ 
   function triggerMyAvatarUpload() { document.getElementById('my-avatar-input').click(); }
   function changeMyAvatar(event) {
     const file = event.target.files[0];
@@ -2700,7 +2864,7 @@
     reader.readAsDataURL(file);
     event.target.value = '';
   }
-
+ 
   function clearChat() {
     if (confirm('チャット履歴を全消去しますか？')) {
       const friend = getCurrentActiveFriend();
@@ -2710,37 +2874,37 @@
       renderChat();
     }
   }
-
+ 
   function scrollToBottom() {
     const chatArea = document.getElementById('chat-area');
     chatArea.scrollTop = chatArea.scrollHeight;
     updateScrollButton();
   }
-
+ 
   function updateScrollButton() {
     const chatArea = document.getElementById('chat-area');
     const btn = document.getElementById('scroll-bottom-btn');
     const away = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight;
     btn.style.display = away > 80 ? 'flex' : 'none';
   }
-
+ 
   function escapeHtml(str) {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 </script>
-
+ 
 <script>
   // ===== ntfy によるプッシュ通知（無料・登録不要） =====
   const NTFY_SERVER = 'https://ntfy.sh';
   const NTFY_TOPIC_KEY = 'line_like_ntfy_topic';
   const NTFY_MAX_DELAY_SEC = 3 * 24 * 3600 - 300; // ntfy.shの上限は3日
-
+ 
   function generateNtfyTopic() {
     const a = new Uint8Array(9);
     crypto.getRandomValues(a);
     return 'linelike-' + Array.from(a, b => b.toString(36).padStart(2, '0')).join('').slice(0, 14);
   }
-
+ 
   function getNtfyTopic() {
     let t = localStorage.getItem(NTFY_TOPIC_KEY);
     if (!t) {
@@ -2749,7 +2913,7 @@
     }
     return t;
   }
-
+ 
   function saveNtfyTopic() {
     const input = document.getElementById('ntfy-topic-input');
     const v = input.value.trim();
@@ -2760,12 +2924,12 @@
     }
     localStorage.setItem(NTFY_TOPIC_KEY, v);
   }
-
+ 
   function setPushStatus(msg, color) {
     const el = document.getElementById('push-status');
     if (el) { el.textContent = msg; el.style.color = color || '#999'; }
   }
-
+ 
   // 成功なら null、失敗なら理由の文字列を返す
   async function scheduleNtfyPush(entry, friendName) {
     try {
@@ -2773,7 +2937,7 @@
       const diff = sendAtSec - Math.floor(Date.now() / 1000);
       if (diff <= 0) return '過去の時刻です';
       if (diff > NTFY_MAX_DELAY_SEC) return '3日より先は予約できません';
-
+ 
       const payload = {
         topic: getNtfyTopic(),
         title: friendName || 'LINE-LIKE',
@@ -2791,7 +2955,7 @@
       return '通信に失敗しました';
     }
   }
-
+ 
   async function sendNtfyTest() {
     setPushStatus('送信中…');
     try {
@@ -2805,24 +2969,24 @@
       setPushStatus('通信に失敗しました', '#ff3b30');
     }
   }
-
+ 
   document.getElementById('ntfy-topic-input').value = getNtfyTopic();
 </script>
-
+ 
 <script>
   // ================= LINEトーク履歴の取り込み =================
   const IMPORT_DEFAULT_AVATAR = newFriendTempAvatar;
   const IMPORT_UNSEND_TEXT = 'メッセージの送信を取り消しました';
-
+ 
   // 名前の比較用: 空白（全角・半角）を全部除き、全角英数なども揃える
   function normalizeImportName(s) {
     return String(s).normalize('NFKC').replace(/\s+/g, '').toLowerCase();
   }
-
+ 
   function parseLineHistory(raw) {
     const pad2 = (n) => String(n).padStart(2, '0');
     const lines = String(raw).replace(/\r\n?/g, '\n').split('\n');
-
+ 
     let i = 0;
     while (i < lines.length && lines[i].trim() === '') i++;
     const headerMatch = i < lines.length ? lines[i].trim().match(/^\[LINE\]\s*(.+?)\s*とのトーク履歴$/) : null;
@@ -2832,18 +2996,18 @@
     const partnerName = headerMatch[1].trim();
     const partnerKey = normalizeImportName(partnerName);
     i++;
-
+ 
     const messages = [];
     const myNames = new Set();
     let curDate = null;
     let skipped = 0;
-    let countMe = 0, countPartner = 0;
-
+    let countMe = 0, countPartner = 0, countCall = 0;
+ 
     for (; i < lines.length; i++) {
       const line = lines[i];
       if (line.trim() === '') continue;
       if (/^保存日時/.test(line.trim())) continue;
-
+ 
       // 日付の行（例: 2026/08/01(土)）
       if (line.indexOf('\t') === -1) {
         const dm = line.trim().match(/^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})(?!\d)/);
@@ -2852,15 +3016,15 @@
           continue;
         }
       }
-
+ 
       // メッセージの行（時刻 TAB 名前 TAB 本文）。本文は一切trimしない
       const mm = line.match(/^(\d{1,2}):(\d{2})\t([^\t]*)\t([\s\S]*)$/);
       if (!mm || !curDate) { skipped++; continue; }
-
+ 
       const time = pad2(mm[1]) + ':' + mm[2];
       const name = mm[3].trim();
       let body = mm[4];
-
+ 
       // 改行を含むメッセージは " で囲まれて複数行になる
       if (body.charAt(0) === '"' && !(body.length >= 2 && body.charAt(body.length - 1) === '"')) {
         const buf = [body.slice(1)];
@@ -2876,11 +3040,11 @@
         }
         if (closed) { body = buf.join('\n'); i = j; }
       }
-
+ 
       if (body === '') { skipped++; continue; }
-
+ 
       const isUnsend = body.trim() === IMPORT_UNSEND_TEXT;
-
+ 
       // 名前が空の行は送信取消、またはシステム的な表示
       if (name === '') {
         messages.push({
@@ -2891,22 +3055,28 @@
         });
         continue;
       }
-
+ 
       const sender = normalizeImportName(name) === partnerKey ? 'partner' : 'me';
       if (sender === 'me') { myNames.add(name); countMe++; } else { countPartner++; }
-
-      messages.push({
+ 
+      const callInfo = parseImportedCall(body);
+      if (callInfo) countCall++;
+ 
+      const msgObj = {
         sender: sender,
-        text: body, time: time, isRead: sender === 'me',
+        text: callInfo ? callSummaryText(callInfo, sender) : body,
+        time: time, isRead: callInfo ? false : sender === 'me',
         isImage: false, isVideo: false, mediaUrl: null,
         unsend: isUnsend, date: curDate, replyTo: null
-      });
+      };
+      if (callInfo) msgObj.call = callInfo;
+      messages.push(msgObj);
     }
-
+ 
     if (messages.length === 0) {
       return { ok: false, error: 'メッセージが見つかりません。「時刻 ⇥ 名前 ⇥ 本文」の形の行が必要です。' };
     }
-
+ 
     return {
       ok: true,
       partnerName: partnerName,
@@ -2915,11 +3085,26 @@
       skipped: skipped,
       countMe: countMe,
       countPartner: countPartner,
+      countCall: countCall,
       firstDate: messages[0].date,
       lastDate: messages[messages.length - 1].date
     };
   }
-
+ 
+  // 「☎ 通話時間 14:32」「☎ 通話をキャンセルしました」などを通話メッセージ用に解釈
+  function parseImportedCall(body) {
+    const t = body.trim();
+    if (t.charAt(0) !== '\u260E') return null;
+    const rest = t.replace(/^\u260E\uFE0F?\s*/, '');
+    const kind = /ビデオ/.test(rest) ? 'video' : 'voice';
+    const dm = rest.match(/通話時間\s*(\d{1,3}(?::\d{2}){1,2})/);
+    if (dm) return { kind: kind, status: 'done', duration: normalizeCallDuration(dm[1]) };
+    if (/キャンセル/.test(rest)) return { kind: kind, status: 'cancel' };
+    if (/応答がありませんでした|応答なし/.test(rest)) return { kind: kind, status: 'noanswer' };
+    if (/不在着信/.test(rest)) return { kind: kind, status: 'missed' };
+    return null;
+  }
+ 
   function openImportModal() {
     closeAllModals();
     document.getElementById('import-textarea').value = '';
@@ -2927,19 +3112,19 @@
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('import-modal').style.display = 'flex';
   }
-
+ 
   function updateImportPreview() {
     const raw = document.getElementById('import-textarea').value;
     const preview = document.getElementById('import-preview');
     const btn = document.getElementById('import-exec-btn');
-
+ 
     if (raw.trim() === '') {
       preview.className = 'import-preview';
       preview.textContent = '貼り付けると、ここに取り込み内容の確認が出ます';
       btn.disabled = true;
       return;
     }
-
+ 
     const res = parseLineHistory(raw);
     if (!res.ok) {
       preview.className = 'import-preview error';
@@ -2947,22 +3132,23 @@
       btn.disabled = true;
       return;
     }
-
+ 
     const me = res.myNames.length ? res.myNames.join(' / ') : '（自分の発言なし）';
     let text = '相手（左・グレー）: ' + res.partnerName + '\n' +
                '自分（右・緑）: ' + me + '\n' +
                'メッセージ: ' + res.messages.length + '件（自分 ' + res.countMe + ' / 相手 ' + res.countPartner + '）\n' +
                '期間: ' + res.firstDate.replace(/-/g, '/') + ' 〜 ' + res.lastDate.replace(/-/g, '/');
+    if (res.countCall > 0) text += '\n通話ログ: ' + res.countCall + '件（通話メッセージに変換）';
     if (res.skipped > 0) text += '\n読み取れなかった行: ' + res.skipped + '件（無視します）';
     preview.className = 'import-preview';
     preview.textContent = text;
     btn.disabled = false;
   }
-
+ 
   function executeImportHistory() {
     const res = parseLineHistory(document.getElementById('import-textarea').value);
     if (!res.ok) { alert(res.error); return; }
-
+ 
     const newId = 'friend_' + new Date().getTime();
     friendsList.push({
       id: newId,
@@ -2975,6 +3161,213 @@
     openChat(newId);
   }
 </script>
-
+ 
+<script>
+  // ================= 偽通話機能（実際には発信しません） =================
+  const CALL_MAX_SEC = 14 * 3600 + 99 * 60 + 99; // 14:99:99 相当
+  let callState = null;
+  let callTimeManual = false; // 管理メニューの日付・時間を手動で変えたか
+ 
+  const CALL_SVG_PHONE = '<svg width="15.5" height="15.5" viewBox="3 3 18 18"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>';
+  const CALL_SVG_VIDEO = '<svg width="16" height="11.2" viewBox="3 5.6 18 12.8"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
+  const CALL_SVG_NOTE = '<svg width="13.7" height="13.7" viewBox="0 0 14 14"><circle cx="7" cy="7" r="7" fill="#62c070"/><path d="M8.8 3.4v5.1a1.5 1.5 0 1 1-.9-1.4V5.2L5.9 5.7v3.9a1.5 1.5 0 1 1-.9-1.4V4.6z" fill="#fff"/></svg>';
+  const CALL_SVG_CHEVRON = '<svg class="call-chevron" viewBox="0 0 5 8"><path d="M0.8 0.8L4 4L0.8 7.2"/></svg>';
+ 
+  function formatCallTime(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    const mm = String(m).padStart(2, '0');
+    const ss = String(s).padStart(2, '0');
+    return h > 0 ? h + ':' + mm + ':' + ss : mm + ':' + ss;
+  }
+ 
+  // 書き出しの「0:14」「00:14:32」なども同じ表記にそろえる
+  function normalizeCallDuration(str) {
+    const parts = String(str).split(':').map(n => parseInt(n, 10) || 0);
+    let sec = 0;
+    parts.forEach(n => { sec = sec * 60 + n; });
+    return formatCallTime(sec);
+  }
+ 
+  function callTitle(call, sender) {
+    if (call.status === 'done') return call.kind === 'video' ? 'ビデオ通話' : '音声通話';
+    if (call.status === 'noanswer') return sender === 'me' ? '応答なし' : '不在着信';
+    if (call.status === 'cancel') return sender === 'me' ? 'キャンセル' : '不在着信';
+    return '不在着信';
+  }
+ 
+  function callSummaryText(call, sender) {
+    const t = callTitle(call, sender);
+    return (call.status === 'done' && call.duration) ? t + ' ' + call.duration : t;
+  }
+ 
+  function buildCallBubbleHtml(msg, i) {
+    const c = msg.call;
+    const title = callTitle(c, msg.sender);
+    const icon = c.kind === 'video' ? CALL_SVG_VIDEO : CALL_SVG_PHONE;
+    const sub = (c.status === 'done' && c.duration) ? '<div class="call-sub">' + escapeHtml(c.duration) + '</div>' : '';
+    return '<div class="msg-bubble call-bubble" oncontextmenu="handleLongPress(event, ' + i + ')" ontouchstart="handleTouchStart(event, ' + i + ', this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ' + i + ')">' +
+      '<div class="call-main"><div class="call-icon-circle">' + icon + '</div><div class="call-texts"><div class="call-title">' + title + '</div>' + sub + '</div></div>' +
+      '<div class="call-ringtone"><span class="call-note">' + CALL_SVG_NOTE + '</span><span class="call-ringtone-text">着信音・呼出音</span>' + CALL_SVG_CHEVRON + '</div>' +
+      '</div>';
+  }
+ 
+  // ---- ヘッダー下の「音声通話／ビデオ通話」メニュー ----
+  function toggleCallMenu(force) {
+    const menu = document.getElementById('call-menu');
+    const area = document.getElementById('chat-area');
+    const open = (typeof force === 'boolean') ? force : !menu.classList.contains('open');
+    if (open === menu.classList.contains('open')) return;
+    const wasBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 40;
+    menu.classList.toggle('open', open);
+    if (wasBottom) area.scrollTop = area.scrollHeight;
+  }
+ 
+  // ---- 通話の開始・接続・終了 ----
+  function startCall(kind) {
+    const friend = getCurrentActiveFriend();
+    if (!friend || callState) return;
+    toggleCallMenu(false);
+ 
+    callState = {
+      kind: kind,
+      initiator: currentSender === 'partner' ? 'partner' : 'me', // 管理メニューで選択中の側が発信
+      friendId: friend.id,
+      phase: 'calling',
+      elapsed: 0,
+      editing: false,
+      callingTimer: null,
+      tick: null
+    };
+ 
+    document.getElementById('call-bg-img').src = friend.avatar;
+    document.getElementById('call-avatar').src = friend.avatar;
+    document.getElementById('call-name').textContent = friend.name;
+    document.getElementById('call-timer').textContent = formatCallTime(1);
+    document.getElementById('call-edit-overlay').classList.remove('show');
+    document.getElementById('call-screen').className = 'call-screen show calling';
+ 
+    callState.callingTimer = setTimeout(connectCall, 2000);
+  }
+ 
+  function connectCall() {
+    if (!callState) return;
+    callState.phase = 'connected';
+    callState.elapsed = 1;
+    updateCallTimer();
+    document.getElementById('call-screen').className = 'call-screen show connected';
+    callState.tick = setInterval(function () {
+      if (!callState || callState.editing) return;
+      if (callState.elapsed < CALL_MAX_SEC) {
+        callState.elapsed++;
+        updateCallTimer();
+      }
+    }, 1000);
+  }
+ 
+  function updateCallTimer() {
+    if (!callState) return;
+    document.getElementById('call-timer').textContent = formatCallTime(callState.elapsed);
+  }
+ 
+  function openCallTimeEdit() {
+    if (!callState || callState.phase !== 'connected') return;
+    callState.editing = true;
+    const e = callState.elapsed;
+    document.getElementById('call-edit-h').value = Math.floor(e / 3600);
+    document.getElementById('call-edit-m').value = Math.floor((e % 3600) / 60);
+    document.getElementById('call-edit-s').value = e % 60;
+    document.getElementById('call-edit-overlay').classList.add('show');
+  }
+ 
+  function cancelCallTimeEdit() {
+    if (callState) callState.editing = false;
+    document.getElementById('call-edit-overlay').classList.remove('show');
+  }
+ 
+  function confirmCallTimeEdit() {
+    if (!callState) return;
+    const clamp = function (id, max) {
+      const n = parseInt(document.getElementById(id).value, 10);
+      return Math.max(0, Math.min(max, isNaN(n) ? 0 : n));
+    };
+    const total = clamp('call-edit-h', 14) * 3600 + clamp('call-edit-m', 99) * 60 + clamp('call-edit-s', 99);
+    callState.elapsed = Math.min(total, CALL_MAX_SEC);
+    callState.editing = false;
+    document.getElementById('call-edit-overlay').classList.remove('show');
+    updateCallTimer();
+  }
+ 
+  // 通話終了時点の日時。管理メニューの日付・時間を手動で変えていればそちらを使う
+  function getCallEndDateTime() {
+    const pad = function (n) { return String(n).padStart(2, '0'); };
+    const dateInput = document.getElementById('override-date-input').value;
+    const timeInput = document.getElementById('override-time-input').value;
+    if (callTimeManual && dateInput && timeInput) return { date: dateInput, time: timeInput };
+    const now = new Date();
+    return {
+      date: now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()),
+      time: pad(now.getHours()) + ':' + pad(now.getMinutes())
+    };
+  }
+ 
+  function endCall(result) {
+    if (!callState) return;
+    const st = callState;
+    clearTimeout(st.callingTimer);
+    clearInterval(st.tick);
+    callState = null;
+    document.getElementById('call-edit-overlay').classList.remove('show');
+    document.getElementById('call-screen').className = 'call-screen';
+ 
+    let status = 'done';
+    if (result === 'noanswer') status = 'noanswer';
+    else if (st.phase === 'calling') status = 'cancel'; // 呼び出し中に切った
+ 
+    const friend = friendsList.find(function (f) { return f.id === st.friendId; });
+    if (!friend) return;
+ 
+    const call = { kind: st.kind, status: status };
+    if (status === 'done') call.duration = formatCallTime(st.elapsed);
+ 
+    const dt = getCallEndDateTime();
+    friend.messages.push({
+      sender: st.initiator,
+      text: callSummaryText(call, st.initiator),
+      time: dt.time,
+      isRead: false,
+      isImage: false,
+      isVideo: false,
+      mediaUrl: null,
+      unsend: false,
+      date: dt.date,
+      replyTo: null,
+      call: call
+    });
+    saveToLocalStorage();
+    if (currentFriendId === friend.id) {
+      renderChat();
+      scrollToBottom();
+    }
+  }
+ 
+  // ---- 補助 ----
+  (function () {
+    ['override-date-input', 'override-time-input'].forEach(function (id) {
+      const el = document.getElementById(id);
+      ['input', 'change'].forEach(function (ev) {
+        el.addEventListener(ev, function () { callTimeManual = true; });
+      });
+    });
+    // 「現在時刻」に戻したら、通話も現在時刻で記録する
+    const origSetNow = setNowDateTime;
+    setNowDateTime = function () { origSetNow(); callTimeManual = false; };
+    // トークを開いたら通話メニューは閉じた状態から
+    const origOpenChat = openChat;
+    openChat = function () { toggleCallMenu(false); return origOpenChat.apply(this, arguments); };
+  })();
+</script>
+ 
 </body>
 </html>
