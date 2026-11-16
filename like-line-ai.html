@@ -1829,22 +1829,13 @@
         <button class="switch-btn" id="btn-ai" onclick="toggleAiModePanel()">AI</button>
       </div>
       <div class="ai-mode-panel" id="ai-mode-panel">
-        <div class="option-row">
-          <label class="checkbox-label">
-            <input type="checkbox" id="ai-mode-toggle" onchange="setCurrentFriendAiMode(this.checked)"> このトークの自動返信
-          </label>
+        <div class="account-section-title">AI返信操作</div>
+        <button type="button" class="ai-mode-save-btn" id="ai-start-conversation-btn" onclick="aiStartConversation()">AIから話しかけさせる</button>
+        <div class="time-override-row" id="ai-reply-time-row">
+          <span>返信時間:</span>
+          <input type="time" id="ai-reply-time-input" class="picker-input">
+          <button type="button" class="now-btn" onclick="clearAiReplyTime()">現在時刻</button>
         </div>
-        <div class="account-section-title">相手の設定（関係・口調など）</div>
-        <textarea id="ai-mode-persona-input" class="ai-friend-textarea" placeholder="例：高校の友達。敬語は使わず、短くカジュアルに話す。"></textarea>
-        <p class="ai-friend-help">キーは <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> で発行。保存済みなら自動で入ります。</p>
-        <div class="account-section-title">Gemini APIキー</div>
-        <div class="ai-key-row">
-          <input type="password" id="ai-mode-api-key-input" class="account-input-name" placeholder="AIza..." autocomplete="off" spellcheck="false">
-          <button type="button" class="ai-key-toggle" id="ai-mode-key-toggle-btn" onclick="toggleAiModeKeyVisibility()">表示</button>
-        </div>
-        <div class="account-section-title">モデル名</div>
-        <input type="text" id="ai-mode-model-input" class="account-input-name" placeholder="gemini-3.8-flash" spellcheck="false">
-        <button type="button" class="ai-mode-save-btn" onclick="saveAiModePanel()">保存する</button>
       </div>
       <div class="time-override-row">
         <span>日付:</span>
@@ -1933,6 +1924,31 @@
           <img src="" id="partner-avatar-preview" class="account-avatar-preview" onclick="triggerAvatarUpload()" title="タップして変更">
           <input type="text" id="partner-name-input" class="account-input-name" placeholder="相手の名前">
         </div>
+      </div>
+      <div id="ai-settings-section" style="display: none; flex-direction: column; gap: 16px;">
+        <div class="account-modal-title">AI設定</div>
+        <div class="option-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="ai-mode-toggle" onchange="setCurrentFriendAiMode(this.checked)"> このトークの自動返信
+          </label>
+        </div>
+        <div class="account-section">
+          <div class="account-section-title">相手の設定（関係・口調など）</div>
+          <textarea id="ai-mode-persona-input" class="ai-friend-textarea" placeholder="例：高校の友達。敬語は使わず、短くカジュアルに話す。"></textarea>
+        </div>
+        <p class="ai-friend-help">キーは <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> で発行。保存済みなら自動で入ります。</p>
+        <div class="account-section">
+          <div class="account-section-title">Gemini APIキー</div>
+          <div class="ai-key-row">
+            <input type="password" id="ai-mode-api-key-input" class="account-input-name" placeholder="AIza..." autocomplete="off" spellcheck="false">
+            <button type="button" class="ai-key-toggle" id="ai-mode-key-toggle-btn" onclick="toggleAiModeKeyVisibility()">表示</button>
+          </div>
+        </div>
+        <div class="account-section">
+          <div class="account-section-title">モデル名</div>
+          <input type="text" id="ai-mode-model-input" class="account-input-name" placeholder="gemini-3.8-flash" spellcheck="false">
+        </div>
+        <button type="button" class="account-save-btn" onclick="saveAiModePanel()">保存する</button>
       </div>
       <button class="account-save-btn" onclick="saveAccountSettings()">変更を保存</button>
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
@@ -2835,6 +2851,17 @@
       partnerSection.style.display = 'none';
     }
  
+    const aiSection = document.getElementById('ai-settings-section');
+    if (aiSection) {
+      const chatActive = document.getElementById('chat-screen').classList.contains('active');
+      if (chatActive && friend && friend.isAi) {
+        aiSection.style.display = 'flex';
+        if (typeof fillAiModePanel === 'function') fillAiModePanel();
+      } else {
+        aiSection.style.display = 'none';
+      }
+    }
+ 
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('account-modal').style.display = 'flex';
   }
@@ -3087,9 +3114,15 @@
 
   function syncAiModeButton() {
     const btn = document.getElementById('btn-ai');
-    if (!btn) return;
+    const panel = document.getElementById('ai-mode-panel');
     const friend = getCurrentActiveFriend();
-    btn.className = 'switch-btn' + (isAiFriend(friend) ? ' active ai' : '');
+    const isAi = isAiFriend(friend);
+    if (btn) {
+      btn.style.display = isAi ? '' : 'none';
+      const panelOpen = !!(panel && panel.style.display === 'flex');
+      btn.className = 'switch-btn' + (isAi && panelOpen ? ' active ai' : '');
+    }
+    if (panel && !isAi) panel.style.display = 'none';
   }
 
   function syncAiModePanelForFriend() {
@@ -3124,13 +3157,18 @@
       alert('先にトークを開いてください');
       return;
     }
+    if (!isAiFriend(friend)) {
+      panel.style.display = 'none';
+      syncAiModeButton();
+      return;
+    }
     const opening = panel.style.display !== 'flex';
     if (opening) {
-      fillAiModePanel();
       panel.style.display = 'flex';
     } else {
       panel.style.display = 'none';
     }
+    syncAiModeButton();
   }
 
   function toggleAiModeKeyVisibility() {
@@ -3501,14 +3539,14 @@
     showAiTempError(friend, message);
   }
 
-  function pushPartnerAiMessage(friend, text) {
+  function pushPartnerAiMessage(friend, text, timeOverride) {
     const overrideDateEl = document.getElementById('override-date-input');
     const overrideTimeEl = document.getElementById('override-time-input');
     const overrideDate = overrideDateEl ? overrideDateEl.value : '';
     const overrideTime = overrideTimeEl ? overrideTimeEl.value : '';
     const parts = nowDateTimeParts();
     const dateStr = overrideDate !== '' ? overrideDate : parts.dateStr;
-    const timeStr = overrideTime !== '' ? overrideTime : parts.timeStr;
+    const timeStr = timeOverride ? timeOverride : (overrideTime !== '' ? overrideTime : parts.timeStr);
     friend.messages.push({
       sender: 'partner',
       text: text,
@@ -3528,7 +3566,7 @@
     }
   }
 
-  async function callGeminiGenerate(friend) {
+  async function callGeminiGenerate(friend, nudge) {
     const apiKey = (aiSettings.apiKey || '').trim();
     if (!apiKey) {
       const missing = new Error('missing-key');
@@ -3539,6 +3577,14 @@
     if (!/^[A-Za-z0-9._-]+$/.test(model)) model = AI_DEFAULT_MODEL;
 
     const contents = buildGeminiContents(friend);
+    if (nudge) {
+      const instruction = String(nudge);
+      if (contents.length && contents[contents.length - 1].role === 'user') {
+        contents[contents.length - 1].parts[0].text += '\n' + instruction;
+      } else {
+        contents.push({ role: 'user', parts: [{ text: instruction }] });
+      }
+    }
     if (!contents.length) {
       const empty = new Error('送る内容がありません');
       empty.code = 'empty';
@@ -3601,7 +3647,7 @@
     }
   }
 
-  async function finishAiReply(friendId, mySeq, text, err) {
+  async function finishAiReply(friendId, mySeq, text, err, timeOverride) {
     if (mySeq !== aiReplySeqByFriend[friendId]) return;
     const wait = aiReadWaitByFriend[friendId];
     if (wait && wait.promise) await wait.promise;
@@ -3624,20 +3670,45 @@
       pushAiSystemError(friend, '応答が空でした');
       return;
     }
-    pushPartnerAiMessage(friend, text);
+    pushPartnerAiMessage(friend, text, timeOverride);
   }
 
-  async function runAiReplyFetch(friendId, mySeq) {
+  async function runAiReplyFetch(friendId, mySeq, nudge, timeOverride) {
     const friend = friendsList.find(function (f) { return f.id === friendId; });
     if (!friend || mySeq !== aiReplySeqByFriend[friendId]) return;
     let text = null;
     let err = null;
     try {
-      text = await callGeminiGenerate(friend);
+      text = await callGeminiGenerate(friend, nudge);
     } catch (e) {
       err = e;
     }
-    await finishAiReply(friendId, mySeq, text, err);
+    await finishAiReply(friendId, mySeq, text, err, timeOverride);
+  }
+
+  function buildAiStartNudge(friend) {
+    const hasHistory = !!(friend && friend.messages && friend.messages.some(function (m) {
+      return !!messageTextForAi(m);
+    }));
+    const core = hasHistory
+      ? '今の流れに合わせて自然に話しかけて、直前の発言の繰り返しは避けて'
+      : '最初のメッセージを送って';
+    return core + '。この指示自体には触れないこと。';
+  }
+
+  function clearAiReplyTime() {
+    const el = document.getElementById('ai-reply-time-input');
+    if (el) el.value = '';
+  }
+
+  function aiStartConversation() {
+    const friend = getCurrentActiveFriend();
+    if (!isAiFriend(friend)) return;
+    const mySeq = (aiReplySeqByFriend[friend.id] = (aiReplySeqByFriend[friend.id] || 0) + 1);
+    startOrResetReadDelay(friend.id);
+    const timeEl = document.getElementById('ai-reply-time-input');
+    const timeOverride = (timeEl && timeEl.value) ? timeEl.value : undefined;
+    runAiReplyFetch(friend.id, mySeq, buildAiStartNudge(friend), timeOverride);
   }
 
   function requestPartnerAutoReply(friendId) {
