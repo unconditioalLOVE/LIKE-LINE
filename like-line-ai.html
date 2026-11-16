@@ -2485,11 +2485,12 @@
     const dateStr = overrideDate !== '' ? overrideDate : new Date().toISOString().split('T')[0];
     const timeStr = overrideTime !== '' ? overrideTime : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
  
+    const useAiReply = (typeof isAiFriend === 'function' && isAiFriend(friend) && currentSender === 'me');
     friend.messages.push({
       sender: currentSender,
       text: text,
       time: timeStr,
-      isRead: document.getElementById('read-status').checked,
+      isRead: useAiReply ? false : document.getElementById('read-status').checked,
       isImage: false,
       isVideo: false,
       mediaUrl: null,
@@ -2624,9 +2625,10 @@
         chatArea.appendChild(dateDiv);
       }
  
+      if (msg.isAiError) return;
       if (msg.sender === 'system') {
         const sysDiv = document.createElement('div');
-        sysDiv.className = 'system-msg' + (msg.isAiError ? ' ai-error-msg' : '');
+        sysDiv.className = 'system-msg';
         sysDiv.innerHTML = escapeHtml(msg.text);
         chatArea.appendChild(sysDiv);
         return;
@@ -2705,7 +2707,7 @@
  
       chatArea.appendChild(msgDiv);
     });
-    appendAiTypingIndicator(chatArea, friend);
+    if (typeof appendAiTempError === 'function') appendAiTempError(chatArea, friend);
     updateScrollButton();
   }
  
@@ -2951,11 +2953,12 @@
       const dateStr = overrideDate !== '' ? overrideDate : new Date().toISOString().split('T')[0];
       const timeStr = overrideTime !== '' ? overrideTime : `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
  
+      const useAiReply = (typeof isAiFriend === 'function' && isAiFriend(friend) && currentSender === 'me');
       friend.messages.push({
         sender: currentSender,
         text: e.target.result,
         time: timeStr,
-        isRead: document.getElementById('read-status').checked,
+        isRead: useAiReply ? false : document.getElementById('read-status').checked,
         isImage: true,
         isVideo: false,
         mediaUrl: e.target.result,
@@ -3044,8 +3047,13 @@
     apiKey: '',
     model: AI_DEFAULT_MODEL
   };
-  let aiReplySeq = 0;
-  let aiTypingFriendId = null;
+  const AI_READ_DELAY_MS = 3000;
+  const AI_ERROR_DISPLAY_MS = 3000;
+  const AI_FETCH_DEBOUNCE_MS = 400;
+  let aiReplySeqByFriend = {};
+  let aiReadWaitByFriend = {};
+  let aiFetchTimerByFriend = {};
+  let aiTempError = null;
 
   function loadAiSettings() {
     try {
@@ -3302,25 +3310,85 @@
     openChat(newId);
   }
 
-  function appendAiTypingIndicator(chatArea, friend) {
-    if (!aiTypingFriendId || !friend || friend.id !== aiTypingFriendId) return;
-    const row = document.createElement('div');
-    row.className = 'msg-group partner';
-    row.id = 'ai-typing-row';
-    row.innerHTML = '<img src="' + friend.avatar + '" class="avatar">' +
-      '<div class="msg-content"><div class="msg-bubble typing-bubble">' +
-      '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>' +
-      '</div></div>';
-    chatArea.appendChild(row);
+  function appendAiTempError(chatArea, friend) {
+    if (!aiTempError || !friend || aiTempError.friendId !== friend.id) return;
+    const sysDiv = document.createElement('div');
+    sysDiv.className = 'system-msg ai-error-msg';
+    sysDiv.id = 'ai-temp-error';
+    sysDiv.innerHTML = escapeHtml(aiTempError.text);
+    chatArea.appendChild(sysDiv);
   }
 
-  function setAiTyping(friendId, on) {
-    aiTypingFriendId = on ? friendId : null;
-    const chatScreen = document.getElementById('chat-screen');
-    if (currentFriendId && chatScreen && chatScreen.classList.contains('active')) {
+  function showAiTempError(friend, message) {
+    if (aiTempError && aiTempError.timer) clearTimeout(aiTempError.timer);
+    aiTempError = {
+      friendId: friend.id,
+      text: '自動返信エラー: ' + message,
+      timer: null
+    };
+    if (currentFriendId === friend.id) {
       renderChat();
-      if (on) scrollToBottom();
+      scrollToBottom();
     }
+    aiTempError.timer = setTimeout(function () {
+      aiTempError = null;
+      if (currentFriendId === friend.id) renderChat();
+    }, AI_ERROR_DISPLAY_MS);
+  }
+
+  function purgePersistedAiErrors() {
+    let changed = false;
+    friendsList.forEach(function (f) {
+      if (!f.messages) return;
+      const next = f.messages.filter(function (m) { return !m.isAiError; });
+      if (next.length !== f.messages.length) {
+        f.messages = next;
+        changed = true;
+      }
+    });
+    if (changed) saveToLocalStorage();
+  }
+
+  function shouldMarkAiRead() {
+    const el = document.getElementById('read-status');
+    return !el || !!el.checked;
+  }
+
+  function markPendingMeMessagesRead(friend) {
+    if (!friend || !shouldMarkAiRead()) return false;
+    let changed = false;
+    friend.messages.forEach(function (msg) {
+      if (msg.sender === 'me' && !msg.unsend && !msg.isRead) {
+        msg.isRead = true;
+        changed = true;
+      }
+    });
+    if (changed) {
+      saveToLocalStorage();
+      if (currentFriendId === friend.id) renderChat();
+    }
+    return changed;
+  }
+
+  function startOrResetReadDelay(friendId) {
+    const prev = aiReadWaitByFriend[friendId];
+    if (prev && prev.timer) {
+      clearTimeout(prev.timer);
+      prev.timer = null;
+    }
+    if (prev && !prev.completed) prev.resolve();
+    let resolve;
+    const promise = new Promise(function (r) { resolve = r; });
+    const entry = { promise: promise, resolve: resolve, timer: null, completed: false };
+    entry.timer = setTimeout(function () {
+      entry.completed = true;
+      entry.timer = null;
+      const friend = friendsList.find(function (f) { return f.id === friendId; });
+      if (friend) markPendingMeMessagesRead(friend);
+      entry.resolve();
+    }, AI_READ_DELAY_MS);
+    aiReadWaitByFriend[friendId] = entry;
+    return promise;
   }
 
   function messageTextForAi(msg) {
@@ -3430,25 +3498,7 @@
   }
 
   function pushAiSystemError(friend, message) {
-    const parts = nowDateTimeParts();
-    friend.messages.push({
-      sender: 'system',
-      text: '自動返信エラー: ' + message,
-      time: parts.timeStr,
-      isRead: false,
-      isImage: false,
-      isVideo: false,
-      mediaUrl: null,
-      unsend: false,
-      date: parts.dateStr,
-      replyTo: null,
-      isAiError: true
-    });
-    saveToLocalStorage();
-    if (currentFriendId === friend.id) {
-      renderChat();
-      scrollToBottom();
-    }
+    showAiTempError(friend, message);
   }
 
   function pushPartnerAiMessage(friend, text) {
@@ -3551,32 +3601,58 @@
     }
   }
 
-  async function requestPartnerAutoReply(friendId) {
+  async function finishAiReply(friendId, mySeq, text, err) {
+    if (mySeq !== aiReplySeqByFriend[friendId]) return;
+    const wait = aiReadWaitByFriend[friendId];
+    if (wait && wait.promise) await wait.promise;
+    if (mySeq !== aiReplySeqByFriend[friendId]) return;
+
+    const friend = friendsList.find(function (f) { return f.id === friendId; });
+    if (!friend) return;
+
+    if (err) {
+      let message;
+      if (err.code === 'missing-key') {
+        message = 'Gemini APIキーがありません。「新しい友達を追加」の「友達(AI)を追加」からキーを保存してください。';
+      } else {
+        message = formatAiError(err.message, err.status, err.body);
+      }
+      pushAiSystemError(friend, message);
+      return;
+    }
+    if (!text) {
+      pushAiSystemError(friend, '応答が空でした');
+      return;
+    }
+    pushPartnerAiMessage(friend, text);
+  }
+
+  async function runAiReplyFetch(friendId, mySeq) {
+    const friend = friendsList.find(function (f) { return f.id === friendId; });
+    if (!friend || mySeq !== aiReplySeqByFriend[friendId]) return;
+    let text = null;
+    let err = null;
+    try {
+      text = await callGeminiGenerate(friend);
+    } catch (e) {
+      err = e;
+    }
+    await finishAiReply(friendId, mySeq, text, err);
+  }
+
+  function requestPartnerAutoReply(friendId) {
     const friend = friendsList.find(function (f) { return f.id === friendId; });
     if (!isAiFriend(friend)) return;
 
-    const mySeq = ++aiReplySeq;
-    setAiTyping(friendId, true);
-    try {
-      const text = await callGeminiGenerate(friend);
-      if (mySeq !== aiReplySeq) return;
-      setAiTyping(friendId, false);
-      if (!text) {
-        pushAiSystemError(friend, '応答が空でした');
-        return;
-      }
-      pushPartnerAiMessage(friend, text);
-    } catch (err) {
-      if (mySeq !== aiReplySeq) return;
-      setAiTyping(friendId, false);
-      let message;
-      if (err && err.code === 'missing-key') {
-        message = 'Gemini APIキーがありません。「新しい友達を追加」の「友達(AI)を追加」からキーを保存してください。';
-      } else {
-        message = formatAiError(err && err.message, err && err.status, err && err.body);
-      }
-      pushAiSystemError(friend, message);
-    }
+    const mySeq = (aiReplySeqByFriend[friendId] = (aiReplySeqByFriend[friendId] || 0) + 1);
+    startOrResetReadDelay(friendId);
+
+    if (aiFetchTimerByFriend[friendId]) clearTimeout(aiFetchTimerByFriend[friendId]);
+    aiFetchTimerByFriend[friendId] = setTimeout(function () {
+      aiFetchTimerByFriend[friendId] = null;
+      if (mySeq !== aiReplySeqByFriend[friendId]) return;
+      runAiReplyFetch(friendId, mySeq);
+    }, AI_FETCH_DEBOUNCE_MS);
   }
 
   (function hookAiOnload() {
@@ -3584,6 +3660,7 @@
     window.onload = function () {
       if (typeof orig === 'function') orig.apply(this, arguments);
       loadAiSettings();
+      purgePersistedAiErrors();
     };
   })();
 </script>
