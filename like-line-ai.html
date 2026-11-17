@@ -3476,6 +3476,7 @@
       '- マークダウン、箇条書き、見出し、コードブロック、役割の説明は使わない。',
       '- 返事を引用符や「」で囲まない。',
       '- 1〜3文くらいの短さ。相手の口調に絵文字が似合うときだけ使う。',
+      '- 文を分けるときは改行で区切る(空行は入れない)。',
       '- システムやAIであることは言わない。'
     ].join('\n');
   }
@@ -3537,6 +3538,41 @@
 
   function pushAiSystemError(friend, message) {
     showAiTempError(friend, message);
+  }
+
+  // AI返信を改行で分割。連続改行(空行)は1つの区切り、trimして空は除外する。
+  function splitAiReplyBubbles(text) {
+    return String(text || '').split(/\r?\n+/).map(function (part) {
+      return part.trim();
+    }).filter(function (part) {
+      return part.length > 0;
+    });
+  }
+
+  // 文の長さに応じて、吹き出し同士の間隔を 300〜800ms にする。
+  function aiBubbleGapMs(part) {
+    var len = String(part || '').length;
+    var ms = 300 + Math.round((Math.min(len, 30) / 30) * 500);
+    return Math.max(300, Math.min(800, ms));
+  }
+
+  // 分割した各文を、既存の pushPartnerAiMessage で順番に追加する。
+  async function pushPartnerAiMessagesSequential(friend, text, timeOverride, mySeq, friendId) {
+    var parts = splitAiReplyBubbles(text);
+    if (!parts.length) {
+      pushAiSystemError(friend, '応答が空でした');
+      return;
+    }
+    var i;
+    for (i = 0; i < parts.length; i++) {
+      if (mySeq != null && mySeq !== aiReplySeqByFriend[friendId]) return;
+      pushPartnerAiMessage(friend, parts[i], timeOverride);
+      if (i < parts.length - 1) {
+        await new Promise(function (resolve) {
+          setTimeout(resolve, aiBubbleGapMs(parts[i]));
+        });
+      }
+    }
   }
 
   function pushPartnerAiMessage(friend, text, timeOverride) {
@@ -3670,7 +3706,8 @@
       pushAiSystemError(friend, '応答が空でした');
       return;
     }
-    pushPartnerAiMessage(friend, text, timeOverride);
+    // 既読待ちのあと、複数文は吹き出しを分けて短い間隔で順に出す
+    await pushPartnerAiMessagesSequential(friend, text, timeOverride, mySeq, friendId);
   }
 
   async function runAiReplyFetch(friendId, mySeq, nudge, timeOverride) {
