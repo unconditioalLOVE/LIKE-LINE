@@ -72,6 +72,9 @@
       position: relative;
       overflow: hidden;
       touch-action: pan-y;
+      /* 写真の最大幅・高さはスマホ枠の幅を基準にする */
+      container-type: inline-size;
+      container-name: phone;
     }
  
     .screen {
@@ -771,6 +774,42 @@
       object-fit: cover;
       display: block;
       border-radius: 12px;
+    }
+
+    /* 写真メッセージ: チャット幅の64%/88%に収まるよう縮小。縦横比は維持し、切り取らない。動画は上の従来スタイルのまま。 */
+    .msg-group.has-photo {
+      align-items: flex-end;
+    }
+    .msg-group.has-photo .msg-meta {
+      margin-bottom: 0;
+    }
+    .raw-photo-container {
+      width: fit-content;
+      max-width: calc(var(--chat-width, 100%) * 0.64);
+      max-height: calc(var(--chat-width, 100%) * 0.88);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      display: block;
+      margin: 0;
+      padding: 0;
+      background: none;
+    }
+    .raw-photo-container img {
+      width: auto;
+      height: auto;
+      max-width: calc(var(--chat-width, 100%) * 0.64);
+      max-height: calc(var(--chat-width, 100%) * 0.88);
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+    }
+    @supports (max-width: 1cqw) {
+      .raw-photo-container,
+      .raw-photo-container img {
+        max-width: 64cqw;
+        max-height: 88cqw;
+      }
     }
  
     .imported-media-placeholder {
@@ -2237,6 +2276,7 @@
     document.getElementById('chat-screen').classList.add('active');
     document.getElementById('main-tab-bar').style.display = 'none';
     renderChat();
+    updateChatWidthVar();
     scrollToBottom();
     document.getElementById('chat-area').addEventListener('scroll', updateScrollButton);
     if (typeof syncAiModePanelForFriend === 'function') syncAiModePanelForFriend();
@@ -2684,7 +2724,8 @@
         if (msg.isVideo) {
           contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><video src="${msg.mediaUrl}" controls style="width:100%; height:100%; border-radius:12px; display:block;"></video></div>`;
         } else {
-          contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><img src="${msg.mediaUrl}"></div>`;
+          // 写真は吹き出し背景なし。縦横比を保って表示し、読み込み後に必要なら再スクロールする。
+          contentHtml = `<div class="raw-photo-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><img src="${msg.mediaUrl}" alt="" onload="onChatPhotoLoad()"></div>`;
         }
       } else {
         const label = msg.isImage ? '[写真]' : '[動画]';
@@ -2697,13 +2738,16 @@
 
     const wrappedContent = `<div class="msg-content">${contentHtml}</div>`;
 
+    const isPhoto = !!(msg.isImage && msg.mediaUrl && !msg.isVideo);
+    const photoClass = isPhoto ? ' has-photo' : '';
+
     if (isDeleteMode) {
-      msgDiv.className = `msg-group delete-mode-row ${msg.sender}${isGrouped ? ' grouped' : ''}`;
+      msgDiv.className = `msg-group delete-mode-row ${msg.sender}${isGrouped ? ' grouped' : ''}${photoClass}`;
       msgDiv.onclick = () => toggleSelectMessage(i);
       const cbHtml = `<div class="select-checkbox${selectedToDelete.has(i) ? ' checked' : ''}" style="display:flex;"></div>`;
       msgDiv.innerHTML = msg.sender === 'partner' ? `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; gap:6px;">${avatarHtml}${wrappedContent}${metaHtml}</div>` : `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; justify-content:flex-end; gap:6px;">${metaHtml}${wrappedContent}</div>`;
     } else {
-      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
+      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}${photoClass}`;
       msgDiv.innerHTML = msg.sender === 'partner' ? `${avatarHtml}${wrappedContent}${metaHtml}` : `${wrappedContent}${metaHtml}`;
     }
 
@@ -2778,6 +2822,7 @@
       appendChatMessageRow(chatArea, friend, msg, i, { isGrouped: isGrouped });
     });
     if (typeof appendAiTempError === 'function') appendAiTempError(chatArea, friend);
+    updateChatWidthVar();
     updateScrollButton();
   }
  
@@ -3101,10 +3146,29 @@
     }
   }
  
+  function updateChatWidthVar() {
+    const area = document.getElementById('chat-area');
+    const frame = document.querySelector('.container');
+    const w = (frame && frame.clientWidth) || (area && area.clientWidth) || 0;
+    if (!area || w <= 0) return;
+    // スマホ枠(.container)の幅を基準に、写真の最大64%/88%を決める
+    area.style.setProperty('--chat-width', w + 'px');
+    if (frame) frame.style.setProperty('--chat-width', w + 'px');
+  }
+
   function scrollToBottom() {
     const chatArea = document.getElementById('chat-area');
     chatArea.scrollTop = chatArea.scrollHeight;
     updateScrollButton();
+  }
+
+  // 写真の実サイズが分かったあと、元々一番下付近にいたときだけ再スクロールする。
+  function onChatPhotoLoad() {
+    const chatArea = document.getElementById('chat-area');
+    if (!chatArea) return;
+    const away = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight;
+    if (away < 160) scrollToBottom();
+    else updateScrollButton();
   }
  
   function updateScrollButton() {
@@ -3113,6 +3177,8 @@
     const away = chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight;
     btn.style.display = away > 80 ? 'flex' : 'none';
   }
+
+  window.addEventListener('resize', updateChatWidthVar);
  
   function escapeHtml(str) {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
