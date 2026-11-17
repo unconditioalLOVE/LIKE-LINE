@@ -3081,6 +3081,9 @@
   let aiReadWaitByFriend = {};
   let aiFetchTimerByFriend = {};
   let aiTempError = null;
+  let aiDisplayQueues = {};
+  let aiDisplayBusy = {};
+  let aiGroupSeq = 0;
 
   function loadAiSettings() {
     try {
@@ -3441,15 +3444,37 @@
     return text.length > 800 ? text.slice(0, 800) + '…' : text;
   }
 
+  // AIが||で分割した吹き出しは、同じ aiGroupId を||で1つのmodel発言に戻す。
+  function flattenMessagesForAi(messages) {
+    const flat = [];
+    (messages || []).forEach(function (msg) {
+      const text = messageTextForAi(msg);
+      if (!text) return;
+      if (msg.sender === 'partner' && msg.aiGroupId && flat.length
+          && flat[flat.length - 1].sender === 'partner'
+          && flat[flat.length - 1].aiGroupId === msg.aiGroupId) {
+        flat[flat.length - 1].text += '||' + text;
+        return;
+      }
+      flat.push({
+        sender: msg.sender,
+        text: text,
+        aiGroupId: (msg.sender === 'partner' && msg.aiGroupId) ? msg.aiGroupId : null
+      });
+    });
+    return flat;
+  }
+
   function buildGeminiContents(friend) {
-    const recent = friend.messages.slice(-AI_HISTORY_LIMIT);
+    const recent = flattenMessagesForAi(friend.messages.slice(-AI_HISTORY_LIMIT));
     const turns = [];
     recent.forEach(function (msg) {
-      const text = messageTextForAi(msg);
+      const text = msg.text;
       if (!text) return;
       const role = msg.sender === 'me' ? 'user' : (msg.sender === 'partner' ? 'model' : null);
       if (!role) return;
       if (turns.length && turns[turns.length - 1].role === role) {
+        // グループ以外の連続した同じ役割は、従来どおり改行で結合する
         turns[turns.length - 1].parts[0].text += '\n' + text;
       } else {
         turns.push({ role: role, parts: [{ text: text }] });
@@ -3476,8 +3501,17 @@
       '- マークダウン、箇条書き、見出し、コードブロック、役割の説明は使わない。',
       '- 返事を引用符や「」で囲まない。',
       '- 1〜3文くらいの短さ。相手の口調に絵文字が似合うときだけ使う。',
-      '- 文を分けるときは改行で区切る(空行は入れない)。',
-      '- システムやAIであることは言わない。'
+      '- システムやAIであることは言わない。',
+      '',
+      // Geminiが話の切れ目に||を入れて返す。改行分割の指示は使わない。
+      '【メッセージの分け方】',
+      '返信は基本1通にまとめる。話の切れ目が自然にある場合だけ、その位置に「||」を入れて2通、多くても3通に分ける。分ける場所は「相槌・反応」と「その後の質問・アドバイス・本題」の間など。文の途中では分けない。1通は短く保つ。改行や空行で分けようとせず、必ず「||」だけを使う。',
+      '例(分ける):',
+      'まじか、お疲れ様!!!||今日はゆっくり休んだほうがいいよー',
+      '例(分けない):',
+      'それな笑',
+      '例(分けない):',
+      '明日の模試、何時からだっけ?'
     ].join('\n');
   }
 
@@ -3540,42 +3574,99 @@
     showAiTempError(friend, message);
   }
 
-  // AI返信を改行で分割。連続改行(空行)は1つの区切り、trimして空は除外する。
+  // 吹き出し1通分の保険処理。連続空行は1つの改行にまとめ、||は画面に出さない。
+  function sanitizeAiBubbleText(part) {
+    var t = String(part || '').replace(/\|\|/g, '');
+    t = t.replace(/^\|+|\|+$/g, ''); // ||| のような奇数本の残りを除去
+    t = t.replace(/(\r?\n)[ \t]*(\r?\n)+/g, '\n');
+    t = t.split(/\r?\n/).map(function (line) {
+      return line.trim();
+    }).filter(function (line) {
+      return line.length > 0;
+    }).join('\n');
+    return t.trim();
+  }
+
+  // Gemini返信を||で分割。空は除外、最大4通。5通目以降は4通目に連結する。
   function splitAiReplyBubbles(text) {
-    return String(text || '').split(/\r?\n+/).map(function (part) {
-      return part.trim();
+    var raw = String(text || '').split('||').map(function (part) {
+      return sanitizeAiBubbleText(part);
     }).filter(function (part) {
       return part.length > 0;
     });
+    if (raw.length <= 4) return raw;
+    var head = raw.slice(0, 3);
+    head.push(raw.slice(3).join(' '));
+    return head;
   }
 
-  // 文の長さに応じて、吹き出し同士の間隔を 300〜800ms にする。
+  // 2通目以降は前の吹き出しから約1秒空けて送る(固定1000ms)。入力中表示は出さない。
   function aiBubbleGapMs(part) {
-    var len = String(part || '').length;
-    var ms = 300 + Math.round((Math.min(len, 30) / 30) * 500);
-    return Math.max(300, Math.min(800, ms));
+    return 1000;
   }
 
-  // 分割した各文を、既存の pushPartnerAiMessage で順番に追加する。
-  async function pushPartnerAiMessagesSequential(friend, text, timeOverride, mySeq, friendId) {
+  function nextAiGroupId() {
+    aiGroupSeq += 1;
+    return 'ai-' + Date.now() + '-' + aiGroupSeq;
+  }
+
+  // 表示キュー。表示中にユーザーが送信しても、既に受け取った返信の順番は崩さない。
+  function enqueueAiDisplayJob(friendId, job) {
+    if (!aiDisplayQueues[friendId]) aiDisplayQueues[friendId] = [];
+    var done;
+    var promise = new Promise(function (resolve) { done = resolve; });
+    job._done = done;
+    aiDisplayQueues[friendId].push(job);
+    pumpAiDisplayQueue(friendId);
+    return promise;
+  }
+
+  async function pumpAiDisplayQueue(friendId) {
+    if (aiDisplayBusy[friendId]) return;
+    aiDisplayBusy[friendId] = true;
+    try {
+      while ((aiDisplayQueues[friendId] || []).length) {
+        var job = aiDisplayQueues[friendId].shift();
+        try {
+          var friend = friendsList.find(function (f) { return f.id === friendId; });
+          if (friend && job && job.parts && job.parts.length) {
+            var i;
+            for (i = 0; i < job.parts.length; i++) {
+              pushPartnerAiMessage(friend, job.parts[i], job.timeOverride, job.groupId);
+              if (i < job.parts.length - 1) {
+                await new Promise(function (resolve) {
+                  setTimeout(resolve, aiBubbleGapMs(job.parts[i]));
+                });
+              }
+            }
+          }
+        } finally {
+          if (job && job._done) job._done();
+        }
+      }
+    } finally {
+      aiDisplayBusy[friendId] = false;
+      if ((aiDisplayQueues[friendId] || []).length) {
+        pumpAiDisplayQueue(friendId);
+      }
+    }
+  }
+
+  async function pushPartnerAiMessagesSequential(friend, text, timeOverride) {
     var parts = splitAiReplyBubbles(text);
     if (!parts.length) {
       pushAiSystemError(friend, '応答が空でした');
       return;
     }
-    var i;
-    for (i = 0; i < parts.length; i++) {
-      if (mySeq != null && mySeq !== aiReplySeqByFriend[friendId]) return;
-      pushPartnerAiMessage(friend, parts[i], timeOverride);
-      if (i < parts.length - 1) {
-        await new Promise(function (resolve) {
-          setTimeout(resolve, aiBubbleGapMs(parts[i]));
-        });
-      }
-    }
+    var groupId = parts.length > 1 ? nextAiGroupId() : null;
+    return enqueueAiDisplayJob(friend.id, {
+      parts: parts,
+      timeOverride: timeOverride,
+      groupId: groupId
+    });
   }
 
-  function pushPartnerAiMessage(friend, text, timeOverride) {
+  function pushPartnerAiMessage(friend, text, timeOverride, aiGroupId) {
     const overrideDateEl = document.getElementById('override-date-input');
     const overrideTimeEl = document.getElementById('override-time-input');
     const overrideDate = overrideDateEl ? overrideDateEl.value : '';
@@ -3583,7 +3674,7 @@
     const parts = nowDateTimeParts();
     const dateStr = overrideDate !== '' ? overrideDate : parts.dateStr;
     const timeStr = timeOverride ? timeOverride : (overrideTime !== '' ? overrideTime : parts.timeStr);
-    friend.messages.push({
+    const msg = {
       sender: 'partner',
       text: text,
       time: timeStr,
@@ -3594,7 +3685,9 @@
       unsend: false,
       date: dateStr,
       replyTo: null
-    });
+    };
+    if (aiGroupId) msg.aiGroupId = aiGroupId;
+    friend.messages.push(msg);
     saveToLocalStorage();
     if (currentFriendId === friend.id) {
       renderChat();
@@ -3632,7 +3725,7 @@
       contents: contents,
       generationConfig: {
         temperature: 0.9,
-        maxOutputTokens: 512,
+        maxOutputTokens: 1024,
         thinkingConfig: { thinkingLevel: 'low' }
       }
     };
@@ -3660,7 +3753,7 @@
         const retryBody = {
           systemInstruction: body.systemInstruction,
           contents: body.contents,
-          generationConfig: { temperature: 0.9, maxOutputTokens: 512 }
+          generationConfig: { temperature: 0.9, maxOutputTokens: 1024 }
         };
         result = await post(retryBody);
       }
@@ -3706,8 +3799,8 @@
       pushAiSystemError(friend, '応答が空でした');
       return;
     }
-    // 既読待ちのあと、複数文は吹き出しを分けて短い間隔で順に出す
-    await pushPartnerAiMessagesSequential(friend, text, timeOverride, mySeq, friendId);
+    // 既読待ちのあと、||で分けた吹き出しをキューに乗せて順番に出す
+    await pushPartnerAiMessagesSequential(friend, text, timeOverride);
   }
 
   async function runAiReplyFetch(friendId, mySeq, nudge, timeOverride) {
