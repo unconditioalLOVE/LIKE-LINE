@@ -3828,14 +3828,12 @@
     };
 
     const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(apiKey);
-    const controller = new AbortController();
-    const timer = setTimeout(function () { controller.abort(); }, 45000);
 
-    async function post(payload) {
+    async function post(payload, signal) {
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
+        signal: signal,
         body: JSON.stringify(payload)
       });
       let data = null;
@@ -3843,34 +3841,112 @@
       return { res: res, data: data };
     }
 
-    try {
-      let result = await post(body);
-      const errMsg = result.data && result.data.error && result.data.error.message;
-      if (!result.res.ok && result.res.status === 400 && errMsg && /thinking/i.test(errMsg)) {
-        const retryBody = {
-          systemInstruction: body.systemInstruction,
-          contents: body.contents,
-          generationConfig: { temperature: 0.9, maxOutputTokens: 1024 }
-        };
-        result = await post(retryBody);
+    // 1回分の送信。thinking 非対応の400だけは、同じ試行内で設定を外して打ち直す。
+    async function attemptOnce() {
+      const controller = new AbortController();
+      const timer = setTimeout(function () { controller.abort(); }, 45000);
+      try {
+        let result = await post(body, controller.signal);
+        const errMsg = result.data && result.data.error && result.data.error.message;
+        if (!result.res.ok && result.res.status === 400 && errMsg && /thinking/i.test(errMsg)) {
+          const retryBody = {
+            systemInstruction: body.systemInstruction,
+            contents: body.contents,
+            generationConfig: { temperature: 0.9, maxOutputTokens: 1024 }
+          };
+          result = await post(retryBody, controller.signal);
+        }
+        if (!result.res.ok) {
+          const e = new Error((result.data && result.data.error && result.data.error.message) || ('HTTP ' + result.res.status));
+          e.status = result.res.status;
+          e.body = result.data;
+          throw e;
+        }
+        return cleanAiReply(extractGeminiText(result.data));
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          const e = new Error('応答が時間内に返りませんでした。もう一度送ってみてください。');
+          e.status = 0;
+          throw e;
+        }
+        throw err;
+      } finally {
+        clearTimeout(timer);
       }
-      if (!result.res.ok) {
-        const e = new Error((result.data && result.data.error && result.data.error.message) || ('HTTP ' + result.res.status));
-        e.status = result.res.status;
-        e.body = result.data;
-        throw e;
-      }
-      return cleanAiReply(extractGeminiText(result.data));
-    } catch (err) {
-      if (err && err.name === 'AbortError') {
-        const e = new Error('応答が時間内に返りませんでした。もう一度送ってみてください。');
-        e.status = 0;
-        throw e;
-      }
-      throw err;
-    } finally {
-      clearTimeout(timer);
     }
+
+    return withAiRetries(attemptOnce);
+  }
+
+  // 一時的な失敗なら、最大2回まで静かに送り直す（入力中表示は出さない）。
+  function isRetryableAiError(err) {
+    if (!err) return false;
+    if (err.code === 'missing-key' || err.code === 'empty') return false;
+    var status = err.status;
+    if (status === 400 || status === 401 || status === 403 || status === 404) return false;
+    if (status === 503 || status === 429 || status === 500) return true;
+    var msg = String(err.message || (err.body && err.body.error && err.body.error.message) || '');
+    var statusText = String((err.body && err.body.error && err.body.error.status) || '');
+    if (/high demand|overloaded|UNAVAILABLE|RESOURCE_EXHAUSTED/i.test(msg + ' ' + statusText)) return true;
+    if (!status && /Failed to fetch|NetworkError|時間内に返りませんでした/i.test(msg)) return true;
+    if (!status && err.name === 'AbortError') return true;
+    if (!status && err.name === 'TypeError' && /fetch|network/i.test(msg)) return true;
+    return false;
+  }
+
+  // 429レスポンスの retryDelay（"8s" や {seconds:8}）をミリ秒にする。
+  function parseGeminiRetryDelayMs(body) {
+    var details = body && body.error && body.error.details;
+    if (!details || !details.length) return null;
+    var i;
+    for (i = 0; i < details.length; i++) {
+      var d = details[i];
+      if (!d || d.retryDelay == null) continue;
+      if (typeof d.retryDelay === 'object') {
+        var sec = Number(d.retryDelay.seconds || 0);
+        var nano = Number(d.retryDelay.nanos || 0);
+        if (sec || nano) return Math.round(sec * 1000 + nano / 1e6);
+      } else {
+        var m = String(d.retryDelay).trim().match(/^(\d+(?:\.\d+)?)s$/i);
+        if (m) return Math.round(parseFloat(m[1]) * 1000);
+      }
+    }
+    return null;
+  }
+
+  // attempt は 1（約3秒）か 2（約6秒）。429のretryDelayがあればそれを優先。15秒超なら -1（諦める）。
+  function aiRetryWaitMs(attempt, err) {
+    if (err && err.status === 429) {
+      var delay = parseGeminiRetryDelayMs(err.body);
+      if (delay != null) return delay > 15000 ? -1 : delay;
+    }
+    var base = attempt === 1 ? 3000 : 6000;
+    var jitter = Math.round((Math.random() * 0.4 - 0.2) * base);
+    return Math.max(0, base + jitter);
+  }
+
+  function aiRetrySleep(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  async function withAiRetries(runOnce) {
+    var lastErr = null;
+    var attempt;
+    for (attempt = 0; attempt <= 2; attempt++) {
+      if (attempt > 0) {
+        var wait = aiRetryWaitMs(attempt, lastErr);
+        if (wait < 0) throw lastErr; // retryDelay が長すぎるので待たずに諦める
+        await aiRetrySleep(wait);
+      }
+      try {
+        return await runOnce();
+      } catch (err) {
+        lastErr = err;
+        if (!isRetryableAiError(err) || attempt === 2) throw err;
+        // リトライ中は何も表示しない
+      }
+    }
+    throw lastErr;
   }
 
   async function finishAiReply(friendId, mySeq, text, err, timeOverride) {
