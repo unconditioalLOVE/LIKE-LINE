@@ -2307,7 +2307,7 @@
         } else {
           friendsList.forEach(friend => {
             const lastMsg = friend.messages.length > 0 ? friend.messages[friend.messages.length - 1] : null;
-            const subText = lastMsg ? (lastMsg.isImage || lastMsg.isVideo ? (lastMsg.isImage ? '[画像]' : '[動画]') : lastMsg.text) : 'まだメッセージはありません';
+            const subText = lastMsg ? (lastMsg.isImage || lastMsg.isVideo ? (lastMsg.isImage ? '[画像]' : '[動画]') : (lastMsg.sender === 'partner' ? partnerPreviewText(lastMsg.text) : lastMsg.text)) : 'まだメッセージはありません';
             
             const item = document.createElement('div');
             item.className = 'list-item';
@@ -2609,7 +2609,7 @@
     activeReplyTarget = targetMsg;
     const label = targetMsg.sender === 'me' ? myName : friend.name;
     document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
-    document.getElementById('reply-preview-text').innerText = (targetMsg.isImage || targetMsg.isVideo) ? (targetMsg.isImage ? '[画像]' : '[動画]') : targetMsg.text;
+    document.getElementById('reply-preview-text').innerText = (targetMsg.isImage || targetMsg.isVideo) ? (targetMsg.isImage ? '[画像]' : '[動画]') : (targetMsg.sender === 'partner' ? partnerPreviewText(targetMsg.text) : targetMsg.text);
     document.getElementById('input-reply-bar').style.display = 'flex';
     document.getElementById('message-input').focus();
   }
@@ -2623,15 +2623,102 @@
     if (selectedMsgIndex !== null) startReply(selectedMsgIndex);
   }
  
+  // 相手テキストの割り箸(|| / 全角｜｜)分割。描画の一番内側と、AI返信の保存前で共用する。
+  function sanitizeAiBubbleText(part) {
+    var t = String(part || '').replace(/[|｜]/g, ''); // 分割後に残った | と ｜ を全て除去
+    t = t.replace(/(\r?\n)[ \t]*(\r?\n)+/g, '\n');
+    t = t.split(/\r?\n/).map(function (line) {
+      return line.trim();
+    }).filter(function (line) {
+      return line.length > 0;
+    }).join('\n');
+    return t.trim();
+  }
+
+  function splitAiReplyBubbles(text) {
+    // 半角||・全角｜｜とその前後の空白で分割。最大2通。3通目以降は2通目に連結。
+    var raw = String(text || '').split(/\s*(?:\|\||｜｜)\s*/).map(function (part) {
+      return sanitizeAiBubbleText(part);
+    }).filter(function (part) {
+      return part.length > 0;
+    });
+    if (raw.length <= 2) return raw;
+    return [raw[0], raw.slice(1).join(' ')];
+  }
+
+  function partnerPreviewText(text) {
+    return splitAiReplyBubbles(text).join(' ');
+  }
+
+  // 内側: すでに分割済みの1通だけを描画する。ここでは再分割しない(無限ループ防止)。
+  function appendChatMessageRow(chatArea, friend, msg, i, options) {
+    options = options || {};
+    const displayText = options.displayText != null ? options.displayText : (msg.text || '');
+    const isGrouped = !!options.isGrouped;
+    const msgDiv = document.createElement('div');
+
+    let avatarHtml = msg.sender === 'partner' ? `<img src="${friend.avatar}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">` : '';
+    const metaHtml = `<div class="msg-meta">${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}<span>${msg.time}</span></div>`;
+
+    let replyPreviewHtml = '';
+    if (msg.replyTo && !options.hideReply) {
+      const replyAvatar = msg.replyTo.sender === 'me' ? myAvatarUrl : friend.avatar;
+      const senderLabel = msg.replyTo.sender === 'me' ? myName : friend.name;
+      const replyContent = msg.replyTo.sender === 'partner' ? partnerPreviewText(msg.replyTo.content) : msg.replyTo.content;
+      replyPreviewHtml = `
+          <div class="bubble-reply-container">
+            <img src="${replyAvatar}" class="bubble-reply-avatar">
+            <div class="bubble-reply-info-col">
+              <div class="bubble-reply-sender">${escapeHtml(senderLabel)}</div>
+              <div class="bubble-reply-text">${escapeHtml(replyContent)}</div>
+            </div>
+          </div>
+        `;
+    }
+
+    let contentHtml = '';
+    if (msg.call) {
+      contentHtml = buildCallBubbleHtml(msg, i);
+    } else if (msg.isImage || msg.isVideo) {
+      if (msg.mediaUrl) {
+        if (msg.isVideo) {
+          contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><video src="${msg.mediaUrl}" controls style="width:100%; height:100%; border-radius:12px; display:block;"></video></div>`;
+        } else {
+          contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><img src="${msg.mediaUrl}"></div>`;
+        }
+      } else {
+        const label = msg.isImage ? '[写真]' : '[動画]';
+        contentHtml = `<span class="imported-media-placeholder" onclick="event.stopPropagation(); triggerMediaEmbed(${i})">${label} (タップして追加)</span>`;
+      }
+    } else {
+      const bodyContent = (msg.replyTo && !options.hideReply) ? `<div class="bubble-text-body">${escapeHtml(displayText)}</div>` : escapeHtml(displayText);
+      contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${bodyContent}</div>`;
+    }
+
+    const wrappedContent = `<div class="msg-content">${contentHtml}</div>`;
+
+    if (isDeleteMode) {
+      msgDiv.className = `msg-group delete-mode-row ${msg.sender}${isGrouped ? ' grouped' : ''}`;
+      msgDiv.onclick = () => toggleSelectMessage(i);
+      const cbHtml = `<div class="select-checkbox${selectedToDelete.has(i) ? ' checked' : ''}" style="display:flex;"></div>`;
+      msgDiv.innerHTML = msg.sender === 'partner' ? `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; gap:6px;">${avatarHtml}${wrappedContent}${metaHtml}</div>` : `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; justify-content:flex-end; gap:6px;">${metaHtml}${wrappedContent}</div>`;
+    } else {
+      msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
+      msgDiv.innerHTML = msg.sender === 'partner' ? `${avatarHtml}${wrappedContent}${metaHtml}` : `${wrappedContent}${metaHtml}`;
+    }
+
+    chatArea.appendChild(msgDiv);
+  }
+
   function renderChat() {
     const friend = getCurrentActiveFriend();
     if (!friend) return;
     document.getElementById('partner-name-display').innerText = friend.name;
- 
+
     const chatArea = document.getElementById('chat-area');
     chatArea.innerHTML = '';
     let lastDate = null;
- 
+
     friend.messages.forEach((msg, i) => {
       if (msg.date && msg.date !== lastDate) {
         lastDate = msg.date;
@@ -2640,7 +2727,7 @@
         dateDiv.innerText = getFormattedDateString(msg.date);
         chatArea.appendChild(dateDiv);
       }
- 
+
       if (msg.isAiError) return;
       if (msg.sender === 'system') {
         const sysDiv = document.createElement('div');
@@ -2649,7 +2736,7 @@
         chatArea.appendChild(sysDiv);
         return;
       }
- 
+
       if (msg.unsend) {
         const unDiv = document.createElement('div');
         if (isDeleteMode) {
@@ -2667,61 +2754,28 @@
         chatArea.appendChild(unDiv);
         return;
       }
- 
+
       const prev = friend.messages[i - 1];
       const isGrouped = !!(prev && !prev.unsend && prev.sender === msg.sender && prev.time === msg.time && prev.date === msg.date);
-      const msgDiv = document.createElement('div');
- 
-      let avatarHtml = msg.sender === 'partner' ? `<img src="${friend.avatar}" class="avatar" onclick="event.stopPropagation(); triggerAvatarUpload()">` : '';
-      const metaHtml = `<div class="msg-meta">${msg.sender === 'me' && msg.isRead ? '<span>既読</span>' : ''}<span>${msg.time}</span></div>`;
- 
-      let replyPreviewHtml = '';
-      if (msg.replyTo) {
-        const replyAvatar = msg.replyTo.sender === 'me' ? myAvatarUrl : friend.avatar;
-        const senderLabel = msg.replyTo.sender === 'me' ? myName : friend.name;
-        replyPreviewHtml = `
-          <div class="bubble-reply-container">
-            <img src="${replyAvatar}" class="bubble-reply-avatar">
-            <div class="bubble-reply-info-col">
-              <div class="bubble-reply-sender">${escapeHtml(senderLabel)}</div>
-              <div class="bubble-reply-text">${escapeHtml(msg.replyTo.content)}</div>
-            </div>
-          </div>
-        `;
-      }
- 
-      let contentHtml = '';
-      if (msg.call) {
-        contentHtml = buildCallBubbleHtml(msg, i);
-      } else if (msg.isImage || msg.isVideo) {
-        if (msg.mediaUrl) {
-          if (msg.isVideo) {
-            contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><video src="${msg.mediaUrl}" controls style="width:100%; height:100%; border-radius:12px; display:block;"></video></div>`;
-          } else {
-            contentHtml = `<div class="raw-media-container" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})"><img src="${msg.mediaUrl}"></div>`;
-          }
-        } else {
-          const label = msg.isImage ? '[写真]' : '[動画]';
-          contentHtml = `<span class="imported-media-placeholder" onclick="event.stopPropagation(); triggerMediaEmbed(${i})">${label} (タップして追加)</span>`;
+
+      // 相手のテキスト吹き出しは、どの経路でも描画直前に割り箸を処理する。履歴再描画は遅延なし。
+      if (msg.sender === 'partner' && !msg.call && !msg.isImage && !msg.isVideo) {
+        var parts = splitAiReplyBubbles(msg.text);
+        if (!parts.length) {
+          if (!(msg.text || '').toString().trim()) parts = [''];
+          else return;
         }
-      } else {
-        const bodyContent = msg.replyTo ? `<div class="bubble-text-body">${escapeHtml(msg.text)}</div>` : escapeHtml(msg.text);
-        contentHtml = `<div class="msg-bubble" oncontextmenu="handleLongPress(event, ${i})" ontouchstart="handleTouchStart(event, ${i}, this)" ontouchend="handleTouchEnd(this)" onclick="handleMessageClick(event, ${i})">${replyPreviewHtml}${bodyContent}</div>`;
+        parts.forEach(function (part, pIdx) {
+          appendChatMessageRow(chatArea, friend, msg, i, {
+            displayText: part,
+            isGrouped: isGrouped || pIdx > 0,
+            hideReply: pIdx > 0
+          });
+        });
+        return;
       }
- 
-      const wrappedContent = `<div class="msg-content">${contentHtml}</div>`;
- 
-      if (isDeleteMode) {
-        msgDiv.className = `msg-group delete-mode-row ${msg.sender}${isGrouped ? ' grouped' : ''}`;
-        msgDiv.onclick = () => toggleSelectMessage(i);
-        const cbHtml = `<div class="select-checkbox${selectedToDelete.has(i) ? ' checked' : ''}" style="display:flex;"></div>`;
-        msgDiv.innerHTML = msg.sender === 'partner' ? `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; gap:6px;">${avatarHtml}${wrappedContent}${metaHtml}</div>` : `${cbHtml}<div style="display:flex; align-items:flex-start; flex:1; min-width:0; justify-content:flex-end; gap:6px;">${metaHtml}${wrappedContent}</div>`;
-      } else {
-        msgDiv.className = `msg-group ${msg.sender}${isGrouped ? ' grouped' : ''}`;
-        msgDiv.innerHTML = msg.sender === 'partner' ? `${avatarHtml}${wrappedContent}${metaHtml}` : `${wrappedContent}${metaHtml}`;
-      }
- 
-      chatArea.appendChild(msgDiv);
+
+      appendChatMessageRow(chatArea, friend, msg, i, { isGrouped: isGrouped });
     });
     if (typeof appendAiTempError === 'function') appendAiTempError(chatArea, friend);
     updateScrollButton();
@@ -3574,31 +3628,8 @@
     showAiTempError(friend, message);
   }
 
-  // 吹き出し1通分の保険処理。連続空行は1つの改行にまとめ、||は画面に出さない。
-  function sanitizeAiBubbleText(part) {
-    var t = String(part || '').replace(/\|\|/g, '');
-    t = t.replace(/^\|+|\|+$/g, ''); // ||| のような奇数本の残りを除去
-    t = t.replace(/(\r?\n)[ \t]*(\r?\n)+/g, '\n');
-    t = t.split(/\r?\n/).map(function (line) {
-      return line.trim();
-    }).filter(function (line) {
-      return line.length > 0;
-    }).join('\n');
-    return t.trim();
-  }
-
-  // Gemini返信を||で分割。空は除外、最大4通。5通目以降は4通目に連結する。
-  function splitAiReplyBubbles(text) {
-    var raw = String(text || '').split('||').map(function (part) {
-      return sanitizeAiBubbleText(part);
-    }).filter(function (part) {
-      return part.length > 0;
-    });
-    if (raw.length <= 4) return raw;
-    var head = raw.slice(0, 3);
-    head.push(raw.slice(3).join(' '));
-    return head;
-  }
+  // sanitizeAiBubbleText / splitAiReplyBubbles は描画側で定義し、ここで共用する。
+  // 新規AI返信も同じ分割(最大2通、半角||と全角｜｜)を通してから保存する。
 
   // 2通目以降は前の吹き出しから約1秒空けて送る(固定1000ms)。入力中表示は出さない。
   function aiBubbleGapMs(part) {
@@ -3864,6 +3895,34 @@
       purgePersistedAiErrors();
     };
   })();
+
+  // コンソール確認用。トークを開いた状態で:
+  //   __testAiSplit('こんにちは||元気?')
+  // 2つの吹き出しになり、| が見えないこと。このあと再読み込みしても割り箸は出ない。
+  window.__testAiSplit = function (text) {
+    var friend = getCurrentActiveFriend();
+    if (!friend) {
+      console.warn('トーク画面を開いてから実行してください');
+      return;
+    }
+    var stamp = typeof nowDateTimeParts === 'function' ? nowDateTimeParts() : { dateStr: '', timeStr: '' };
+    friend.messages.push({
+      sender: 'partner',
+      text: String(text == null ? 'こんにちは||元気?' : text),
+      time: stamp.timeStr,
+      isRead: false,
+      isImage: false,
+      isVideo: false,
+      mediaUrl: null,
+      unsend: false,
+      date: stamp.dateStr,
+      replyTo: null
+    });
+    saveToLocalStorage();
+    renderChat();
+    if (typeof scrollToBottom === 'function') scrollToBottom();
+    console.log('表示確認: 2つの吹き出しになり、| や ｜ が見えないこと。ページを再読み込みしても同じ。');
+  };
 </script>
 
  
