@@ -14,7 +14,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
  
@@ -57,13 +57,9 @@
       color: #ffffff;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: stretch;
       width: 100%;
       height: 100%;
-      min-height: 100%;
-      min-height: 100vh;
-      min-height: 100dvh;
-      min-height: -webkit-fill-available;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -73,21 +69,35 @@
     }
  
     .container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       width: 100%;
       max-width: 430px;
+      margin: 0 auto;
       height: 100%;
-      min-height: 100%;
-      min-height: -webkit-fill-available;
+      height: 100dvh;
+      height: var(--app-h, 100lvh);
       max-height: 932px;
       background-color: var(--bg);
       display: flex;
       flex-direction: column;
-      position: relative;
       overflow: hidden;
       touch-action: pan-y;
       /* 写真の最大幅・高さはスマホ枠の幅を基準にする */
       container-type: inline-size;
       container-name: phone;
+    }
+
+    /* iOS home-screen (standalone): 100dvh / 100% is often short by the status bar.
+       100lvh and --app-h (set from screen.height in JS) fill the real screen. */
+    @media (display-mode: standalone), (display-mode: fullscreen) {
+      html, body, .container {
+        height: 100lvh;
+        height: var(--app-h, 100lvh);
+        max-height: none;
+      }
     }
  
     .screen {
@@ -107,7 +117,7 @@
       background-color: var(--header-bg);
     }
     #chat-screen {
-      padding-top: var(--sat);
+      padding-top: 0;
       background-color: var(--bg);
     }
  
@@ -849,13 +859,19 @@
  
     /* チャット画面側 */
     .header {
-      background-color: var(--bg);
-      height: 52px;
-      padding: 0 20px 0 14px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      box-sizing: border-box;
+      height: calc(var(--sat) + 52px);
+      padding: var(--sat) 20px 0 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 10;
+      /* Little/no blur: dim only, so message outlines stay crisp. */
+      background-color: rgba(26, 26, 26, 0.8);
+      z-index: 20;
       flex-shrink: 0;
     }
  
@@ -957,11 +973,20 @@
     .chat-area {
       flex: 1;
       min-height: 0;
-      padding: 10px 8px 12px 8px;
+      padding: calc(var(--sat) + 52px + 10px) 8px 12px 8px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       background-color: var(--bg);
+    }
+
+    #chat-screen .call-menu.open {
+      margin-top: calc(var(--sat) + 52px);
+      position: relative;
+      z-index: 21;
+    }
+    #chat-screen:has(.call-menu.open) .chat-area {
+      padding-top: 10px;
     }
  
     .scroll-bottom-btn {
@@ -1136,12 +1161,13 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      font-weight: 400;
     }
  
     .me .msg-bubble {
       background: var(--bubble-me);
       color: #000;
-      font-weight: 500;
+      font-weight: 400;
     }
     .me .msg-bubble::after {
       content: "";
@@ -1386,7 +1412,7 @@
     .input-icons-left {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 20px;
     }
  
     .collapse-arrow {
@@ -1419,7 +1445,7 @@
       background-color: #1f1f1f;
       border: 1px solid #2a2a2a;
       border-radius: 20px;
-      height: 34px;
+      height: 36px;
       padding: 0 8px 0 16px;
       display: flex;
       align-items: center;
@@ -2077,15 +2103,16 @@
     .msg-bubble.call-bubble {
       width: 190px; max-width: 190px; height: 95px; min-height: 95px;
       padding: 0; border-radius: 20px; white-space: normal; line-height: normal;
-      --call-bg: #2a2a2a; --call-circle: #3f3f3f; --call-divider: #373737;
+      background: var(--bubble-partner);
+      --call-bg: var(--bubble-partner); --call-circle: #3f3f3f; --call-divider: #373737;
       --call-glyph: #ffffff; --call-title: #ffffff; --call-sub: #9c9c9c; --call-ring: #838383;
     }
     .me .msg-bubble.call-bubble {
-      background: #8ee386;
-      --call-circle: #7fd977; --call-divider: #80d578;
+      background: var(--bubble-me);
+      --call-circle: #58c968; --call-divider: rgba(0, 0, 0, 0.12);
       --call-glyph: rgba(0,0,0,0.68); --call-title: #000000; --call-sub: #24681b; --call-ring: #24681b;
     }
-    .me .msg-bubble.call-bubble::after { background: #8ee386; }
+    .me .msg-bubble.call-bubble::after { background: var(--bubble-me); }
     .call-main { height: 62px; display: flex; align-items: center; padding: 1px 12px 0; border-bottom: 0.67px solid var(--call-divider); }
     .call-icon-circle { width: 38px; height: 38px; border-radius: 50%; background: var(--call-circle); display: flex; align-items: center; justify-content: center; flex: none; }
     .call-icon-circle svg { fill: var(--call-glyph); }
@@ -2807,6 +2834,26 @@
 </div>
  
 <script>
+  (function setupAppHeight() {
+    function syncAppHeight() {
+      const ua = navigator.userAgent || '';
+      const isIOS = /iP(hone|ad|od)/.test(ua) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const standalone = window.navigator.standalone === true ||
+        window.matchMedia('(display-mode: standalone)').matches;
+      if (isIOS && standalone) {
+        const h = Math.max(window.innerHeight || 0, (window.screen && window.screen.height) || 0);
+        if (h) document.documentElement.style.setProperty('--app-h', h + 'px');
+      } else {
+        document.documentElement.style.removeProperty('--app-h');
+      }
+    }
+    syncAppHeight();
+    window.addEventListener('resize', syncAppHeight);
+    window.addEventListener('orientationchange', syncAppHeight);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', syncAppHeight);
+  })();
+
   let friendsList = [];
   let currentFriendId = null;
   let currentMainTab = 'talk'; 
@@ -3033,20 +3080,24 @@
   }
 
   function bindTalkRowSwipe(front) {
-    let startX = 0, startY = 0, base = 0, tracking = false, decided = false, horizontal = false, moved = false, pointerId = null;
+    const LOCK = 20;
+    let startX = 0, startY = 0, base = 0, tracking = false, decided = false, horizontal = false, pointerId = null;
+
+    const maxFor = function () {
+      const actions = front.parentElement && front.parentElement.querySelector('.talk-swipe-actions');
+      const w = actions ? actions.offsetWidth : 0;
+      return w || TALK_SWIPE_MAX;
+    };
 
     const onDown = (e) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       startX = e.clientX;
       startY = e.clientY;
-      base = front.dataset.open === '1' ? -TALK_SWIPE_MAX : 0;
+      base = front.dataset.open === '1' ? -maxFor() : 0;
       tracking = true;
       decided = false;
       horizontal = false;
-      moved = false;
       pointerId = e.pointerId;
-      try { front.setPointerCapture(e.pointerId); } catch (err) {}
-      front.classList.add('dragging');
     };
 
     const onMove = (e) => {
@@ -3054,43 +3105,46 @@
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
       if (!decided) {
-        if (Math.abs(dx) + Math.abs(dy) < 6) return;
+        if (Math.abs(dx) < LOCK && Math.abs(dy) < LOCK) return;
         decided = true;
-        horizontal = Math.abs(dx) > Math.abs(dy) + 2;
+        horizontal = Math.abs(dx) >= LOCK && Math.abs(dx) > Math.abs(dy);
         if (!horizontal) {
           tracking = false;
-          front.classList.remove('dragging');
           return;
         }
         closeAllTalkSwipes(front);
+        front.classList.add('dragging');
+        try { front.setPointerCapture(e.pointerId); } catch (err) {}
       }
       if (!horizontal) return;
-      moved = true;
       if (e.cancelable) e.preventDefault();
+      const max = maxFor();
       let x = base + dx;
       if (x > 0) x = 0;
-      if (x < -TALK_SWIPE_MAX) x = -TALK_SWIPE_MAX;
+      if (x < -max) x = -max;
       front.style.transform = 'translateX(' + x + 'px)';
     };
 
     const onUp = (e) => {
-      if (!front.classList.contains('dragging') && !tracking) return;
+      if (!tracking && !front.classList.contains('dragging')) return;
       if (pointerId != null && e.pointerId !== pointerId) return;
       front.classList.remove('dragging');
+      try { if (pointerId != null) front.releasePointerCapture(pointerId); } catch (err) {}
       if (!horizontal) {
-        // タップは open 状態をいじらず、click 側で閉じる／開く
         tracking = false;
         pointerId = null;
         return;
       }
+      const max = maxFor();
       const dx = e.clientX - startX;
       const xNow = base + dx;
-      const shouldOpen = xNow < -48;
+      const shouldOpen = xNow < -(max * 0.4);
       front.dataset.open = shouldOpen ? '1' : '0';
-      front.style.transform = shouldOpen ? ('translateX(' + (-TALK_SWIPE_MAX) + 'px)') : '';
+      front.style.transform = shouldOpen ? ('translateX(' + (-max) + 'px)') : '';
       front.dataset.blockClick = '1';
       setTimeout(() => { front.dataset.blockClick = '0'; }, 80);
       tracking = false;
+      horizontal = false;
       pointerId = null;
     };
 
