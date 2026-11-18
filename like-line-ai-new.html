@@ -668,8 +668,10 @@
       gap: 15px;
       cursor: pointer;
     }
-    .list-item:hover {
-      background-color: rgba(255,255,255,0.03);
+    @media (hover: hover) and (pointer: fine) {
+      .list-item:hover {
+        background-color: rgba(255,255,255,0.03);
+      }
     }
 
     .item-avatar {
@@ -917,7 +919,7 @@
     .header-icons {
       display: flex;
       align-items: center;
-      gap: 21px;
+      gap: 20px;
       flex-shrink: 0;
     }
  
@@ -930,38 +932,58 @@
       stroke-linecap: round;
       stroke-linejoin: round;
       cursor: pointer;
+      flex-shrink: 0;
     }
- 
+
+    /* Traced from a real LINE screenshot: single smooth handset stroke, plump round ends. */
+    .header-icon-phone {
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Traced: shorter, thicker bars with square (butt) caps, right-aligned in the 22px box. */
+    .header-icon-menu {
+      stroke-width: 2.45;
+      stroke-linecap: butt;
+      stroke-linejoin: miter;
+    }
+
     .calendar-icon-box {
-      width: 20px;
-      height: 22px;
-      border: 1.7px solid #ffffff;
-      border-radius: 4px;
+      width: 18px;
+      height: 17px;
+      border: 1.8px solid #ffffff;
+      border-radius: 1.5px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
       position: relative;
       cursor: pointer;
+      flex-shrink: 0;
     }
- 
+
     .calendar-icon-box::before {
       content: '';
       position: absolute;
-      top: -4px;
-      left: 3px;
-      width: 1.7px;
-      height: 5px;
+      top: -3px;
+      left: 2px;
+      width: 1.8px;
+      height: 3px;
       background-color: #ffffff;
-      box-shadow: 9px 0 0 #ffffff;
+      border-radius: 0.2px;
+      box-shadow: 12.2px 0 0 #ffffff;
     }
- 
+
     .calendar-date {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       line-height: 1;
-      margin-bottom: 3px;
+      margin-bottom: 1.5px;
     }
- 
+
+    .calendar-icon-box .calendar-date { font-size: 10px; }
+
     .chat-wrap {
       flex: 1;
       min-height: 0;
@@ -2286,6 +2308,138 @@
       color: #888888;
       margin-top: 2px;
     }
+    .ai-mood-open-btn {
+      width: 100%;
+      background-color: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      color: #f2f2f2;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .ai-mood-open-btn.has-mood {
+      border-color: #69e779;
+      color: #69e779;
+    }
+    .ai-mood-open-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ai-mood-open-chevron {
+      flex: 0 0 auto;
+      color: #999999;
+      font-weight: normal;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .ai-mood-sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 220;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .ai-mood-sheet-overlay.open {
+      display: flex;
+    }
+    .ai-mood-sheet {
+      width: 100%;
+      background: #222224;
+      border-radius: 16px 16px 0 0;
+      padding: 8px 16px calc(16px + var(--sab));
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+    }
+    .ai-mood-sheet-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: #4a4a4c;
+      margin: 2px auto 10px;
+    }
+    .ai-mood-sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .ai-mood-sheet-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .ai-mood-sheet-close {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      color: #f2f2f2;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .ai-mood-sheet-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ai-mood-chip {
+      flex: 0 0 auto;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid #3a3a3c;
+      background: #2a2a2c;
+      color: #f2f2f2;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .ai-mood-chip.on {
+      background: #69e779;
+      border-color: #69e779;
+      color: #000000;
+    }
+    .ai-mood-chip.conflict {
+      background: #3a3a3c;
+      border-color: #4a4a4c;
+      color: #8e8e93;
+    }
+    .ai-mood-hint {
+      display: none;
+      margin: 10px auto 0;
+      width: fit-content;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.78);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .ai-mood-hint.show {
+      display: block;
+    }
+
     .import-range-row {
       display: flex;
       flex-wrap: wrap;
@@ -2389,20 +2543,20 @@
     <div class="header" id="normal-header">
       <div class="header-left">
         <svg class="back-btn" viewBox="0 0 24 24" onclick="goToHomeScreen()"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
-        <span class="partner-name" id="partner-name-display" onclick="openAccountModal()">ユーザー</span>
+        <span class="partner-name" id="partner-name-display">ユーザー</span>
       </div>
       <div class="header-icons">
         <svg class="header-icon-svg" viewBox="0 0 24 24">
           <circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5.5 5.5"/><path d="M10.5 6.5v4l2.6 1.6"/>
         </svg>
-        <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="toggleCallMenu()">
-          <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/>
+        <svg class="header-icon-svg header-icon-phone" viewBox="0 0 24 24" onclick="toggleCallMenu()">
+          <path d="M6.24 2.43L6.02 2.66L5.25 2.72L3.86 3.83L3.25 4.73L2.68 6.49L2.68 8.43L3.25 10.71L5.19 14.05L5.85 14.46L6.03 14.92L7.25 15.88L7.93 16.82L8.61 17.22L8.79 17.68L10.01 18.64L10.15 19.03L12.68 20.71L15.54 21.56L17.59 21.57L20.10 20.69L21.54 18.97L21.83 18.00L21.48 16.98L19.89 15.39L18.05 14.09L17.64 13.43L16.99 13.11L16.16 13.18L13.67 15.48L13.27 14.81L12.82 14.63L12.18 13.74L11.74 13.54L8.73 10.49L9.02 9.86L11.06 8.08L11.10 7.17L7.52 3.01L6.24 2.43Z"/>
         </svg>
         <div class="calendar-icon-box" onclick="alert('カレンダー')">
           <span class="calendar-date">31</span>
         </div>
-        <svg class="header-icon-svg" viewBox="0 0 24 24" onclick="openAccountModal()">
-          <path d="M3 6h18M3 12h18M3 18h18"/>
+        <svg class="header-icon-svg header-icon-menu" viewBox="0 0 24 24" onclick="openAccountModal()">
+          <path d="M5.3 6.15h15.7M5.3 12h15.7M5.3 17.85h15.7"/>
         </svg>
       </div>
     </div>
@@ -2479,19 +2633,9 @@
             <input type="checkbox" id="ai-panel-toggle" onchange="setCurrentFriendAiMode(this.checked)"> このトークの自動返信
           </label>
         </div>
-        <div class="account-section-title">相手の設定（関係・口調など）</div>
-        <textarea id="ai-panel-persona-input" class="ai-friend-textarea" placeholder="例：高校の友達。敬語は使わず、短くカジュアルに話す。"></textarea>
-        <p class="ai-friend-help">キーは保存済みなら自動で入ります。未入力なら <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> で発行してください。</p>
-        <div class="account-section-title">Gemini APIキー</div>
-        <div class="ai-key-row">
-          <input type="password" id="ai-panel-api-key-input" class="account-input-name" placeholder="AIza..." autocomplete="off" spellcheck="false">
-          <button type="button" class="ai-key-toggle" id="ai-panel-key-toggle-btn" onclick="toggleAiPanelKeyVisibility()">表示</button>
-        </div>
-        <div class="account-section-title">モデル名</div>
-        <input type="text" id="ai-panel-model-input" class="account-input-name" placeholder="gemini-3.8-flash" spellcheck="false">
-        <button type="button" class="ai-mode-save-btn" id="ai-panel-save-btn" onclick="saveAiModePanel()">設定を保存</button>
         <div class="account-section-title">AI返信操作</div>
         <button type="button" class="ai-mode-save-btn" id="ai-start-conversation-btn" onclick="aiStartConversation()">AIから話しかけさせる</button>
+        <button type="button" class="ai-mood-open-btn" id="ai-mood-open-btn" onclick="openAiMoodSheet()" aria-haspopup="dialog" aria-expanded="false"><span class="ai-mood-open-label" id="ai-mood-open-label">雰囲気：なし</span><span class="ai-mood-open-chevron">›</span></button>
         <div class="time-override-row" id="ai-reply-time-row">
           <span>返信時間:</span>
           <input type="time" id="ai-reply-time-input" class="picker-input">
@@ -2831,6 +2975,18 @@
   <input type="file" id="my-avatar-input" accept="image/*" onchange="changeMyAvatar(event)">
   <input type="file" id="add-friend-avatar-input" accept="image/*" onchange="changeNewFriendAvatar(event)">
   <input type="file" id="media-embed-input" accept="image/*,video/*" onchange="embedMediaFile(event)">
+
+  <div class="ai-mood-sheet-overlay" id="ai-mood-sheet-overlay" onclick="closeAiMoodSheet()">
+    <div class="ai-mood-sheet" id="ai-mood-sheet" role="dialog" aria-labelledby="ai-mood-sheet-title" onclick="event.stopPropagation()">
+      <div class="ai-mood-sheet-handle"></div>
+      <div class="ai-mood-sheet-head">
+        <div class="ai-mood-sheet-title" id="ai-mood-sheet-title">雰囲気</div>
+        <button type="button" class="ai-mood-sheet-close" id="ai-mood-sheet-close" onclick="closeAiMoodSheet()">完了</button>
+      </div>
+      <div class="ai-mood-sheet-list" id="ai-mood-sheet-list"></div>
+      <div class="ai-mood-hint" id="ai-mood-hint">3個まで</div>
+    </div>
+  </div>
 </div>
  
 <script>
@@ -3081,7 +3237,8 @@
 
   function bindTalkRowSwipe(front) {
     const LOCK = 20;
-    let startX = 0, startY = 0, base = 0, tracking = false, decided = false, horizontal = false, pointerId = null;
+    let startX = 0, startY = 0, lastX = 0, lastY = 0, base = 0;
+    let tracking = false, decided = false, horizontal = false, pointerId = null, usingTouch = false;
 
     const maxFor = function () {
       const actions = front.parentElement && front.parentElement.querySelector('.talk-swipe-actions');
@@ -3089,32 +3246,80 @@
       return w || TALK_SWIPE_MAX;
     };
 
-    const onDown = (e) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      startX = e.clientX;
-      startY = e.clientY;
+    const pointOf = function (e) {
+      if (e.changedTouches && e.changedTouches.length) {
+        return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      }
+      if (e.touches && e.touches.length) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+      return { x: e.clientX, y: e.clientY };
+    };
+
+    /* iOS Safari can report clientX/Y = 0 on pointerup/cancel (and rare pointermove). */
+    const isGlitch = function (x, y) {
+      if (!isFinite(x) || !isFinite(y)) return true;
+      if (x === 0 && y === 0 && (Math.abs(startX) > 2 || Math.abs(startY) > 2)) return true;
+      if (tracking && (Math.abs(x - lastX) > 80) && (x === 0 || lastX === 0)) return true;
+      return false;
+    };
+
+    const unbindWindow = function () {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('touchmove', onMove, true);
+      window.removeEventListener('touchend', onUp, true);
+      window.removeEventListener('touchcancel', onUp, true);
+    };
+
+    const onDown = function (e) {
+      if (e.type === 'pointerdown' && e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.type === 'pointerdown' && usingTouch) return;
+      if (e.type === 'touchstart') usingTouch = true;
+      const p = pointOf(e);
+      if (isGlitch(p.x, p.y)) return;
+      startX = lastX = p.x;
+      startY = lastY = p.y;
       base = front.dataset.open === '1' ? -maxFor() : 0;
       tracking = true;
       decided = false;
       horizontal = false;
-      pointerId = e.pointerId;
+      pointerId = (e.pointerId != null) ? e.pointerId : 1;
+      unbindWindow();
+      if (e.type === 'touchstart') {
+        window.addEventListener('touchmove', onMove, { passive: false, capture: true });
+        window.addEventListener('touchend', onUp, { capture: true });
+        window.addEventListener('touchcancel', onUp, { capture: true });
+      } else {
+        window.addEventListener('pointermove', onMove, { passive: false });
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+      }
     };
 
-    const onMove = (e) => {
-      if (!tracking || (pointerId != null && e.pointerId !== pointerId)) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+    const onMove = function (e) {
+      if (!tracking) return;
+      if (e.type.indexOf('pointer') === 0 && pointerId != null && e.pointerId != null && e.pointerId !== pointerId) return;
+      if (e.type.indexOf('pointer') === 0 && usingTouch) return;
+      const p = pointOf(e);
+      if (isGlitch(p.x, p.y)) return;
+      lastX = p.x;
+      lastY = p.y;
+      const dx = lastX - startX;
+      const dy = lastY - startY;
       if (!decided) {
         if (Math.abs(dx) < LOCK && Math.abs(dy) < LOCK) return;
         decided = true;
         horizontal = Math.abs(dx) >= LOCK && Math.abs(dx) > Math.abs(dy);
         if (!horizontal) {
           tracking = false;
+          front.classList.remove('dragging');
+          unbindWindow();
           return;
         }
         closeAllTalkSwipes(front);
         front.classList.add('dragging');
-        try { front.setPointerCapture(e.pointerId); } catch (err) {}
       }
       if (!horizontal) return;
       if (e.cancelable) e.preventDefault();
@@ -3125,34 +3330,44 @@
       front.style.transform = 'translateX(' + x + 'px)';
     };
 
-    const onUp = (e) => {
-      if (!tracking && !front.classList.contains('dragging')) return;
-      if (pointerId != null && e.pointerId !== pointerId) return;
+    const onUp = function (e) {
+      if (!tracking && !front.classList.contains('dragging')) {
+        unbindWindow();
+        return;
+      }
+      if (e.type.indexOf('pointer') === 0 && pointerId != null && e.pointerId != null && e.pointerId !== pointerId) return;
+      if (e.type.indexOf('pointer') === 0 && usingTouch) return;
+      const p = pointOf(e);
+      if (!isGlitch(p.x, p.y)) {
+        lastX = p.x;
+        lastY = p.y;
+      }
       front.classList.remove('dragging');
-      try { if (pointerId != null) front.releasePointerCapture(pointerId); } catch (err) {}
+      unbindWindow();
       if (!horizontal) {
         tracking = false;
         pointerId = null;
+        usingTouch = false;
         return;
       }
       const max = maxFor();
-      const dx = e.clientX - startX;
+      const dx = lastX - startX;
       const xNow = base + dx;
       const shouldOpen = xNow < -(max * 0.4);
       front.dataset.open = shouldOpen ? '1' : '0';
       front.style.transform = shouldOpen ? ('translateX(' + (-max) + 'px)') : '';
       front.dataset.blockClick = '1';
-      setTimeout(() => { front.dataset.blockClick = '0'; }, 80);
+      setTimeout(function () { front.dataset.blockClick = '0'; }, 120);
       tracking = false;
       horizontal = false;
       pointerId = null;
+      usingTouch = false;
     };
 
     front.addEventListener('pointerdown', onDown);
-    front.addEventListener('pointermove', onMove);
-    front.addEventListener('pointerup', onUp);
-    front.addEventListener('pointercancel', onUp);
+    front.addEventListener('touchstart', onDown, { passive: true });
   }
+
 
   function appendNewsAd(container) {
     if (talkListAdHidden) return;
@@ -3862,6 +4077,7 @@
   }
  
   function closeAllModals() {
+    if (typeof closeAiMoodSheet === 'function') closeAiMoodSheet();
     document.getElementById('import-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
     document.getElementById('action-menu').style.display = 'none';
@@ -4196,6 +4412,221 @@
 
   const AI_DEFAULT_PERSONA = '普通の話し方で、短めに返信する。';
 
+  /* false = 1つだけ選択（もう一度タップでオフ）。true にすると複数選択＋反対同士の自動オフ。 */
+  const MOOD_MULTI = true;
+  const MOOD_MAX = 3;
+
+  /* ナツが後から書き換えやすいよう、雰囲気の指示文をここにまとめる。前提は「キャラの口調はそのまま」。 */
+  const AI_MOOD_TEXTS = {
+    '積極的': '自分からどんどん話を広げて、質問も多め',
+    '消極的': '返事は短め、自分からは話を広げない',
+    '無関心': '興味なさそうに一言だけ、質問はしない',
+    '好意': '相手の話に共感して、よく褒める',
+    '嫌悪': 'そっけなく冷たい、距離を置く',
+    'らぶ': '好きな気持ちがにじむ、甘めでちょっと照れる',
+    '塩対応': '最低限の短い返事だけ',
+    '甘えたい': 'かまってほしそうに甘える',
+    '照れ': 'はぐらかしたり話をそらしたりする',
+    '嫉妬': 'ちょっと拗ねて、相手の行動を気にする',
+    '怒ってる': '短くて冷たい、少しトゲがある',
+    '落ち込み': 'テンション低め、少し弱音を吐く',
+    'テンション高い': 'ノリがよく、笑や感嘆が多め',
+    '眠い': '返事がゆるくて短い、たまに誤字',
+    '忙しい': '手短に返して、あとで話す感じを出す',
+    '機嫌いい': 'ノリがよく、よく笑う',
+    'からかい': '相手を軽くいじって、ツッコミ多め',
+    '気まずい': '言葉を選んで、返事が少しぎこちない'
+  };
+  const AI_MOOD_ORDER = ['積極的', '消極的', '無関心', '好意', '嫌悪', 'らぶ', '塩対応', '甘えたい', '照れ', '嫉妬', '怒ってる', '落ち込み', 'テンション高い', '眠い', '忙しい', '機嫌いい', 'からかい', '気まずい'];
+  /* ナツの反対組。片方を選ぶともう片方は自動でオフ。 */
+  const MOOD_EXCLUSION_GROUPS = [
+    ['積極的', ['消極的', '無関心', '塩対応']],
+    ['好意', ['嫌悪', '無関心', '塩対応']],
+    ['らぶ', ['嫌悪', '無関心', '塩対応']],
+    ['甘えたい', ['嫌悪', '無関心', '塩対応']],
+    ['機嫌いい', ['怒ってる', '落ち込み', '眠い']],
+    ['テンション高い', ['怒ってる', '落ち込み', '眠い']],
+    ['照れ', ['無関心']]
+  ];
+  const MOOD_EXCLUSIONS = (function () {
+    const pairs = [];
+    const seen = {};
+    MOOD_EXCLUSION_GROUPS.forEach(function (g) {
+      const a = g[0];
+      g[1].forEach(function (b) {
+        const key = a < b ? a + '\0' + b : b + '\0' + a;
+        if (!seen[key]) {
+          seen[key] = true;
+          pairs.push([a, b]);
+        }
+      });
+    });
+    return pairs;
+  })();
+
+  function getFriendMoods(friend) {
+    if (!friend) return [];
+    const raw = Array.isArray(friend.aiMoods) ? friend.aiMoods : [];
+    const allowed = {};
+    AI_MOOD_ORDER.forEach(function (id) { allowed[id] = true; });
+    const out = [];
+    raw.forEach(function (id) {
+      if (allowed[id] && out.indexOf(id) < 0) out.push(id);
+    });
+    return out;
+  }
+
+  function moodsConflict(a, b) {
+    if (a === b) return false;
+    for (let i = 0; i < MOOD_EXCLUSIONS.length; i++) {
+      const p = MOOD_EXCLUSIONS[i];
+      if ((p[0] === a && p[1] === b) || (p[0] === b && p[1] === a)) return true;
+    }
+    return false;
+  }
+
+  function moodConflictsWithAny(id, selected) {
+    for (let i = 0; i < selected.length; i++) {
+      if (moodsConflict(id, selected[i])) return true;
+    }
+    return false;
+  }
+
+  function applyMoodToggle(current, id) {
+    const on = current.indexOf(id) >= 0;
+    if (!MOOD_MULTI) {
+      return { moods: on ? [] : [id], blocked: false };
+    }
+    if (on) {
+      return { moods: current.filter(function (m) { return m !== id; }), blocked: false };
+    }
+    const next = current.filter(function (m) { return !moodsConflict(m, id); });
+    if (next.length >= MOOD_MAX) {
+      return { moods: current.slice(), blocked: true };
+    }
+    next.push(id);
+    return { moods: next, blocked: false };
+  }
+
+  function formatMoodButtonLabel(moods) {
+    if (!moods.length) return '雰囲気：なし';
+    if (moods.length <= 2) return '雰囲気：' + moods.join('・');
+    return '雰囲気：' + moods[0] + ' ほか' + (moods.length - 1);
+  }
+
+  function setFriendMoods(friend, moods) {
+    if (!friend) return;
+    friend.aiMoods = moods;
+    saveToLocalStorage();
+    renderAiMoodChips();
+    updateAiMoodButton();
+  }
+
+  var moodHintTimer = null;
+  function showMoodLimitHint() {
+    const hint = document.getElementById('ai-mood-hint');
+    if (!hint) return;
+    hint.textContent = '3個まで';
+    hint.classList.add('show');
+    if (moodHintTimer) clearTimeout(moodHintTimer);
+    moodHintTimer = setTimeout(function () {
+      hint.classList.remove('show');
+      moodHintTimer = null;
+    }, 1400);
+  }
+
+  function hideMoodLimitHint() {
+    const hint = document.getElementById('ai-mood-hint');
+    if (hint) hint.classList.remove('show');
+    if (moodHintTimer) {
+      clearTimeout(moodHintTimer);
+      moodHintTimer = null;
+    }
+  }
+
+  function toggleAiMood(id) {
+    const friend = getCurrentActiveFriend();
+    if (!friend) return;
+    const result = applyMoodToggle(getFriendMoods(friend), id);
+    if (result.blocked) {
+      showMoodLimitHint();
+      return;
+    }
+    hideMoodLimitHint();
+    setFriendMoods(friend, result.moods);
+    if (!MOOD_MULTI) closeAiMoodSheet();
+  }
+
+  function updateAiMoodButton() {
+    const btn = document.getElementById('ai-mood-open-btn');
+    if (!btn) return;
+    const moods = getFriendMoods(getCurrentActiveFriend());
+    const label = document.getElementById('ai-mood-open-label');
+    const text = formatMoodButtonLabel(moods);
+    if (label) label.textContent = text;
+    else btn.textContent = text + ' ›';
+    btn.classList.toggle('has-mood', moods.length > 0);
+    const overlay = document.getElementById('ai-mood-sheet-overlay');
+    const open = !!(overlay && overlay.classList.contains('open'));
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function openAiMoodSheet() {
+    hideMoodLimitHint();
+    renderAiMoodChips();
+    const el = document.getElementById('ai-mood-sheet-overlay');
+    if (el) {
+      el.classList.add('open');
+      el.style.display = 'flex';
+    }
+    updateAiMoodButton();
+  }
+
+  function closeAiMoodSheet() {
+    hideMoodLimitHint();
+    const el = document.getElementById('ai-mood-sheet-overlay');
+    if (el) {
+      el.classList.remove('open');
+      el.style.display = 'none';
+    }
+    updateAiMoodButton();
+  }
+
+  function renderAiMoodChips() {
+    const row = document.getElementById('ai-mood-sheet-list');
+    if (!row) return;
+    const selected = getFriendMoods(getCurrentActiveFriend());
+    row.innerHTML = '';
+    AI_MOOD_ORDER.forEach(function (id) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const on = selected.indexOf(id) >= 0;
+      const conflict = !on && moodConflictsWithAny(id, selected);
+      btn.className = 'ai-mood-chip' + (on ? ' on' : '') + (conflict ? ' conflict' : '');
+      btn.textContent = id;
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.addEventListener('click', function () { toggleAiMood(id); });
+      row.appendChild(btn);
+    });
+  }
+
+  function buildMoodInstruction(friend) {
+    const moods = getFriendMoods(friend);
+    if (!moods.length) return '';
+    const lines = [
+      '',
+      '【今の雰囲気】',
+      'キャラの口調やトーク履歴の話し方はそのままにする。今の返事の温度だけ、次の雰囲気に合わせる。矛盾したら雰囲気を優先する。'
+    ];
+    if (moods.length >= 2) {
+      lines.push('今の雰囲気：' + moods.join('＋') + '。');
+    }
+    moods.forEach(function (id) {
+      const text = AI_MOOD_TEXTS[id];
+      if (text) lines.push('今の雰囲気：' + id + '。' + text + '。');
+    });
+    return lines.join('\n');
+  }
   function aiModeEls(baseId) {
     return [
       document.getElementById(baseId),
@@ -4230,6 +4661,8 @@
       const el = document.getElementById(id);
       if (el) el.textContent = '表示';
     });
+    renderAiMoodChips();
+    updateAiMoodButton();
     syncAiModeButton();
   }
 
@@ -4322,10 +4755,10 @@
       const parsed = readAiKeyModelFromPanel();
       if (!parsed.key) {
         setAiModeToggles(false);
-        alert('先に Gemini APIキーを入力してください。Google AI Studio で無料発行できます。');
+        alert('先に「アカウント情報の変更」で Gemini APIキーを入力してください。Google AI Studio で無料発行できます。');
         const panel = document.getElementById('ai-mode-panel');
         if (panel) panel.style.display = 'flex';
-        const keyEl = document.getElementById('ai-panel-api-key-input') || document.getElementById('ai-mode-api-key-input');
+        const keyEl = document.getElementById('ai-mode-api-key-input');
         if (keyEl) keyEl.focus();
         syncAiModeButton();
         return;
@@ -4633,7 +5066,7 @@
       'それな笑',
       '例(分けない):',
       '明日の模試、何時からだっけ?'
-    ].join('\n');
+    ].join('\n') + buildMoodInstruction(friend);
   }
 
   function extractGeminiText(data) {
@@ -5626,6 +6059,112 @@
     const origOpenChat = openChat;
     openChat = function () { toggleCallMenu(false); return origOpenChat.apply(this, arguments); };
   })();
+
+  // ---- 高さデバッグ（?debug=1 またはトーク画面の名前を5回タップ） ----
+  function collectViewportDebug() {
+    const root = document.documentElement;
+    const cs = getComputedStyle(root);
+    const box = function (el) {
+      if (!el) return '-';
+      const r = el.getBoundingClientRect();
+      return 't=' + Math.round(r.top) + ' b=' + Math.round(r.bottom) + ' h=' + Math.round(r.height);
+    };
+    let probe = document.getElementById('safe-area-probe');
+    if (!probe) {
+      probe = document.createElement('div');
+      probe.id = 'safe-area-probe';
+      probe.setAttribute('aria-hidden', 'true');
+      probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);visibility:hidden;pointer-events:none;';
+      document.body.appendChild(probe);
+    }
+    const pcs = getComputedStyle(probe);
+    const vv = window.visualViewport;
+    const standalone = (window.navigator.standalone === true) ||
+      window.matchMedia('(display-mode: standalone)').matches;
+    const dm = (window.matchMedia('(display-mode: standalone)').matches && 'standalone') ||
+      (window.matchMedia('(display-mode: fullscreen)').matches && 'fullscreen') ||
+      (window.matchMedia('(display-mode: minimal-ui)').matches && 'minimal-ui') ||
+      (window.matchMedia('(display-mode: browser)').matches && 'browser') ||
+      'unknown';
+    const lines = [
+      'inner ' + window.innerWidth + ' x ' + window.innerHeight,
+      'screen ' + screen.width + ' x ' + screen.height + ' (availH ' + screen.availHeight + ')',
+      'visualVp ' + (vv ? (Math.round(vv.width) + ' x ' + Math.round(vv.height) + ' offT=' + Math.round(vv.offsetTop) + ' scale=' + vv.scale) : 'n/a'),
+      'docClientH ' + root.clientHeight,
+      '--app-h ' + (cs.getPropertyValue('--app-h').trim() || '(unset)') +
+        '  style=' + (root.style.getPropertyValue('--app-h') || '(none)'),
+      '--sat ' + cs.getPropertyValue('--sat').trim() + '  --sab ' + cs.getPropertyValue('--sab').trim(),
+      'env(sat) ' + pcs.paddingTop + '  env(sab) ' + pcs.paddingBottom,
+      'container ' + box(document.querySelector('.container')),
+      'input-bar ' + box(document.querySelector('.input-bar') || document.getElementById('input-bar')),
+      'tab-bar ' + box(document.querySelector('.tab-bar')),
+      'standalone ' + standalone + '  display-mode ' + dm,
+      'nav.standalone ' + String(window.navigator.standalone)
+    ];
+    return lines.join('\n');
+  }
+
+  function renderViewportDebug() {
+    const panel = document.getElementById('viewport-debug');
+    if (!panel) return;
+    const pre = panel.querySelector('pre');
+    if (pre) pre.textContent = collectViewportDebug();
+  }
+
+  function setViewportDebugVisible(on) {
+    let panel = document.getElementById('viewport-debug');
+    if (on) {
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'viewport-debug';
+        panel.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:rgba(0,0,0,0.84);color:#9f9;font:11px/1.35 ui-monospace,Menlo,monospace;padding:10px 12px 12px;border-radius:10px;white-space:pre-wrap;pointer-events:auto;';
+        panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#fff;font-weight:700;">高さデバッグ <button type="button" id="viewport-debug-close" style="background:#333;color:#fff;border:0;border-radius:8px;padding:4px 8px;font-size:12px;">閉じる</button></div><pre style="margin:0;color:#9f9;white-space:pre-wrap;"></pre>';
+        document.body.appendChild(panel);
+        panel.querySelector('#viewport-debug-close').addEventListener('click', function () {
+          setViewportDebugVisible(false);
+        });
+      }
+      panel.style.display = 'block';
+      renderViewportDebug();
+    } else if (panel) {
+      panel.style.display = 'none';
+    }
+  }
+
+  function toggleViewportDebug() {
+    const panel = document.getElementById('viewport-debug');
+    const on = !(panel && panel.style.display !== 'none' && panel.style.display !== '');
+    setViewportDebugVisible(on);
+  }
+
+  (function setupViewportDebug() {
+    const nameEl = document.getElementById('partner-name-display');
+    let taps = 0, tapTimer = 0;
+    if (nameEl) {
+      nameEl.addEventListener('click', function (e) {
+        taps += 1;
+        clearTimeout(tapTimer);
+        if (taps >= 5) {
+          taps = 0;
+          e.preventDefault();
+          e.stopPropagation();
+          toggleViewportDebug();
+          return;
+        }
+        tapTimer = setTimeout(function () {
+          taps = 0;
+          openAccountModal();
+        }, 280);
+      });
+    }
+    try {
+      if (/[?&]debug=1(?:&|$)/.test(location.search)) setViewportDebugVisible(true);
+    } catch (err) {}
+    window.addEventListener('resize', renderViewportDebug);
+    window.addEventListener('orientationchange', renderViewportDebug);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', renderViewportDebug);
+  })();
+
 </script>
  
 </body>
