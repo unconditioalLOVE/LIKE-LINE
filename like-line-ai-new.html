@@ -50,16 +50,17 @@
          Do not also pad html/body/.container, or this will double. */
       --sat: max(env(safe-area-inset-top, 0px), 59px);
       --sab: env(safe-area-inset-bottom, 0px);
+      --sab-eff: var(--sab);
     }
  
-    /* Height: pin html/body/.container to all four viewport edges (top/bottom:0)
-       instead of an explicit height. On iOS standalone with black-translucent,
-       height:100% / inset:0 can resolve to innerHeight-59 (the area under the
-       status bar, ~793pt on a 852pt phone). If .container is then given
-       --app-h: 852px, overflow:hidden on the 793pt html/body clips the bottom
-       ~59pt and the #111 html/body background shows as a black band under the
-       input/tab bar. min-height: var(--app-h, 100lvh) grows the boxes to the
-       real screen so the input bar stays at the bottom (does not float up). */
+    /* Height: size to the visible window (visualViewport.height || innerHeight),
+       never screen.height. On this iPhone's home-screen mode, innerHeight is 793
+       and the window only paints 0..793, even though screen.height is 852 and
+       env(safe-area-inset-bottom) is still 34. Layout at 852 clipped the bottom
+       59pt (the black band). --app-h is set in JS to the visible height.
+       In that legacy mode the window already ends above the home indicator, so
+       --sab-eff is ~8px instead of env(sab). True fullscreen (innerHeight ≈
+       screen.height) keeps env(sab). */
     html, body {
       background-color: var(--bar);
       color: #ffffff;
@@ -72,31 +73,29 @@
       overflow: hidden;
       position: fixed;
       top: 0;
-      right: 0;
-      bottom: 0;
       left: 0;
-      height: auto;
-      min-height: 100%;
-      min-height: 100lvh;
-      min-height: var(--app-h, 100lvh);
-      max-height: none;
+      right: 0;
+      bottom: auto;
+      height: 100%;
+      height: 100dvh;
+      height: var(--app-h, 100%);
+      max-height: var(--app-h, none);
       touch-action: none;
     }
  
     .container {
       position: fixed;
       top: 0;
-      right: 0;
-      bottom: 0;
       left: 0;
+      right: 0;
+      bottom: auto;
       width: 100%;
       max-width: 430px;
       margin: 0 auto;
-      height: auto;
-      min-height: 100%;
-      min-height: 100lvh;
-      min-height: var(--app-h, 100lvh);
-      max-height: none;
+      height: 100%;
+      height: 100dvh;
+      height: var(--app-h, 100%);
+      max-height: var(--app-h, none);
       background-color: var(--bg);
       display: flex;
       flex-direction: column;
@@ -109,10 +108,8 @@
 
     @media (display-mode: standalone), (display-mode: fullscreen) {
       html, body, .container {
-        height: auto;
-        min-height: 100lvh;
-        min-height: var(--app-h, 100lvh);
-        max-height: none;
+        height: var(--app-h, 100lvh);
+        max-height: var(--app-h, none);
       }
     }
  
@@ -137,6 +134,9 @@
       background-color: var(--bg);
     }
  
+    html.ios-standalone .tab-bar {
+      bottom: var(--sab-eff);
+    }
     .tab-bar {
       position: absolute;
       left: 16px;
@@ -1440,7 +1440,7 @@
  
     .input-bar {
       background-color: var(--bar);
-      padding: 8px 12px calc(8px + var(--sab)) 10px;
+      padding: 8px 12px calc(8px + var(--sab-eff)) 10px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -1541,7 +1541,7 @@
  
     .delete-bottom-bar {
       background-color: #111111;
-      padding: 10px 14px calc(10px + var(--sab)) 14px;
+      padding: 10px 14px calc(10px + var(--sab-eff)) 14px;
       display: none;
       align-items: center;
       justify-content: space-between;
@@ -1579,7 +1579,7 @@
     .control-panel {
       background-color: #1a1a1c;
       border-top: 1px solid #2a2a2c;
-      padding: 8px 12px calc(8px + var(--sab));
+      padding: 8px 12px calc(8px + var(--sab-eff));
       display: none;
       flex-direction: column;
       gap: 8px;
@@ -2374,7 +2374,7 @@
       width: 100%;
       background: #222224;
       border-radius: 16px 16px 0 0;
-      padding: 8px 16px calc(16px + var(--sab));
+      padding: 8px 16px calc(16px + var(--sab-eff));
       box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
     }
     .ai-mood-sheet-handle {
@@ -2514,7 +2514,7 @@
     .settings-sheet-body {
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 0 0 calc(12px + var(--sab));
+      padding: 0 0 calc(12px + var(--sab-eff));
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -3124,13 +3124,23 @@
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const standalone = window.navigator.standalone === true ||
         window.matchMedia('(display-mode: standalone)').matches;
+      const root = document.documentElement;
+      const vv = window.visualViewport;
+      const visH = (vv && vv.height) || 0;
+      const innerH = window.innerHeight || 0;
+      const appH = visH || innerH;
+      const screenH = (window.screen && window.screen.height) || 0;
       if (isIOS && standalone) {
-        const vv = window.visualViewport;
-        const vvH = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
-        const h = Math.max(window.innerHeight || 0, (window.screen && window.screen.height) || 0, vvH);
-        if (h) document.documentElement.style.setProperty('--app-h', h + 'px');
+        if (appH) root.style.setProperty('--app-h', appH + 'px');
+        root.classList.add('ios-standalone');
+        /* Visible window is already above the home indicator (e.g. 793 vs 852). */
+        const legacy = screenH > 0 && appH > 0 && appH < screenH - 20;
+        if (legacy) root.style.setProperty('--sab-eff', '8px');
+        else root.style.removeProperty('--sab-eff');
       } else {
-        document.documentElement.style.removeProperty('--app-h');
+        root.style.removeProperty('--app-h');
+        root.style.removeProperty('--sab-eff');
+        root.classList.remove('ios-standalone');
       }
     }
     syncAppHeight();
@@ -6266,6 +6276,8 @@
       '--app-h ' + (cs.getPropertyValue('--app-h').trim() || '(unset)') +
         '  style=' + (root.style.getPropertyValue('--app-h') || '(none)'),
       '--sat ' + cs.getPropertyValue('--sat').trim() + '  --sab ' + cs.getPropertyValue('--sab').trim(),
+      'effective sab ' + cs.getPropertyValue('--sab-eff').trim() +
+        '  style=' + (root.style.getPropertyValue('--sab-eff') || '(none)'),
       'env(sat) ' + pcs.paddingTop + '  env(sab) ' + pcs.paddingBottom,
       'html ' + box(root) + '  body ' + box(document.body),
       'container ' + box(document.querySelector('.container')),
