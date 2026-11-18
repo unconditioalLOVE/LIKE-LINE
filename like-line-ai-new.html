@@ -2599,9 +2599,261 @@
       background: #2b82f6;
       border-color: #2b82f6;
     }
+    html:not(.app-ready) {
+      background: #ffffff;
+    }
+    html:not(.app-ready) body {
+      background: #ffffff;
+    }
+    html:not(.app-ready) .container {
+      visibility: hidden;
+      pointer-events: none;
+    }
+    html:not(.app-ready) #viewport-debug {
+      display: none !important;
+      pointer-events: none !important;
+    }
+    .disclaimer-gate {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      background: #ffffff;
+      color: #111111;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    html:not(.app-ready) .disclaimer-gate {
+      display: flex;
+    }
+    .disclaimer-status-band {
+      flex-shrink: 0;
+      height: var(--sat);
+      background: #111111;
+    }
+    .disclaimer-view,
+    .credits-view {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+    .credits-view {
+      display: none;
+      background: linear-gradient(180deg, #f7f7f8 0%, #ffffff 40%, #f3f3f5 100%);
+    }
+    .disclaimer-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 28px 22px 16px;
+    }
+    .disclaimer-brand {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #111111;
+      line-height: 1.2;
+    }
+    .disclaimer-not-line {
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #c01818;
+      line-height: 1.4;
+    }
+    .disclaimer-notice {
+      margin-top: 22px;
+      background: #fff8f8;
+      border: 1px solid #ead0d0;
+      border-left: 4px solid #c01818;
+      border-radius: 10px;
+      padding: 16px 16px 14px;
+    }
+    .disclaimer-notice-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #8a1212;
+      margin-bottom: 10px;
+      letter-spacing: 0.02em;
+    }
+    .disclaimer-lead {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #222222;
+      margin-bottom: 12px;
+    }
+    .disclaimer-notice ul {
+      margin: 0;
+      padding: 0 0 0 1.15em;
+    }
+    .disclaimer-notice li {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #222222;
+      margin: 0 0 8px;
+    }
+    .disclaimer-notice li:last-child {
+      margin-bottom: 0;
+    }
+    .disclaimer-footer {
+      flex-shrink: 0;
+      padding: 12px 22px calc(16px + var(--sab-eff));
+      background: #ffffff;
+      border-top: 1px solid #e6e6e6;
+    }
+    .disclaimer-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #222222;
+      cursor: pointer;
+    }
+    .disclaimer-check input {
+      margin-top: 3px;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      accent-color: #111111;
+    }
+    .disclaimer-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .disclaimer-start-btn {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: 12px;
+      background: #111111;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .disclaimer-start-btn:disabled {
+      background: #cfcfcf;
+      color: #888888;
+      cursor: not-allowed;
+    }
+    .disclaimer-credits-btn,
+    .credits-back-btn {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #c8c8cc;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #444444;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .credits-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 36px 28px 16px;
+      text-align: center;
+    }
+    .credits-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      color: #8a8a90;
+      margin-bottom: 36px;
+    }
+    .credits-block {
+      margin: 0 0 32px;
+    }
+    .credits-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: #9a9aa0;
+      margin-bottom: 12px;
+    }
+    .credits-name {
+      font-size: 18px;
+      font-weight: 500;
+      color: #2a2a2e;
+      line-height: 1.9;
+    }
+    .credits-footer {
+      flex-shrink: 0;
+      padding: 12px 22px calc(16px + var(--sab-eff));
+    }
   </style>
 </head>
 <body>
+
+<div class="disclaimer-gate" id="disclaimer-gate" role="dialog" aria-modal="true" aria-labelledby="disclaimer-brand">
+  <div class="disclaimer-status-band" aria-hidden="true"></div>
+  <div class="disclaimer-view" id="disclaimer-view">
+    <div class="disclaimer-scroll">
+      <div class="disclaimer-brand" id="disclaimer-brand">LINE-LIKE</div>
+      <div class="disclaimer-not-line">LINEではありません。</div>
+      <div class="disclaimer-notice">
+        <div class="disclaimer-notice-title">【重要なお知らせ・免責事項】</div>
+        <p class="disclaimer-lead">このアプリケーションは、個人が開発したLINE風の非公式アプリケーションです。</p>
+        <ul>
+          <li>本アプリはLINE株式会社およびLINEとは一切関係ありません。</li>
+          <li>LINEの公式サービス、公式アプリ、公式サポートではありません。</li>
+          <li>本物のLINEと誤認させる目的で、本アプリを第三者に提示・使用してはいけません。</li>
+          <li>他人になりすましたり、第三者を欺いたり、詐欺その他の不正行為に利用することを禁止します。</li>
+          <li>他人の個人情報、プライバシー、通信内容を侵害してはいけません。</li>
+          <li>公共の場所、学校、職場、その他第三者が誤認する可能性のある環境での使用には十分注意してください。</li>
+          <li>本アプリの使用に伴うトラブルや損害を避けるため、利用者自身の責任で適切な環境において使用してください。</li>
+          <li>本アプリはLINEの代替サービスではありません。</li>
+          <li>本アプリの利用に際しては、法令および社会的なルールを遵守してください。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="disclaimer-footer">
+      <label class="disclaimer-check">
+        <input type="checkbox" id="disclaimer-agree" onchange="syncDisclaimerStartBtn()">
+        <span>上記の注意事項をすべて読み、LINE-LIKEがLINEの公式アプリではないことを理解しました。また、本アプリを不正な目的で使用しないことに同意します。</span>
+      </label>
+      <div class="disclaimer-actions">
+        <button type="button" class="disclaimer-start-btn" id="disclaimer-start-btn" disabled onclick="acceptDisclaimerAndStart()">同意して開始する</button>
+        <button type="button" class="disclaimer-credits-btn" id="disclaimer-credits-btn" onclick="openCreditsScreen()">クレジット</button>
+      </div>
+    </div>
+  </div>
+  <div class="credits-view" id="credits-view">
+    <div class="credits-scroll">
+      <div class="credits-title">CREDITS</div>
+      <div class="credits-block">
+        <div class="credits-label">DEVELOPER</div>
+        <div class="credits-name">無償の愛</div>
+      </div>
+      <div class="credits-block">
+        <div class="credits-label">AI &amp; DEVELOPMENT</div>
+        <div class="credits-name">Claude</div>
+        <div class="credits-name">ChatGPT</div>
+        <div class="credits-name">Gemini</div>
+        <div class="credits-name">Grok</div>
+      </div>
+      <div class="credits-block">
+        <div class="credits-label">SPECIAL THANKS</div>
+        <div class="credits-name">高野純之助</div>
+        <div class="credits-name">村賀味亮介</div>
+        <div class="credits-name">ナカジマ ハルト</div>
+      </div>
+    </div>
+    <div class="credits-footer">
+      <button type="button" class="credits-back-btn" id="credits-back-btn" onclick="closeCreditsScreen()">戻る</button>
+    </div>
+  </div>
+</div>
  
 <div class="container">
  
@@ -2742,7 +2994,7 @@
         </svg>
       </div>
       <div class="input-wrapper">
-        <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" onclick="onMessageInputTap()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
+        <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" onblur="onMessageInputBlur()" onclick="onMessageInputTap()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
         <svg class="tool-icon-svg" id="emoji-icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9"/><path d="M8.3 14c.9 1.5 2.1 2.2 3.7 2.2s2.8-.7 3.7-2.2"/><circle cx="9" cy="10" r=".7" fill="#b7b7b7"/><circle cx="15" cy="10" r=".7" fill="#b7b7b7"/>
         </svg>
@@ -3237,7 +3489,12 @@
           if (appH) root.style.setProperty('--app-h', appH + 'px');
           root.classList.add('ios-standalone');
           /* Visible window is already above the home indicator (e.g. 793 vs 852). */
-          const legacy = screenH > 0 && appH > 0 && appH < screenH - 20;
+          const usedH = (document.querySelector('.container') &&
+            document.querySelector('.container').getBoundingClientRect().height) || appH;
+          const legacy = screenH > 0 && (
+            (appH > 0 && appH < screenH - 20) ||
+            (usedH > 0 && usedH < screenH - 20)
+          );
           if (legacy) root.style.setProperty('--sab-eff', '8px');
           else root.style.removeProperty('--sab-eff');
         } else {
@@ -3249,6 +3506,16 @@
 
       if (keepBottom && typeof scrollToBottom === 'function') {
         requestAnimationFrame(function () { scrollToBottom(); });
+      }
+
+      if (!keyboardOpen) {
+        const input = document.getElementById('message-input');
+        const stillFocused = !!(input && document.activeElement === input);
+        const panel = document.getElementById('control-panel');
+        const stale = !stillFocused && panel && panel.hasAttribute('inert');
+        if (stale && typeof restoreUnfocusedInputChrome === 'function') {
+          restoreUnfocusedInputChrome();
+        }
       }
     }
 
@@ -3266,6 +3533,54 @@
     }
     window.addEventListener('scroll', pinWindow, { passive: true });
     window.__syncAppHeight = syncAppHeight;
+  })();
+
+  (function setupDisclaimerGate() {
+    var disclaimerAccepted = false;
+
+    function syncDisclaimerStartBtn() {
+      const btn = document.getElementById('disclaimer-start-btn');
+      const cb = document.getElementById('disclaimer-agree');
+      if (btn && cb) btn.disabled = !cb.checked;
+    }
+
+    function openCreditsScreen() {
+      const main = document.getElementById('disclaimer-view');
+      const credits = document.getElementById('credits-view');
+      if (main) main.style.display = 'none';
+      if (credits) credits.style.display = 'flex';
+    }
+
+    function closeCreditsScreen() {
+      const main = document.getElementById('disclaimer-view');
+      const credits = document.getElementById('credits-view');
+      if (credits) credits.style.display = 'none';
+      if (main) main.style.display = 'flex';
+    }
+
+    function acceptDisclaimerAndStart() {
+      const cb = document.getElementById('disclaimer-agree');
+      if (!cb || !cb.checked) return;
+      disclaimerAccepted = true;
+      document.documentElement.classList.add('app-ready');
+      try { history.pushState({ lineLike: 'app' }, '', location.href); } catch (e) {}
+      if (typeof window.__syncAppHeight === 'function') window.__syncAppHeight();
+    }
+
+    window.syncDisclaimerStartBtn = syncDisclaimerStartBtn;
+    window.openCreditsScreen = openCreditsScreen;
+    window.closeCreditsScreen = closeCreditsScreen;
+    window.acceptDisclaimerAndStart = acceptDisclaimerAndStart;
+
+    try { history.replaceState({ lineLike: 'gate' }, '', location.href); } catch (e) {}
+    window.addEventListener('popstate', function () {
+      if (!disclaimerAccepted) {
+        document.documentElement.classList.remove('app-ready');
+        try { history.pushState({ lineLike: 'gate' }, '', location.href); } catch (e) {}
+      } else {
+        try { history.pushState({ lineLike: 'app' }, '', location.href); } catch (e) {}
+      }
+    });
   })();
 
   let friendsList = [];
@@ -3876,9 +4191,14 @@
   function toggleControlPanel() {
     const panel = document.getElementById('control-panel');
     const opening = panel.style.display !== 'flex';
+    if (opening) {
+      if (typeof blurInput === 'function') blurInput();
+      else if (typeof restoreUnfocusedInputChrome === 'function') restoreUnfocusedInputChrome();
+    }
     panel.style.display = opening ? 'flex' : 'none';
     if (opening && typeof syncAiModeButton === 'function') syncAiModeButton();
     if (typeof syncManualPostFormVisibility === 'function') syncManualPostFormVisibility();
+    if (typeof requestSyncAppHeight === 'function') requestSyncAppHeight();
   }
  
   function setSender(sender) {
@@ -3951,24 +4271,14 @@
     if (typeof window.__syncAppHeight === 'function') window.__syncAppHeight();
   }
 
-  function focusInput() {
-    isInputFocused = true;
-    const input = document.getElementById('message-input');
-    if (input) input.placeholder = INPUT_PLACEHOLDER_FOCUS;
-    collapseInputIcons();
-    setAdminFieldsNonFocusable(true);
-    updateSendButtonState();
-    requestSyncAppHeight();
-  }
- 
-  function blurInput() {
+  var restoringInputChrome = false;
+  function restoreUnfocusedInputChrome() {
+    if (restoringInputChrome) return;
+    restoringInputChrome = true;
     isInputFocused = false;
     inputIconsExpanded = false;
     const input = document.getElementById('message-input');
-    if (input) {
-      input.blur();
-      input.placeholder = INPUT_PLACEHOLDER_IDLE;
-    }
+    if (input) input.placeholder = INPUT_PLACEHOLDER_IDLE;
     const arrow = document.getElementById('collapse-arrow');
     const plus = document.getElementById('plus-btn');
     const cam = document.getElementById('cam-icon');
@@ -3980,6 +4290,27 @@
     setAdminFieldsNonFocusable(false);
     updateSendButtonState();
     requestSyncAppHeight();
+    restoringInputChrome = false;
+  }
+
+  function focusInput() {
+    isInputFocused = true;
+    const input = document.getElementById('message-input');
+    if (input) input.placeholder = INPUT_PLACEHOLDER_FOCUS;
+    collapseInputIcons();
+    setAdminFieldsNonFocusable(true);
+    updateSendButtonState();
+    requestSyncAppHeight();
+  }
+
+  function onMessageInputBlur() {
+    restoreUnfocusedInputChrome();
+  }
+ 
+  function blurInput() {
+    restoreUnfocusedInputChrome();
+    const input = document.getElementById('message-input');
+    if (input && document.activeElement === input) input.blur();
   }
  
   function handleInput() {
@@ -3987,11 +4318,14 @@
   }
  
   function updateSendButtonState() {
-    const text = document.getElementById('message-input').value;
+    const input = document.getElementById('message-input');
+    const text = input ? input.value : '';
+    const focused = !!(input && document.activeElement === input);
     const btn = document.getElementById('send-action-btn');
     const svgElem = document.getElementById('send-mic-svg');
- 
-    if (text.length > 0 || isInputFocused) {
+    /* Send depends on text, or on the input actually being focused.
+       Stale isInputFocused must not keep the send button after the first blur. */
+    if (text.length > 0 || focused) {
       btn.className = 'send-action-btn active-blue';
       svgElem.innerHTML = SEND_SVG;
     } else {
