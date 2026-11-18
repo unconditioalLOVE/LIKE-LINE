@@ -52,6 +52,14 @@
       --sab: env(safe-area-inset-bottom, 0px);
     }
  
+    /* Height: pin html/body/.container to all four viewport edges (top/bottom:0)
+       instead of an explicit height. On iOS standalone with black-translucent,
+       height:100% / inset:0 can resolve to innerHeight-59 (the area under the
+       status bar, ~793pt on a 852pt phone). If .container is then given
+       --app-h: 852px, overflow:hidden on the 793pt html/body clips the bottom
+       ~59pt and the #111 html/body background shows as a black band under the
+       input/tab bar. min-height: var(--app-h, 100lvh) grows the boxes to the
+       real screen so the input bar stays at the bottom (does not float up). */
     html, body {
       background-color: var(--bar);
       color: #ffffff;
@@ -59,27 +67,36 @@
       justify-content: center;
       align-items: stretch;
       width: 100%;
-      height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
       position: fixed;
-      inset: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: auto;
+      min-height: 100%;
+      min-height: 100lvh;
+      min-height: var(--app-h, 100lvh);
+      max-height: none;
       touch-action: none;
     }
  
     .container {
       position: fixed;
       top: 0;
-      left: 0;
       right: 0;
+      bottom: 0;
+      left: 0;
       width: 100%;
       max-width: 430px;
       margin: 0 auto;
-      height: 100%;
-      height: 100dvh;
-      height: var(--app-h, 100lvh);
-      max-height: 932px;
+      height: auto;
+      min-height: 100%;
+      min-height: 100lvh;
+      min-height: var(--app-h, 100lvh);
+      max-height: none;
       background-color: var(--bg);
       display: flex;
       flex-direction: column;
@@ -90,12 +107,11 @@
       container-name: phone;
     }
 
-    /* iOS home-screen (standalone): 100dvh / 100% is often short by the status bar.
-       100lvh and --app-h (set from screen.height in JS) fill the real screen. */
     @media (display-mode: standalone), (display-mode: fullscreen) {
       html, body, .container {
-        height: 100lvh;
-        height: var(--app-h, 100lvh);
+        height: auto;
+        min-height: 100lvh;
+        min-height: var(--app-h, 100lvh);
         max-height: none;
       }
     }
@@ -2439,6 +2455,87 @@
     .ai-mood-hint.show {
       display: block;
     }
+    .settings-sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 221;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .settings-sheet-overlay.open {
+      display: flex;
+    }
+    .settings-sheet {
+      width: 100%;
+      max-height: 70%;
+      background: #222224;
+      border-radius: 16px 16px 0 0;
+      padding: 8px 16px 0;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .settings-sheet-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: #4a4a4c;
+      margin: 2px auto 8px;
+      flex-shrink: 0;
+    }
+    .settings-sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .settings-sheet-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .settings-sheet-close {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      color: #f2f2f2;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .settings-sheet-body {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 0 calc(12px + var(--sab));
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+    .settings-sheet .account-section {
+      gap: 6px;
+      padding: 10px;
+    }
+    .settings-sheet .ai-friend-textarea {
+      min-height: 64px;
+    }
+    .settings-sheet .account-save-btn {
+      padding: 9px;
+      margin-top: 2px;
+    }
+    .settings-sheet .ai-friend-help {
+      margin: 0;
+      font-size: 11px;
+      color: #888;
+    }
 
     .import-range-row {
       display: flex;
@@ -2555,7 +2652,7 @@
         <div class="calendar-icon-box" onclick="alert('カレンダー')">
           <span class="calendar-date">31</span>
         </div>
-        <svg class="header-icon-svg header-icon-menu" viewBox="0 0 24 24" onclick="openAccountModal()">
+        <svg class="header-icon-svg header-icon-menu" viewBox="0 0 24 24" onclick="openAiSettingsSheet()">
           <path d="M5.3 6.15h15.7M5.3 12h15.7M5.3 17.85h15.7"/>
         </svg>
       </div>
@@ -2755,50 +2852,6 @@
       <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
     </div>
  
-    <div class="account-modal" id="account-modal" onclick="event.stopPropagation()" style="display: none;">
-      <div class="account-modal-title">アカウント情報の変更</div>
-      <div class="account-section">
-        <div class="account-section-title">自分のプロフィール</div>
-        <div class="account-row">
-          <img src="" id="my-avatar-preview" class="account-avatar-preview" onclick="triggerMyAvatarUpload()" title="タップして変更">
-          <input type="text" id="my-name-input" class="account-input-name" placeholder="自分の名前">
-        </div>
-      </div>
-      <div class="account-section" id="partner-account-section">
-        <div class="account-section-title">相手のプロフィール</div>
-        <div class="account-row">
-          <img src="" id="partner-avatar-preview" class="account-avatar-preview" onclick="triggerAvatarUpload()" title="タップして変更">
-          <input type="text" id="partner-name-input" class="account-input-name" placeholder="相手の名前">
-        </div>
-      </div>
-      <div id="ai-settings-section" style="display: none; flex-direction: column; gap: 16px;">
-        <div class="account-modal-title">AI設定</div>
-        <div class="option-row">
-          <label class="checkbox-label">
-            <input type="checkbox" id="ai-mode-toggle" onchange="setCurrentFriendAiMode(this.checked)"> このトークの自動返信
-          </label>
-        </div>
-        <div class="account-section">
-          <div class="account-section-title">相手の設定（関係・口調など）</div>
-          <textarea id="ai-mode-persona-input" class="ai-friend-textarea" placeholder="例：高校の友達。敬語は使わず、短くカジュアルに話す。"></textarea>
-        </div>
-        <p class="ai-friend-help">キーは <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> で発行。保存済みなら自動で入ります。</p>
-        <div class="account-section">
-          <div class="account-section-title">Gemini APIキー</div>
-          <div class="ai-key-row">
-            <input type="password" id="ai-mode-api-key-input" class="account-input-name" placeholder="AIza..." autocomplete="off" spellcheck="false">
-            <button type="button" class="ai-key-toggle" id="ai-mode-key-toggle-btn" onclick="toggleAiModeKeyVisibility()">表示</button>
-          </div>
-        </div>
-        <div class="account-section">
-          <div class="account-section-title">モデル名</div>
-          <input type="text" id="ai-mode-model-input" class="account-input-name" placeholder="gemini-3.8-flash" spellcheck="false">
-        </div>
-        <button type="button" class="account-save-btn" onclick="saveAiModePanel()">保存する</button>
-      </div>
-      <button class="account-save-btn" onclick="saveAccountSettings()">変更を保存</button>
-      <button class="confirm-btn-cancel" onclick="closeAllModals()">キャンセル</button>
-    </div>
  
     <div class="add-friend-modal" id="add-friend-modal" onclick="event.stopPropagation()" style="display: none;">
       <div class="account-modal-title" id="add-friend-modal-title">新しい友達を追加</div>
@@ -2987,6 +3040,80 @@
       <div class="ai-mood-hint" id="ai-mood-hint">3個まで</div>
     </div>
   </div>
+
+  <div class="settings-sheet-overlay" id="partner-edit-overlay" onclick="closeSettingsSheets()">
+    <div class="settings-sheet" id="partner-edit-sheet" role="dialog" aria-labelledby="partner-edit-title" onclick="event.stopPropagation()">
+      <div class="settings-sheet-handle"></div>
+      <div class="settings-sheet-head">
+        <div class="settings-sheet-title" id="partner-edit-title">相手のプロフィール</div>
+        <button type="button" class="settings-sheet-close" onclick="closeSettingsSheets()">閉じる</button>
+      </div>
+      <div class="settings-sheet-body">
+        <div class="account-section" id="partner-account-section">
+          <div class="account-section-title">アイコンと名前</div>
+          <div class="account-row">
+            <img src="" id="partner-avatar-preview" class="account-avatar-preview" onclick="triggerAvatarUpload()" title="タップして変更">
+            <input type="text" id="partner-name-input" class="account-input-name" placeholder="相手の名前">
+          </div>
+        </div>
+        <button type="button" class="account-save-btn" onclick="savePartnerSettings()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-sheet-overlay" id="ai-settings-overlay" onclick="closeSettingsSheets()">
+    <div class="settings-sheet" id="ai-settings-sheet" role="dialog" aria-labelledby="ai-settings-title" onclick="event.stopPropagation()">
+      <div class="settings-sheet-handle"></div>
+      <div class="settings-sheet-head">
+        <div class="settings-sheet-title" id="ai-settings-title">AI設定</div>
+        <button type="button" class="settings-sheet-close" onclick="closeSettingsSheets()">閉じる</button>
+      </div>
+      <div class="settings-sheet-body" id="ai-settings-section">
+        <div class="option-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="ai-mode-toggle" onchange="setCurrentFriendAiMode(this.checked)"> このトークの自動返信
+          </label>
+        </div>
+        <div class="account-section">
+          <div class="account-section-title">相手の設定（関係・口調など）</div>
+          <textarea id="ai-mode-persona-input" class="ai-friend-textarea" placeholder="例：高校の友達。敬語は使わず、短くカジュアルに話す。"></textarea>
+        </div>
+        <p class="ai-friend-help">キーは <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> で発行。保存済みなら自動で入ります。</p>
+        <div class="account-section">
+          <div class="account-section-title">Gemini APIキー</div>
+          <div class="ai-key-row">
+            <input type="password" id="ai-mode-api-key-input" class="account-input-name" placeholder="AIza..." autocomplete="off" spellcheck="false">
+            <button type="button" class="ai-key-toggle" id="ai-mode-key-toggle-btn" onclick="toggleAiModeKeyVisibility()">表示</button>
+          </div>
+        </div>
+        <div class="account-section">
+          <div class="account-section-title">モデル名</div>
+          <input type="text" id="ai-mode-model-input" class="account-input-name" placeholder="gemini-3.8-flash" spellcheck="false">
+        </div>
+        <button type="button" class="account-save-btn" onclick="saveAiModePanel()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-sheet-overlay" id="my-profile-overlay" onclick="closeSettingsSheets()">
+    <div class="settings-sheet" id="my-profile-sheet" role="dialog" aria-labelledby="my-profile-title" onclick="event.stopPropagation()">
+      <div class="settings-sheet-handle"></div>
+      <div class="settings-sheet-head">
+        <div class="settings-sheet-title" id="my-profile-title">自分のプロフィール</div>
+        <button type="button" class="settings-sheet-close" onclick="closeSettingsSheets()">閉じる</button>
+      </div>
+      <div class="settings-sheet-body">
+        <div class="account-section">
+          <div class="account-section-title">アイコンと名前</div>
+          <div class="account-row">
+            <img src="" id="my-avatar-preview" class="account-avatar-preview" onclick="triggerMyAvatarUpload()" title="タップして変更">
+            <input type="text" id="my-name-input" class="account-input-name" placeholder="自分の名前">
+          </div>
+        </div>
+        <button type="button" class="account-save-btn" onclick="saveMyProfileSettings()">保存</button>
+      </div>
+    </div>
+  </div>
 </div>
  
 <script>
@@ -2998,7 +3125,9 @@
       const standalone = window.navigator.standalone === true ||
         window.matchMedia('(display-mode: standalone)').matches;
       if (isIOS && standalone) {
-        const h = Math.max(window.innerHeight || 0, (window.screen && window.screen.height) || 0);
+        const vv = window.visualViewport;
+        const vvH = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
+        const h = Math.max(window.innerHeight || 0, (window.screen && window.screen.height) || 0, vvH);
         if (h) document.documentElement.style.setProperty('--app-h', h + 'px');
       } else {
         document.documentElement.style.removeProperty('--app-h');
@@ -3478,10 +3607,10 @@
       const card = document.createElement('div');
       card.className = 'home-profile-card';
       card.innerHTML = `
-        <img src="${myAvatarUrl}" class="home-profile-avatar" onclick="openAccountModal()">
+        <img src="${myAvatarUrl}" class="home-profile-avatar" onclick="openMyProfileSheet()">
         <div class="home-profile-name">${escapeHtml(myName)}</div>
         <div style="font-size:12px; color:#888;">マイプロフィール</div>
-        <button class="home-profile-btn" onclick="openAccountModal()">アカウント情報を編集</button>
+        <button class="home-profile-btn" onclick="openMyProfileSheet()">アカウント情報を編集</button>
       `;
       container.appendChild(card);
 
@@ -4078,61 +4207,104 @@
  
   function closeAllModals() {
     if (typeof closeAiMoodSheet === 'function') closeAiMoodSheet();
+    if (typeof closeSettingsSheets === 'function') closeSettingsSheets();
     document.getElementById('import-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
     document.getElementById('action-menu').style.display = 'none';
     document.getElementById('confirm-modal').style.display = 'none';
     document.getElementById('delete-dialog').style.display = 'none';
-    document.getElementById('account-modal').style.display = 'none';
+    const oldAccount = document.getElementById('account-modal');
+    if (oldAccount) oldAccount.style.display = 'none';
     document.getElementById('add-friend-modal').style.display = 'none';
     document.getElementById('schedule-modal').style.display = 'none';
     if (typeof resetAddFriendModalView === 'function') resetAddFriendModalView();
   }
  
-  function openAccountModal() {
-    closeAllModals();
-    const friend = getCurrentActiveFriend();
-    document.getElementById('my-name-input').value = myName;
-    document.getElementById('my-avatar-preview').src = myAvatarUrl;
- 
-    const partnerSection = document.getElementById('partner-account-section');
-    if (document.getElementById('chat-screen').classList.contains('active') && friend) {
-      partnerSection.style.display = 'flex';
-      document.getElementById('partner-name-input').value = friend.name;
-      document.getElementById('partner-avatar-preview').src = friend.avatar;
+  function setSettingsSheetOpen(id, on) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (on) {
+      el.classList.add('open');
+      el.style.display = 'flex';
     } else {
-      partnerSection.style.display = 'none';
+      el.classList.remove('open');
+      el.style.display = 'none';
     }
- 
-    const aiSection = document.getElementById('ai-settings-section');
-    if (aiSection) {
-      const chatActive = document.getElementById('chat-screen').classList.contains('active');
-      if (chatActive && friend) {
-        aiSection.style.display = 'flex';
-        if (typeof fillAiModePanel === 'function') fillAiModePanel();
-      } else {
-        aiSection.style.display = 'none';
-      }
-    }
- 
-    document.getElementById('modal-overlay').style.display = 'flex';
-    document.getElementById('account-modal').style.display = 'flex';
   }
- 
-  function saveAccountSettings() {
-    const newMyName = document.getElementById('my-name-input').value.trim();
-    if (newMyName) myName = newMyName;
- 
-    if (document.getElementById('chat-screen').classList.contains('active')) {
-      const newPartnerName = document.getElementById('partner-name-input').value.trim();
-      const friend = getCurrentActiveFriend();
-      if (friend && newPartnerName) friend.name = newPartnerName;
-      renderChat();
-    } else {
-      renderHomeView();
-    }
-    saveToLocalStorage();
+
+  function closeSettingsSheets() {
+    ['partner-edit-overlay', 'ai-settings-overlay', 'my-profile-overlay'].forEach(function (id) {
+      setSettingsSheetOpen(id, false);
+    });
+  }
+
+  function openPartnerEditSheet() {
+    const friend = getCurrentActiveFriend();
+    if (!friend || !document.getElementById('chat-screen').classList.contains('active')) return;
     closeAllModals();
+    const nameEl = document.getElementById('partner-name-input');
+    const avEl = document.getElementById('partner-avatar-preview');
+    if (nameEl) nameEl.value = friend.name || '';
+    if (avEl) avEl.src = friend.avatar || '';
+    setSettingsSheetOpen('partner-edit-overlay', true);
+  }
+
+  function savePartnerSettings() {
+    const friend = getCurrentActiveFriend();
+    const nameEl = document.getElementById('partner-name-input');
+    const newPartnerName = nameEl ? nameEl.value.trim() : '';
+    if (friend && newPartnerName) friend.name = newPartnerName;
+    saveToLocalStorage();
+    renderChat();
+    closeSettingsSheets();
+  }
+
+  function openAiSettingsSheet() {
+    const friend = getCurrentActiveFriend();
+    if (!friend || !document.getElementById('chat-screen').classList.contains('active')) {
+      alert('先にトークを開いてください');
+      return;
+    }
+    closeAllModals();
+    if (typeof fillAiModePanel === 'function') fillAiModePanel();
+    setSettingsSheetOpen('ai-settings-overlay', true);
+  }
+
+  function openMyProfileSheet() {
+    closeAllModals();
+    const nameEl = document.getElementById('my-name-input');
+    const avEl = document.getElementById('my-avatar-preview');
+    if (nameEl) nameEl.value = myName;
+    if (avEl) avEl.src = myAvatarUrl;
+    setSettingsSheetOpen('my-profile-overlay', true);
+  }
+
+  function saveMyProfileSettings() {
+    const nameEl = document.getElementById('my-name-input');
+    const newMyName = nameEl ? nameEl.value.trim() : '';
+    if (newMyName) myName = newMyName;
+    saveToLocalStorage();
+    renderHomeView();
+    if (document.getElementById('chat-screen').classList.contains('active')) renderChat();
+    closeSettingsSheets();
+  }
+
+  function openAccountModal() {
+    /* 互換用。ホームからは自分のプロフィール、トーク中はAI設定。 */
+    if (document.getElementById('chat-screen').classList.contains('active')) openAiSettingsSheet();
+    else openMyProfileSheet();
+  }
+
+  function saveAccountSettings() {
+    if (document.getElementById('my-profile-overlay') && document.getElementById('my-profile-overlay').classList.contains('open')) {
+      saveMyProfileSettings();
+      return;
+    }
+    if (document.getElementById('partner-edit-overlay') && document.getElementById('partner-edit-overlay').classList.contains('open')) {
+      savePartnerSettings();
+      return;
+    }
+    saveMyProfileSettings();
   }
  
   function executeUnsend() {
@@ -4755,9 +4927,8 @@
       const parsed = readAiKeyModelFromPanel();
       if (!parsed.key) {
         setAiModeToggles(false);
-        alert('先に「アカウント情報の変更」で Gemini APIキーを入力してください。Google AI Studio で無料発行できます。');
-        const panel = document.getElementById('ai-mode-panel');
-        if (panel) panel.style.display = 'flex';
+        alert('先に3本線の「AI設定」で Gemini APIキーを入力してください。Google AI Studio で無料発行できます。');
+        if (typeof openAiSettingsSheet === 'function') openAiSettingsSheet();
         const keyEl = document.getElementById('ai-mode-api-key-input');
         if (keyEl) keyEl.focus();
         syncAiModeButton();
@@ -4810,6 +4981,7 @@
     saveToLocalStorage();
     setAiModeToggles(wantOn);
     syncAiModeButton();
+    if (typeof closeSettingsSheets === 'function') closeSettingsSheets();
   }
 
 
@@ -6095,6 +6267,7 @@
         '  style=' + (root.style.getPropertyValue('--app-h') || '(none)'),
       '--sat ' + cs.getPropertyValue('--sat').trim() + '  --sab ' + cs.getPropertyValue('--sab').trim(),
       'env(sat) ' + pcs.paddingTop + '  env(sab) ' + pcs.paddingBottom,
+      'html ' + box(root) + '  body ' + box(document.body),
       'container ' + box(document.querySelector('.container')),
       'input-bar ' + box(document.querySelector('.input-bar') || document.getElementById('input-bar')),
       'tab-bar ' + box(document.querySelector('.tab-bar')),
@@ -6153,7 +6326,7 @@
         }
         tapTimer = setTimeout(function () {
           taps = 0;
-          openAccountModal();
+          openPartnerEditSheet();
         }, 280);
       });
     }
