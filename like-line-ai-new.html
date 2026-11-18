@@ -1665,6 +1665,46 @@
     .now-btn:active {
       background: #444;
     }
+
+    html.keyboard-open #chat-screen {
+      overflow: hidden;
+    }
+    html.keyboard-open #control-panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      width: 100%;
+      margin: 0;
+    }
+    #manual-post-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ai-schedule-list {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ai-schedule-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      color: #cccccc;
+    }
+    .ai-schedule-cancel {
+      background: #2a2a2c;
+      border: 1px solid #3a3a3c;
+      color: #ff6b6b;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+    }
  
     #file-input, #avatar-input, #my-avatar-input, #add-friend-avatar-input, #media-embed-input {
       display: none;
@@ -2690,7 +2730,7 @@
  
     <div class="input-bar" id="input-bar">
       <div class="input-icons-left">
-        <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="blurInput()"><path d="M15 5l-7 7 7 7"/></svg>
+        <svg class="collapse-arrow" id="collapse-arrow" viewBox="0 0 24 24" onclick="expandInputIcons()"><path d="M9 5l7 7-7 7"/></svg>
         <svg class="tool-icon-svg" id="plus-btn" viewBox="0 0 24 24" onclick="toggleControlPanel()">
           <path d="M12 3.5v17M3.5 12h17"/>
         </svg>
@@ -2702,7 +2742,7 @@
         </svg>
       </div>
       <div class="input-wrapper">
-        <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
+        <input type="text" class="text-input" id="message-input" placeholder="Aa" onfocus="focusInput()" onclick="onMessageInputTap()" oninput="handleInput()" onkeypress="handleKeyPress(event)">
         <svg class="tool-icon-svg" id="emoji-icon" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9"/><path d="M8.3 14c.9 1.5 2.1 2.2 3.7 2.2s2.8-.7 3.7-2.2"/><circle cx="9" cy="10" r=".7" fill="#b7b7b7"/><circle cx="15" cy="10" r=".7" fill="#b7b7b7"/>
         </svg>
@@ -2738,7 +2778,23 @@
           <input type="time" id="ai-reply-time-input" class="picker-input">
           <button type="button" class="now-btn" onclick="clearAiReplyTime()">現在時刻</button>
         </div>
+        <div class="account-section-title">AI予約投稿</div>
+        <div class="time-override-row" id="ai-schedule-time-row">
+          <span>日付:</span>
+          <input type="date" id="ai-schedule-date-input" class="picker-input">
+          <span>時間:</span>
+          <input type="time" id="ai-schedule-time-input" class="picker-input">
+          <button type="button" class="now-btn" onclick="setAiScheduleNow()">現在時刻</button>
+        </div>
+        <div class="option-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="ai-schedule-read-status" checked> 既読をつける
+          </label>
+          <button type="button" class="now-btn" id="ai-schedule-save-btn" onclick="saveAiScheduledPost()" style="background:#2b82f6; border-color:#2b82f6; color:#fff;">予約投稿を設定</button>
+        </div>
+        <div class="ai-schedule-list" id="ai-schedule-list"></div>
       </div>
+      <div id="manual-post-form">
       <div class="time-override-row">
         <span>日付:</span>
         <input type="date" id="override-date-input" class="picker-input">
@@ -2754,6 +2810,7 @@
       </div>
       <div class="option-row" style="margin-top:4px;">
         <span style="cursor:pointer; color:#ff4444;" onclick="clearChat()">チャットクリア</span>
+      </div>
       </div>
     </div>
   </div>
@@ -3118,6 +3175,34 @@
  
 <script>
   (function setupAppHeight() {
+    var layoutBaseH = 0;
+    var KEYBOARD_SHRINK_PX = 120;
+
+    function isChatNearBottom() {
+      const el = document.getElementById('chat-area');
+      if (!el) return false;
+      return el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    }
+
+    function pinWindow() {
+      try { window.scrollTo(0, 0); } catch (e) {}
+    }
+
+    function applyViewportOffset(vv) {
+      const container = document.querySelector('.container');
+      const top = (vv && vv.offsetTop) || 0;
+      pinWindow();
+      if (container) {
+        container.style.transform = top ? ('translateY(' + top + 'px)') : '';
+      }
+    }
+
+    function clearViewportOffset() {
+      const container = document.querySelector('.container');
+      if (container) container.style.transform = '';
+      pinWindow();
+    }
+
     function syncAppHeight() {
       const ua = navigator.userAgent || '';
       const isIOS = /iP(hone|ad|od)/.test(ua) ||
@@ -3125,28 +3210,62 @@
       const standalone = window.navigator.standalone === true ||
         window.matchMedia('(display-mode: standalone)').matches;
       const root = document.documentElement;
-      const vv = window.visualViewport;
+      const vv = window.__vvMock || window.visualViewport;
       const visH = (vv && vv.height) || 0;
       const innerH = window.innerHeight || 0;
       const appH = visH || innerH;
       const screenH = (window.screen && window.screen.height) || 0;
-      if (isIOS && standalone) {
+
+      const base = layoutBaseH || appH;
+      const shrink = (base > 0 && appH > 0) ? (base - appH) : 0;
+      const keyboardOpen = shrink >= KEYBOARD_SHRINK_PX;
+      if (!keyboardOpen && appH) layoutBaseH = appH;
+
+      const keepBottom = keyboardOpen && isChatNearBottom();
+
+      if (keyboardOpen) {
         if (appH) root.style.setProperty('--app-h', appH + 'px');
-        root.classList.add('ios-standalone');
-        /* Visible window is already above the home indicator (e.g. 793 vs 852). */
-        const legacy = screenH > 0 && appH > 0 && appH < screenH - 20;
-        if (legacy) root.style.setProperty('--sab-eff', '8px');
-        else root.style.removeProperty('--sab-eff');
+        /* Keyboard covers the home indicator, so use the small bottom padding. */
+        root.style.setProperty('--sab-eff', '0px');
+        root.classList.add('keyboard-open');
+        applyViewportOffset(vv);
+        if (isIOS && standalone) root.classList.add('ios-standalone');
       } else {
-        root.style.removeProperty('--app-h');
-        root.style.removeProperty('--sab-eff');
-        root.classList.remove('ios-standalone');
+        root.classList.remove('keyboard-open');
+        clearViewportOffset();
+        if (isIOS && standalone) {
+          if (appH) root.style.setProperty('--app-h', appH + 'px');
+          root.classList.add('ios-standalone');
+          /* Visible window is already above the home indicator (e.g. 793 vs 852). */
+          const legacy = screenH > 0 && appH > 0 && appH < screenH - 20;
+          if (legacy) root.style.setProperty('--sab-eff', '8px');
+          else root.style.removeProperty('--sab-eff');
+        } else {
+          root.style.removeProperty('--app-h');
+          root.style.removeProperty('--sab-eff');
+          root.classList.remove('ios-standalone');
+        }
+      }
+
+      if (keepBottom && typeof scrollToBottom === 'function') {
+        requestAnimationFrame(function () { scrollToBottom(); });
       }
     }
+
+    function onOrientationChange() {
+      layoutBaseH = 0;
+      syncAppHeight();
+    }
+
     syncAppHeight();
     window.addEventListener('resize', syncAppHeight);
-    window.addEventListener('orientationchange', syncAppHeight);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', syncAppHeight);
+    window.addEventListener('orientationchange', onOrientationChange);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncAppHeight);
+      window.visualViewport.addEventListener('scroll', syncAppHeight);
+    }
+    window.addEventListener('scroll', pinWindow, { passive: true });
+    window.__syncAppHeight = syncAppHeight;
   })();
 
   let friendsList = [];
@@ -3759,6 +3878,7 @@
     const opening = panel.style.display !== 'flex';
     panel.style.display = opening ? 'flex' : 'none';
     if (opening && typeof syncAiModeButton === 'function') syncAiModeButton();
+    if (typeof syncManualPostFormVisibility === 'function') syncManualPostFormVisibility();
   }
  
   function setSender(sender) {
@@ -3766,26 +3886,100 @@
     currentSender = sender;
     document.getElementById('btn-me').className = 'switch-btn' + (sender === 'me' ? ' active me' : '');
     document.getElementById('btn-partner').className = 'switch-btn' + (sender === 'partner' ? ' active partner' : '');
+    const aiPanel = document.getElementById('ai-mode-panel');
+    if (aiPanel && aiPanel.style.display === 'flex') aiPanel.style.display = 'none';
     if (typeof syncAiModeButton === 'function') syncAiModeButton();
+    if (typeof syncManualPostFormVisibility === 'function') syncManualPostFormVisibility();
   }
  
+  var inputIconsExpanded = false;
+  var INPUT_PLACEHOLDER_IDLE = 'Aa';
+  var INPUT_PLACEHOLDER_FOCUS = 'メッセージを入力';
+
+  function collapseInputIcons() {
+    inputIconsExpanded = false;
+    const arrow = document.getElementById('collapse-arrow');
+    const plus = document.getElementById('plus-btn');
+    const cam = document.getElementById('cam-icon');
+    const img = document.getElementById('img-icon');
+    if (arrow) arrow.style.display = 'block';
+    if (plus) plus.style.display = 'none';
+    if (cam) cam.style.display = 'none';
+    if (img) img.style.display = 'none';
+  }
+
+  function expandInputIcons() {
+    if (!isInputFocused) return;
+    inputIconsExpanded = true;
+    const arrow = document.getElementById('collapse-arrow');
+    const plus = document.getElementById('plus-btn');
+    const cam = document.getElementById('cam-icon');
+    const img = document.getElementById('img-icon');
+    if (arrow) arrow.style.display = 'none';
+    if (plus) plus.style.display = 'block';
+    if (cam) cam.style.display = 'block';
+    if (img) img.style.display = 'block';
+  }
+
+  function onMessageInputTap() {
+    if (isInputFocused && inputIconsExpanded) collapseInputIcons();
+  }
+
+  function setAdminFieldsNonFocusable(blocked) {
+    const panel = document.getElementById('control-panel');
+    if (!panel) return;
+    const fields = panel.querySelectorAll('input, textarea, select');
+    fields.forEach(function (el) {
+      if (blocked) {
+        if (!el.hasAttribute('data-chat-tabindex')) {
+          el.setAttribute('data-chat-tabindex', el.getAttribute('tabindex') || '');
+        }
+        el.setAttribute('tabindex', '-1');
+      } else if (el.hasAttribute('data-chat-tabindex')) {
+        const prev = el.getAttribute('data-chat-tabindex');
+        if (prev) el.setAttribute('tabindex', prev);
+        else el.removeAttribute('tabindex');
+        el.removeAttribute('data-chat-tabindex');
+      }
+    });
+    if (blocked) panel.setAttribute('inert', '');
+    else panel.removeAttribute('inert');
+  }
+
+  function requestSyncAppHeight() {
+    try { window.scrollTo(0, 0); } catch (e) {}
+    if (typeof window.__syncAppHeight === 'function') window.__syncAppHeight();
+  }
+
   function focusInput() {
     isInputFocused = true;
-    document.getElementById('collapse-arrow').style.display = 'block';
-    document.getElementById('plus-btn').style.display = 'none';
-    document.getElementById('cam-icon').style.display = 'none';
-    document.getElementById('img-icon').style.display = 'none';
+    const input = document.getElementById('message-input');
+    if (input) input.placeholder = INPUT_PLACEHOLDER_FOCUS;
+    collapseInputIcons();
+    setAdminFieldsNonFocusable(true);
     updateSendButtonState();
+    requestSyncAppHeight();
   }
  
   function blurInput() {
     isInputFocused = false;
-    document.getElementById('message-input').blur();
-    document.getElementById('collapse-arrow').style.display = 'none';
-    document.getElementById('plus-btn').style.display = 'block';
-    document.getElementById('cam-icon').style.display = 'block';
-    document.getElementById('img-icon').style.display = 'block';
+    inputIconsExpanded = false;
+    const input = document.getElementById('message-input');
+    if (input) {
+      input.blur();
+      input.placeholder = INPUT_PLACEHOLDER_IDLE;
+    }
+    const arrow = document.getElementById('collapse-arrow');
+    const plus = document.getElementById('plus-btn');
+    const cam = document.getElementById('cam-icon');
+    const img = document.getElementById('img-icon');
+    if (arrow) arrow.style.display = 'none';
+    if (plus) plus.style.display = 'block';
+    if (cam) cam.style.display = 'block';
+    if (img) img.style.display = 'block';
+    setAdminFieldsNonFocusable(false);
     updateSendButtonState();
+    requestSyncAppHeight();
   }
  
   function handleInput() {
@@ -3892,44 +4086,82 @@
     });
   }
  
+  function isAiScheduleItem(item) {
+    return !!(item && item.kind === 'ai');
+  }
+
+  function parseScheduledAt(item) {
+    if (!item || !item.date || !item.time) return null;
+    const ds = String(item.date).split('-');
+    const ts = String(item.time).split(':');
+    if (ds.length < 3 || ts.length < 2) return null;
+    const y = +ds[0], m = +ds[1], d = +ds[2], hh = +ts[0], mm = +ts[1];
+    if (![y, m, d, hh, mm].every(function (n) { return Number.isFinite(n); })) return null;
+    return new Date(y, m - 1, d, hh, mm, 0, 0);
+  }
+
+  function isScheduleDue(item, now) {
+    const at = parseScheduledAt(item);
+    return !!(at && at.getTime() <= now.getTime());
+  }
+
+  function newScheduleId() {
+    return 'sch-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  }
+
+  var aiScheduleInFlight = {};
+  var aiScheduleLastAttempt = {};
+  var AI_SCHEDULE_RETRY_MS = 60000;
+
+  function removeScheduledItem(id) {
+    const before = scheduledMessages.length;
+    scheduledMessages = scheduledMessages.filter(function (it) { return it.id !== id; });
+    if (scheduledMessages.length !== before) saveToLocalStorage();
+    if (typeof renderAiScheduleList === 'function') renderAiScheduleList();
+  }
+
   function checkScheduledMessages() {
     if (scheduledMessages.length === 0) return;
     const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const currentDate = `${yyyy}-${mm}-${dd}`;
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
- 
     let triggered = false;
-    scheduledMessages = scheduledMessages.filter(item => {
-      if (item.date === currentDate && item.time === currentTime) {
-        const friend = friendsList.find(f => f.id === item.friendId);
-        if (friend) {
-          friend.messages.push({
-            sender: item.sender,
-            text: item.text,
-            time: currentTime,
-            isRead: true,
-            isImage: false,
-            isVideo: false,
-            mediaUrl: null,
-            unsend: false,
-            date: currentDate,
-            replyTo: null
-          });
-          triggered = true;
-        }
-        return false;
+    const keep = [];
+    const dueAi = [];
+    scheduledMessages.forEach(function (item) {
+      if (!isScheduleDue(item, now)) {
+        keep.push(item);
+        return;
       }
-      return true;
+      if (isAiScheduleItem(item)) {
+        keep.push(item);
+        dueAi.push(item);
+        return;
+      }
+      const friend = friendsList.find(function (f) { return f.id === item.friendId; });
+      if (friend) {
+        friend.messages.push({
+          sender: item.sender,
+          text: item.text,
+          time: item.time,
+          isRead: item.isRead != null ? item.isRead : true,
+          isImage: false,
+          isVideo: false,
+          mediaUrl: null,
+          unsend: false,
+          date: item.date,
+          replyTo: null
+        });
+        triggered = true;
+      }
     });
- 
+    scheduledMessages = keep;
     if (triggered) {
       saveToLocalStorage();
       if (currentFriendId) renderChat();
       renderHomeView();
     }
+    dueAi.forEach(function (item) {
+      if (typeof deliverAiScheduledPost === 'function') deliverAiScheduledPost(item);
+    });
   }
  
   function startReply(index) {
@@ -4816,6 +5048,150 @@
     ].filter(Boolean);
   }
 
+  function isAiPanelOpen() {
+    const panel = document.getElementById('ai-mode-panel');
+    return !!(panel && panel.style.display === 'flex');
+  }
+
+  function syncManualPostFormVisibility() {
+    const form = document.getElementById('manual-post-form');
+    if (form) form.style.display = isAiPanelOpen() ? 'none' : '';
+  }
+
+  function fillDateTimeInputs(dateId, timeId) {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    const dateEl = document.getElementById(dateId);
+    const timeEl = document.getElementById(timeId);
+    if (dateEl) dateEl.value = yyyy + '-' + mm + '-' + dd;
+    if (timeEl) timeEl.value = hh + ':' + min;
+  }
+
+  function setAiScheduleNow() {
+    fillDateTimeInputs('ai-schedule-date-input', 'ai-schedule-time-input');
+  }
+
+  function formatAiScheduleLabel(date, time) {
+    const ds = String(date || '').split('-');
+    const labelDate = ds.length === 3 ? (Number(ds[1]) + '/' + Number(ds[2])) : date;
+    return (labelDate || '') + ' ' + (time || '');
+  }
+
+  function renderAiScheduleList() {
+    const el = document.getElementById('ai-schedule-list');
+    if (!el) return;
+    const friendId = currentFriendId;
+    const items = scheduledMessages.filter(function (it) {
+      return isAiScheduleItem(it) && it.friendId === friendId;
+    }).sort(function (a, b) {
+      const ta = parseScheduledAt(a);
+      const tb = parseScheduledAt(b);
+      return (ta ? ta.getTime() : 0) - (tb ? tb.getTime() : 0);
+    });
+    if (!items.length) {
+      el.innerHTML = '';
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = 'flex';
+    el.innerHTML = '';
+    items.forEach(function (it) {
+      const row = document.createElement('div');
+      row.className = 'ai-schedule-item';
+      const label = document.createElement('span');
+      label.className = 'ai-schedule-item-label';
+      label.textContent = formatAiScheduleLabel(it.date, it.time) + '　' + (it.isRead ? '既読' : '未読');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ai-schedule-cancel';
+      btn.textContent = '取消';
+      btn.addEventListener('click', function () { cancelAiScheduledPost(it.id); });
+      row.appendChild(label);
+      row.appendChild(btn);
+      el.appendChild(row);
+    });
+  }
+
+  function saveAiScheduledPost() {
+    const friend = getCurrentActiveFriend();
+    if (!friend) {
+      alert('先にトークを開いてください');
+      return;
+    }
+    if (typeof isAiFriend === 'function' && !isAiFriend(friend)) {
+      alert('このトークはAIモードではありません');
+      return;
+    }
+    const dateEl = document.getElementById('ai-schedule-date-input');
+    const timeEl = document.getElementById('ai-schedule-time-input');
+    const readEl = document.getElementById('ai-schedule-read-status');
+    const date = dateEl ? dateEl.value : '';
+    const time = timeEl ? timeEl.value : '';
+    if (!date || !time) {
+      alert('日付と時間を入力してください');
+      return;
+    }
+    scheduledMessages.push({
+      id: newScheduleId(),
+      kind: 'ai',
+      friendId: friend.id,
+      date: date,
+      time: time,
+      isRead: !readEl || !!readEl.checked,
+      sender: 'partner'
+    });
+    saveToLocalStorage();
+    renderAiScheduleList();
+    if (typeof checkScheduledMessages === 'function') checkScheduledMessages();
+  }
+
+  function cancelAiScheduledPost(id) {
+    if (!id) return;
+    delete aiScheduleInFlight[id];
+    delete aiScheduleLastAttempt[id];
+    removeScheduledItem(id);
+  }
+
+  async function deliverAiScheduledPost(item) {
+    if (!item || !item.id) return;
+    if (aiScheduleInFlight[item.id]) return;
+    const last = aiScheduleLastAttempt[item.id] || 0;
+    if (last && (Date.now() - last) < AI_SCHEDULE_RETRY_MS) return;
+    const friend = friendsList.find(function (f) { return f.id === item.friendId; });
+    if (!friend) {
+      removeScheduledItem(item.id);
+      return;
+    }
+    aiScheduleInFlight[item.id] = true;
+    aiReadOverrideByFriend[friend.id] = !!item.isRead;
+    try {
+      if (item.isRead) startOrResetReadDelay(friend.id);
+      const mySeq = (aiReplySeqByFriend[friend.id] = (aiReplySeqByFriend[friend.id] || 0) + 1);
+      let text = null;
+      let err = null;
+      try {
+        text = await callGeminiGenerate(friend, buildAiStartNudge(friend));
+      } catch (e) {
+        err = e;
+      }
+      const ok = await finishAiReply(friend.id, mySeq, text, err, item.time, item.date);
+      if (ok) {
+        delete aiScheduleLastAttempt[item.id];
+        removeScheduledItem(item.id);
+      } else {
+        aiScheduleLastAttempt[item.id] = Date.now();
+      }
+    } finally {
+      delete aiScheduleInFlight[item.id];
+      delete aiReadOverrideByFriend[friend.id];
+      renderAiScheduleList();
+    }
+  }
+
   function fillAiModePanel() {
     const friend = getCurrentActiveFriend();
     const isAi = isAiFriend(friend);
@@ -4846,6 +5222,11 @@
     renderAiMoodChips();
     updateAiMoodButton();
     syncAiModeButton();
+    const dateEl = document.getElementById('ai-schedule-date-input');
+    const timeEl = document.getElementById('ai-schedule-time-input');
+    if (dateEl && timeEl && (!dateEl.value || !timeEl.value)) setAiScheduleNow();
+    renderAiScheduleList();
+    syncManualPostFormVisibility();
   }
 
   function toggleAiModePanel() {
@@ -4864,6 +5245,7 @@
       panel.style.display = 'none';
     }
     syncAiModeButton();
+    syncManualPostFormVisibility();
   }
 
   function toggleKeyVisibility(inputId, btnId) {
@@ -5126,13 +5508,19 @@
     if (changed) saveToLocalStorage();
   }
 
-  function shouldMarkAiRead() {
+  var aiReadOverrideByFriend = {};
+
+  function shouldMarkAiRead(friend) {
+    const id = friend && friend.id;
+    if (id && Object.prototype.hasOwnProperty.call(aiReadOverrideByFriend, id)) {
+      return !!aiReadOverrideByFriend[id];
+    }
     const el = document.getElementById('read-status');
     return !el || !!el.checked;
   }
 
   function markPendingMeMessagesRead(friend) {
-    if (!friend || !shouldMarkAiRead()) return false;
+    if (!friend || !shouldMarkAiRead(friend)) return false;
     let changed = false;
     friend.messages.forEach(function (msg) {
       if (msg.sender === 'me' && !msg.unsend && !msg.isRead) {
@@ -5345,7 +5733,7 @@
           if (friend && job && job.parts && job.parts.length) {
             var i;
             for (i = 0; i < job.parts.length; i++) {
-              pushPartnerAiMessage(friend, job.parts[i], job.timeOverride, job.groupId);
+              pushPartnerAiMessage(friend, job.parts[i], job.timeOverride, job.groupId, job.dateOverride);
               if (i < job.parts.length - 1) {
                 await new Promise(function (resolve) {
                   setTimeout(resolve, aiBubbleGapMs(job.parts[i]));
@@ -5365,7 +5753,7 @@
     }
   }
 
-  async function pushPartnerAiMessagesSequential(friend, text, timeOverride) {
+  async function pushPartnerAiMessagesSequential(friend, text, timeOverride, dateOverride) {
     var parts = splitAiReplyBubbles(text);
     if (!parts.length) {
       pushAiSystemError(friend, '応答が空でした');
@@ -5375,17 +5763,18 @@
     return enqueueAiDisplayJob(friend.id, {
       parts: parts,
       timeOverride: timeOverride,
+      dateOverride: dateOverride,
       groupId: groupId
     });
   }
 
-  function pushPartnerAiMessage(friend, text, timeOverride, aiGroupId) {
+  function pushPartnerAiMessage(friend, text, timeOverride, aiGroupId, dateOverride) {
     const overrideDateEl = document.getElementById('override-date-input');
     const overrideTimeEl = document.getElementById('override-time-input');
     const overrideDate = overrideDateEl ? overrideDateEl.value : '';
     const overrideTime = overrideTimeEl ? overrideTimeEl.value : '';
     const parts = nowDateTimeParts();
-    const dateStr = overrideDate !== '' ? overrideDate : parts.dateStr;
+    const dateStr = dateOverride ? dateOverride : (overrideDate !== '' ? overrideDate : parts.dateStr);
     const timeStr = timeOverride ? timeOverride : (overrideTime !== '' ? overrideTime : parts.timeStr);
     const msg = {
       sender: 'partner',
@@ -5565,7 +5954,7 @@
     throw lastErr;
   }
 
-  async function finishAiReply(friendId, mySeq, text, err, timeOverride) {
+  async function finishAiReply(friendId, mySeq, text, err, timeOverride, dateOverride) {
     if (mySeq !== aiReplySeqByFriend[friendId]) return;
     const wait = aiReadWaitByFriend[friendId];
     if (wait && wait.promise) await wait.promise;
@@ -5589,10 +5978,11 @@
       return;
     }
     // 既読待ちのあと、||で分けた吹き出しをキューに乗せて順番に出す
-    await pushPartnerAiMessagesSequential(friend, text, timeOverride);
+    await pushPartnerAiMessagesSequential(friend, text, timeOverride, dateOverride);
+    return true;
   }
 
-  async function runAiReplyFetch(friendId, mySeq, nudge, timeOverride) {
+  async function runAiReplyFetch(friendId, mySeq, nudge, timeOverride, dateOverride) {
     const friend = friendsList.find(function (f) { return f.id === friendId; });
     if (!friend || mySeq !== aiReplySeqByFriend[friendId]) return;
     let text = null;
@@ -5602,7 +5992,7 @@
     } catch (e) {
       err = e;
     }
-    await finishAiReply(friendId, mySeq, text, err, timeOverride);
+    return finishAiReply(friendId, mySeq, text, err, timeOverride, dateOverride);
   }
 
   function buildAiStartNudge(friend) {
