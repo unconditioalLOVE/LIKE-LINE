@@ -49,29 +49,35 @@
       /* Status bar gap: use the iPhone safe area, at least 59px (iPhone 15/16 Pro).
          Do not also pad html/body/.container, or this will double. */
       --sat: max(env(safe-area-inset-top, 0px), 59px);
+      --sab: env(safe-area-inset-bottom, 0px);
     }
  
     html, body {
-      background-color: #000000;
+      background-color: var(--bar);
       color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       width: 100%;
-      height: 100vh;
-      height: 100dvh;
+      height: 100%;
+      min-height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
       margin: 0;
       padding: 0;
       overflow: hidden;
       position: fixed;
+      inset: 0;
       touch-action: none;
     }
  
     .container {
       width: 100%;
       max-width: 430px;
-      height: 100vh;
-      height: 100dvh;
+      height: 100%;
+      min-height: 100%;
+      min-height: -webkit-fill-available;
       max-height: 932px;
       background-color: var(--bg);
       display: flex;
@@ -1370,7 +1376,7 @@
  
     .input-bar {
       background-color: var(--bar);
-      padding: 8px 12px 34px 10px;
+      padding: 8px 12px calc(8px + var(--sab)) 10px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -1471,7 +1477,7 @@
  
     .delete-bottom-bar {
       background-color: #111111;
-      padding: 10px 14px 34px 14px;
+      padding: 10px 14px calc(10px + var(--sab)) 14px;
       display: none;
       align-items: center;
       justify-content: space-between;
@@ -1509,7 +1515,7 @@
     .control-panel {
       background-color: #1a1a1c;
       border-top: 1px solid #2a2a2c;
-      padding: 8px 12px;
+      padding: 8px 12px calc(8px + var(--sab));
       display: none;
       flex-direction: column;
       gap: 8px;
@@ -2248,6 +2254,33 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .ai-mode-panel .account-section-title {
+      font-size: 11px;
+      color: #888888;
+      margin-top: 2px;
+    }
+    .import-range-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 4px;
+    }
+    .import-range-btn {
+      flex: 1;
+      min-width: 64px;
+      background: #2a2a2c;
+      color: #ffffff;
+      border: 1px solid #3a3a3c;
+      border-radius: 8px;
+      padding: 6px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .import-range-btn.is-on {
+      background: #2b82f6;
+      border-color: #2b82f6;
+    }
   </style>
 </head>
 <body>
@@ -2413,6 +2446,23 @@
         <button class="switch-btn" id="btn-ai" onclick="toggleAiModePanel()">AI</button>
       </div>
       <div class="ai-mode-panel" id="ai-mode-panel">
+        <div class="account-section-title">AIモード</div>
+        <div class="option-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="ai-panel-toggle" onchange="setCurrentFriendAiMode(this.checked)"> このトークの自動返信
+          </label>
+        </div>
+        <div class="account-section-title">相手の設定（関係・口調など）</div>
+        <textarea id="ai-panel-persona-input" class="ai-friend-textarea" placeholder="例：高校の友達。敬語は使わず、短くカジュアルに話す。"></textarea>
+        <p class="ai-friend-help">キーは保存済みなら自動で入ります。未入力なら <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> で発行してください。</p>
+        <div class="account-section-title">Gemini APIキー</div>
+        <div class="ai-key-row">
+          <input type="password" id="ai-panel-api-key-input" class="account-input-name" placeholder="AIza..." autocomplete="off" spellcheck="false">
+          <button type="button" class="ai-key-toggle" id="ai-panel-key-toggle-btn" onclick="toggleAiPanelKeyVisibility()">表示</button>
+        </div>
+        <div class="account-section-title">モデル名</div>
+        <input type="text" id="ai-panel-model-input" class="account-input-name" placeholder="gemini-3.8-flash" spellcheck="false">
+        <button type="button" class="ai-mode-save-btn" id="ai-panel-save-btn" onclick="saveAiModePanel()">設定を保存</button>
         <div class="account-section-title">AI返信操作</div>
         <button type="button" class="ai-mode-save-btn" id="ai-start-conversation-btn" onclick="aiStartConversation()">AIから話しかけさせる</button>
         <div class="time-override-row" id="ai-reply-time-row">
@@ -2644,6 +2694,14 @@
       <div class="account-section">
         <div class="account-section-title">本物のLINEで「トーク履歴を送信」したテキストを貼り付け</div>
         <textarea id="import-textarea" class="import-textarea" wrap="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="updateImportPreview()" placeholder="[LINE] ○○とのトーク履歴&#10;保存日時：2026/10/19 19:52&#10;&#10;2026/10/19(月)&#10;19:52&#9;○○&#9;こんにちは"></textarea>
+        <div class="account-section-title" style="margin-top:10px;">取り込み範囲</div>
+        <div class="import-range-row" id="import-range-row">
+          <button type="button" class="import-range-btn" data-range="7" onclick="setImportRange('7')">直近1週間</button>
+          <button type="button" class="import-range-btn is-on" data-range="30" onclick="setImportRange('30')">直近1ヶ月</button>
+          <button type="button" class="import-range-btn" data-range="90" onclick="setImportRange('90')">直近3ヶ月</button>
+          <button type="button" class="import-range-btn" data-range="all" onclick="setImportRange('all')">全部</button>
+        </div>
+        <p class="ai-friend-help">期間は、ファイルの保存日時（なければいちばん新しいメッセージの日付）からさかのぼります。1ヶ月は30日、3ヶ月は90日です。</p>
         <div id="import-preview" class="import-preview">貼り付けると、ここに取り込み内容の確認が出ます</div>
       </div>
       <button class="account-save-btn" id="import-exec-btn" onclick="executeImportHistory()" disabled>取り込んでトークを作成</button>
@@ -3779,7 +3837,7 @@
     const aiSection = document.getElementById('ai-settings-section');
     if (aiSection) {
       const chatActive = document.getElementById('chat-screen').classList.contains('active');
-      if (chatActive && friend && friend.isAi) {
+      if (chatActive && friend) {
         aiSection.style.display = 'flex';
         if (typeof fillAiModePanel === 'function') fillAiModePanel();
       } else {
@@ -4067,11 +4125,13 @@
     const friend = getCurrentActiveFriend();
     const isAi = isAiFriend(friend);
     if (btn) {
-      btn.style.display = isAi ? '' : 'none';
+      btn.style.display = friend ? '' : 'none';
       const panelOpen = !!(panel && panel.style.display === 'flex');
-      btn.className = 'switch-btn' + (isAi && panelOpen ? ' active ai' : '');
+      btn.className = 'switch-btn' + (panelOpen ? ' active ai' : '');
     }
-    if (panel && !isAi) panel.style.display = 'none';
+    if (btn && isAi && !(panel && panel.style.display === 'flex')) {
+      btn.style.color = '#ffffff';
+    }
   }
 
   function syncAiModePanelForFriend() {
@@ -4080,21 +4140,42 @@
     if (panel && panel.style.display === 'flex') fillAiModePanel();
   }
 
+  const AI_DEFAULT_PERSONA = '普通の話し方で、短めに返信する。';
+
+  function aiModeEls(baseId) {
+    return [
+      document.getElementById(baseId),
+      document.getElementById(baseId.replace('ai-mode-', 'ai-panel-').replace('ai-mode', 'ai-panel'))
+    ].filter(Boolean);
+  }
+
   function fillAiModePanel() {
     const friend = getCurrentActiveFriend();
-    const toggle = document.getElementById('ai-mode-toggle');
-    const persona = document.getElementById('ai-mode-persona-input');
-    const keyInput = document.getElementById('ai-mode-api-key-input');
-    const modelInput = document.getElementById('ai-mode-model-input');
-    if (toggle) toggle.checked = isAiFriend(friend);
-    if (persona) persona.value = (friend && friend.aiPersona) ? friend.aiPersona : '';
-    if (keyInput) {
-      keyInput.type = 'password';
-      keyInput.value = aiSettings.apiKey || '';
-    }
-    if (modelInput) modelInput.value = aiSettings.model || AI_DEFAULT_MODEL;
-    const toggleBtn = document.getElementById('ai-mode-key-toggle-btn');
-    if (toggleBtn) toggleBtn.textContent = '表示';
+    const isAi = isAiFriend(friend);
+    const personaVal = (friend && friend.aiPersona) ? friend.aiPersona : '';
+    ['ai-mode-toggle', 'ai-panel-toggle'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.checked = isAi;
+    });
+    ['ai-mode-persona-input', 'ai-panel-persona-input'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = personaVal;
+    });
+    ['ai-mode-api-key-input', 'ai-panel-api-key-input'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.type = 'password';
+        el.value = aiSettings.apiKey || '';
+      }
+    });
+    ['ai-mode-model-input', 'ai-panel-model-input'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = aiSettings.model || AI_DEFAULT_MODEL;
+    });
+    ['ai-mode-key-toggle-btn', 'ai-panel-key-toggle-btn'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '表示';
+    });
     syncAiModeButton();
   }
 
@@ -4106,34 +4187,44 @@
       alert('先にトークを開いてください');
       return;
     }
-    if (!isAiFriend(friend)) {
-      panel.style.display = 'none';
-      syncAiModeButton();
-      return;
-    }
     const opening = panel.style.display !== 'flex';
     if (opening) {
       panel.style.display = 'flex';
+      fillAiModePanel();
     } else {
       panel.style.display = 'none';
     }
     syncAiModeButton();
   }
 
-  function toggleAiModeKeyVisibility() {
-    const input = document.getElementById('ai-mode-api-key-input');
-    const btn = document.getElementById('ai-mode-key-toggle-btn');
+  function toggleKeyVisibility(inputId, btnId) {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
     if (!input) return;
     const hide = input.type === 'text';
     input.type = hide ? 'password' : 'text';
     if (btn) btn.textContent = hide ? '表示' : '隠す';
   }
 
+  function toggleAiModeKeyVisibility() {
+    toggleKeyVisibility('ai-mode-api-key-input', 'ai-mode-key-toggle-btn');
+  }
+
+  function toggleAiPanelKeyVisibility() {
+    toggleKeyVisibility('ai-panel-api-key-input', 'ai-panel-key-toggle-btn');
+  }
+
+  function firstFilledValue() {
+    for (let i = 0; i < arguments.length; i++) {
+      const el = document.getElementById(arguments[i]);
+      if (el && String(el.value || '').trim()) return String(el.value).trim();
+    }
+    return '';
+  }
+
   function readAiKeyModelFromPanel() {
-    const keyEl = document.getElementById('ai-mode-api-key-input');
-    const modelEl = document.getElementById('ai-mode-model-input');
-    const key = ((keyEl && keyEl.value) || aiSettings.apiKey || '').trim();
-    let model = ((modelEl && modelEl.value) || aiSettings.model || AI_DEFAULT_MODEL).trim() || AI_DEFAULT_MODEL;
+    const key = firstFilledValue('ai-panel-api-key-input', 'ai-mode-api-key-input') || (aiSettings.apiKey || '').trim();
+    let model = firstFilledValue('ai-panel-model-input', 'ai-mode-model-input') || (aiSettings.model || AI_DEFAULT_MODEL).trim() || AI_DEFAULT_MODEL;
     return { key: key, model: model };
   }
 
@@ -4149,35 +4240,60 @@
     return true;
   }
 
+  function setAiModeToggles(on) {
+    ['ai-mode-toggle', 'ai-panel-toggle'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.checked = !!on;
+    });
+  }
+
+  function readAiPersonaFromPanel() {
+    return firstFilledValue('ai-panel-persona-input', 'ai-mode-persona-input');
+  }
+
+  function writeAiPersonaToPanel(val) {
+    ['ai-mode-persona-input', 'ai-panel-persona-input'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+  }
+
   function setCurrentFriendAiMode(on) {
     const friend = getCurrentActiveFriend();
-    const toggle = document.getElementById('ai-mode-toggle');
     if (!friend) {
-      if (toggle) toggle.checked = false;
+      setAiModeToggles(false);
       return;
     }
     if (on) {
       const parsed = readAiKeyModelFromPanel();
       if (!parsed.key) {
-        if (toggle) toggle.checked = false;
+        setAiModeToggles(false);
         alert('先に Gemini APIキーを入力してください。Google AI Studio で無料発行できます。');
         const panel = document.getElementById('ai-mode-panel');
         if (panel) panel.style.display = 'flex';
-        const keyEl = document.getElementById('ai-mode-api-key-input');
+        const keyEl = document.getElementById('ai-panel-api-key-input') || document.getElementById('ai-mode-api-key-input');
         if (keyEl) keyEl.focus();
+        syncAiModeButton();
         return;
       }
       if (!persistAiKeyModelFromPanel()) {
-        if (toggle) toggle.checked = false;
+        setAiModeToggles(false);
         return;
       }
       friend.isAi = true;
-      const persona = document.getElementById('ai-mode-persona-input');
-      if (persona) friend.aiPersona = persona.value;
+      let persona = readAiPersonaFromPanel() || (friend.aiPersona || '');
+      if (!persona) {
+        persona = AI_DEFAULT_PERSONA;
+        writeAiPersonaToPanel(persona);
+      }
+      friend.aiPersona = persona;
     } else {
+      const persona = readAiPersonaFromPanel();
+      if (persona) friend.aiPersona = persona;
       friend.isAi = false;
     }
     saveToLocalStorage();
+    setAiModeToggles(!!friend.isAi);
     syncAiModeButton();
   }
 
@@ -4187,7 +4303,7 @@
       alert('先にトークを開いてください');
       return;
     }
-    const toggle = document.getElementById('ai-mode-toggle');
+    const toggle = document.getElementById('ai-panel-toggle') || document.getElementById('ai-mode-toggle');
     const wantOn = !!(toggle && toggle.checked);
     if (wantOn) {
       const parsed = readAiKeyModelFromPanel();
@@ -4197,10 +4313,15 @@
       }
     }
     if (!persistAiKeyModelFromPanel()) return;
-    const persona = document.getElementById('ai-mode-persona-input');
-    friend.aiPersona = persona ? persona.value : (friend.aiPersona || '');
+    let persona = readAiPersonaFromPanel();
+    if (wantOn && !persona) {
+      persona = AI_DEFAULT_PERSONA;
+      writeAiPersonaToPanel(persona);
+    }
+    if (persona) friend.aiPersona = persona;
     friend.isAi = wantOn;
     saveToLocalStorage();
+    setAiModeToggles(wantOn);
     syncAiModeButton();
   }
 
@@ -5001,13 +5122,21 @@
     const messages = [];
     const myNames = new Set();
     let curDate = null;
+    let savedAt = null;
     let skipped = 0;
     let countMe = 0, countPartner = 0, countCall = 0;
  
     for (; i < lines.length; i++) {
       const line = lines[i];
       if (line.trim() === '') continue;
-      if (/^保存日時/.test(line.trim())) continue;
+      if (/^保存日時/.test(line.trim())) {
+        const sm = line.trim().match(/^保存日時[：:]\s*(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})/);
+        if (sm) {
+          const pad2s = (n) => String(n).padStart(2, '0');
+          savedAt = sm[1] + '-' + pad2s(sm[2]) + '-' + pad2s(sm[3]);
+        }
+        continue;
+      }
  
       // 日付の行（例: 2026/08/01(土)）
       if (line.indexOf('\t') === -1) {
@@ -5088,8 +5217,68 @@
       countPartner: countPartner,
       countCall: countCall,
       firstDate: messages[0].date,
-      lastDate: messages[messages.length - 1].date
+      lastDate: messages[messages.length - 1].date,
+      savedAt: savedAt
     };
+  }
+
+  let importRange = '30';
+
+  function setImportRange(range) {
+    importRange = String(range || '30');
+    document.querySelectorAll('#import-range-row .import-range-btn').forEach(function (btn) {
+      btn.classList.toggle('is-on', btn.getAttribute('data-range') === importRange);
+    });
+    if (typeof updateImportPreview === 'function') updateImportPreview();
+  }
+
+  function importAnchorDate(res) {
+    const src = res.savedAt || res.lastDate;
+    if (!src) return new Date();
+    const p = String(src).split('-');
+    if (p.length < 3) return new Date();
+    return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 23, 59, 59, 999);
+  }
+
+  function filterImportMessages(messages, range, anchor) {
+    if (!messages || range === 'all') return messages || [];
+    const days = parseInt(range, 10);
+    if (!days || isNaN(days)) return messages;
+    const start = new Date(anchor.getTime());
+    start.setDate(start.getDate() - days);
+    start.setHours(0, 0, 0, 0);
+    return messages.filter(function (msg) {
+      const p = String(msg.date || '').split('-');
+      if (p.length < 3) return true;
+      const d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10), 12, 0, 0);
+      return d >= start;
+    });
+  }
+
+  function formatImportDate(iso) {
+    return String(iso || '').replace(/-/g, '/');
+  }
+
+  function applyImportRange(res) {
+    if (!res || !res.ok) return res;
+    const anchor = importAnchorDate(res);
+    const filtered = filterImportMessages(res.messages, importRange, anchor);
+    const countMe = filtered.filter(function (m) { return m.sender === 'me' && !m.call; }).length;
+    // recount me/partner like parser: countMe/countPartner were non-system named messages
+    const countMe2 = filtered.filter(function (m) { return m.sender === 'me'; }).length;
+    const countPartner2 = filtered.filter(function (m) { return m.sender === 'partner' && !m.unsend; }).length;
+    const countCall2 = filtered.filter(function (m) { return !!m.call; }).length;
+    return Object.assign({}, res, {
+      messages: filtered,
+      countMe: countMe2,
+      countPartner: countPartner2,
+      countCall: countCall2,
+      firstDate: filtered.length ? filtered[0].date : res.firstDate,
+      lastDate: filtered.length ? filtered[filtered.length - 1].date : res.lastDate,
+      totalCount: res.messages.length,
+      range: importRange,
+      anchorDate: anchor
+    });
   }
  
   // 「☎ 通話時間 14:32」「☎ 通話をキャンセルしました」などを通話メッセージ用に解釈
@@ -5109,7 +5298,7 @@
   function openImportModal() {
     closeAllModals();
     document.getElementById('import-textarea').value = '';
-    updateImportPreview();
+    setImportRange(importRange || '30');
     document.getElementById('modal-overlay').style.display = 'flex';
     document.getElementById('import-modal').style.display = 'flex';
   }
@@ -5126,30 +5315,45 @@
       return;
     }
  
-    const res = parseLineHistory(raw);
-    if (!res.ok) {
+    const parsed = parseLineHistory(raw);
+    if (!parsed.ok) {
       preview.className = 'import-preview error';
-      preview.textContent = res.error;
+      preview.textContent = parsed.error;
       btn.disabled = true;
       return;
     }
- 
+
+    const res = applyImportRange(parsed);
+    const rangeLabel = ({ '7': '直近1週間', '30': '直近1ヶ月', '90': '直近3ヶ月', 'all': '全部' })[importRange] || importRange;
     const me = res.myNames.length ? res.myNames.join(' / ') : '（自分の発言なし）';
     let text = '相手（左・グレー）: ' + res.partnerName + '\n' +
                '自分（右・緑）: ' + me + '\n' +
-               'メッセージ: ' + res.messages.length + '件（自分 ' + res.countMe + ' / 相手 ' + res.countPartner + '）\n' +
-               '期間: ' + res.firstDate.replace(/-/g, '/') + ' 〜 ' + res.lastDate.replace(/-/g, '/');
+               '取り込み範囲: ' + rangeLabel;
+    if (importRange !== 'all') {
+      text += '（全' + res.totalCount + '件中 ' + res.messages.length + '件）';
+    }
+    text += '\nメッセージ: ' + res.messages.length + '件（自分 ' + res.countMe + ' / 相手 ' + res.countPartner + '）';
+    if (res.messages.length) {
+      text += '\n期間: ' + formatImportDate(res.firstDate) + ' 〜 ' + formatImportDate(res.lastDate);
+    } else {
+      text += '\nこの範囲にはメッセージがありません';
+    }
     if (res.countCall > 0) text += '\n通話ログ: ' + res.countCall + '件（通話メッセージに変換）';
     if (res.skipped > 0) text += '\n読み取れなかった行: ' + res.skipped + '件（無視します）';
     preview.className = 'import-preview';
     preview.textContent = text;
-    btn.disabled = false;
+    btn.disabled = res.messages.length === 0;
   }
  
   function executeImportHistory() {
-    const res = parseLineHistory(document.getElementById('import-textarea').value);
-    if (!res.ok) { alert(res.error); return; }
- 
+    const parsed = parseLineHistory(document.getElementById('import-textarea').value);
+    if (!parsed.ok) { alert(parsed.error); return; }
+    const res = applyImportRange(parsed);
+    if (!res.messages.length) {
+      alert('この範囲にはメッセージがありません。範囲を広げるか、「全部」を選んでください。');
+      return;
+    }
+
     const newId = 'friend_' + new Date().getTime();
     friendsList.push({
       id: newId,
