@@ -1499,8 +1499,13 @@
        bottom inset so the icons sit just above the 793 edge. Do not apply
        this while the keyboard is open, and do not change the pill height
        or the top padding. */
+    /* Legacy closed: drop vertical padding so the 36px pill sits on the
+       793 edge. Keyboard-open removes .legacy-short and keeps 8/8 padding.
+       The webview itself cannot paint below 793 (screen 852 - 59), so this
+       is the lowest the bar can go without clipping the pill. */
     html.legacy-short:not(.keyboard-open) .input-bar {
-      padding-bottom: 3px;
+      padding-top: 0;
+      padding-bottom: 0;
     }
  
     .input-icons-left {
@@ -4698,6 +4703,7 @@
       date: dateStr,
       replyTo: replyInfo
     });
+    markEarlierOutgoingRead(friend);
  
     saveToLocalStorage();
     cancelReply();
@@ -4809,6 +4815,7 @@
           date: item.date,
           replyTo: null
         });
+        markEarlierOutgoingRead(friend);
         triggered = true;
       }
     });
@@ -5322,6 +5329,7 @@
         date: dateStr,
         replyTo: replyInfo
       });
+      markEarlierOutgoingRead(friend);
       saveToLocalStorage();
       cancelReply();
       renderChat();
@@ -6206,11 +6214,34 @@
     return !el || !!el.checked;
   }
 
+  function isOutgoingStoredSender(friend, storedSender) {
+    return visualSender(friend, storedSender) === 'me';
+  }
+
+  // 次のメッセージが追加されたとき、それより前の「今の自分側」（入れ替え中は見た目の右側）の未読に既読をつける。保存・再描画は呼び出し側。
+  function markEarlierOutgoingRead(friend) {
+    if (!friend || !friend.messages || friend.messages.length < 2) return false;
+    const last = friend.messages[friend.messages.length - 1];
+    if (!last || last.sender === 'system') return false;
+    const lastIndex = friend.messages.length - 1;
+    let changed = false;
+    for (let i = 0; i < lastIndex; i++) {
+      const msg = friend.messages[i];
+      if (!msg || msg.unsend || msg.sender === 'system') continue;
+      if (isOutgoingStoredSender(friend, msg.sender) && !msg.isRead) {
+        msg.isRead = true;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
   function markPendingMeMessagesRead(friend) {
     if (!friend || !shouldMarkAiRead(friend)) return false;
     let changed = false;
     friend.messages.forEach(function (msg) {
-      if (msg.sender === 'me' && !msg.unsend && !msg.isRead) {
+      if (!msg || msg.unsend || msg.sender === 'system') return;
+      if (isOutgoingStoredSender(friend, msg.sender) && !msg.isRead) {
         msg.isRead = true;
         changed = true;
       }
@@ -6519,6 +6550,7 @@
     };
     if (aiGroupId) msg.aiGroupId = aiGroupId;
     friend.messages.push(msg);
+    markEarlierOutgoingRead(friend);
     saveToLocalStorage();
     if (currentFriendId === friend.id) {
       renderChat();
@@ -6870,6 +6902,7 @@
       date: stamp.dateStr,
       replyTo: null
     });
+    markEarlierOutgoingRead(friend);
     saveToLocalStorage();
     renderChat();
     if (typeof scrollToBottom === 'function') scrollToBottom();
@@ -7410,6 +7443,7 @@
       replyTo: null,
       call: call
     });
+    markEarlierOutgoingRead(friend);
     saveToLocalStorage();
     if (currentFriendId === friend.id) {
       renderChat();
