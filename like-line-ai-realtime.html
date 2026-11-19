@@ -59,8 +59,10 @@
        env(safe-area-inset-bottom) is still 34. Layout at 852 clipped the bottom
        59pt (the black band). --app-h is set in JS to the visible height.
        In that legacy mode the window already ends above the home indicator, so
-       --sab-eff is ~8px instead of env(sab). True fullscreen (innerHeight ≈
-       screen.height) keeps env(sab). */
+       --sab-eff is 0px instead of env(sab). The closed input bar also uses a
+       tight 3px bottom padding so the icons sit as low as possible. True
+       fullscreen (innerHeight ≈ screen.height) keeps env(sab). Keyboard-open
+       padding is unchanged. */
     html, body {
       background-color: var(--bar);
       color: #ffffff;
@@ -1446,6 +1448,13 @@
       gap: 10px;
       flex-shrink: 0;
     }
+    /* Short webview (e.g. 793 vs 852), keyboard closed only: shrink the
+       bottom inset so the icons sit just above the 793 edge. Do not apply
+       this while the keyboard is open, and do not change the pill height
+       or the top padding. */
+    html.legacy-short:not(.keyboard-open) .input-bar {
+      padding-bottom: 3px;
+    }
  
     .input-icons-left {
       display: flex;
@@ -2282,6 +2291,14 @@
       background-color: #2a1616;
       max-width: 80%;
       white-space: pre-wrap;
+    }
+    .ai-error-msg .ai-error-detail {
+      margin-top: 4px;
+      font-size: 10px;
+      line-height: 1.35;
+      color: #e8c0c0;
+      opacity: 0.9;
+      word-break: break-word;
     }
 
     .typing-bubble {
@@ -3497,6 +3514,7 @@
         /* Keyboard covers the home indicator, so use the small bottom padding. */
         root.style.setProperty('--sab-eff', '0px');
         root.classList.add('keyboard-open');
+        root.classList.remove('legacy-short');
         applyViewportOffset(vv);
         if (isIOS && standalone) root.classList.add('ios-standalone');
       } else {
@@ -3512,12 +3530,18 @@
             (appH > 0 && appH < screenH - 20) ||
             (usedH > 0 && usedH < screenH - 20)
           );
-          if (legacy) root.style.setProperty('--sab-eff', '8px');
-          else root.style.removeProperty('--sab-eff');
+          if (legacy) {
+            root.style.setProperty('--sab-eff', '0px');
+            root.classList.add('legacy-short');
+          } else {
+            root.style.removeProperty('--sab-eff');
+            root.classList.remove('legacy-short');
+          }
         } else {
           root.style.removeProperty('--app-h');
           root.style.removeProperty('--sab-eff');
           root.classList.remove('ios-standalone');
+          root.classList.remove('legacy-short');
         }
       }
 
@@ -5296,6 +5320,8 @@
   let aiPendingByFriend = {};
   let ai429CooldownUntil = 0;
   let ai429MessageShown = false;
+  let aiLastGeminiError = null;
+  let aiLastDebugError = '';
   let aiTempError = null;
   let aiDisplayQueues = {};
   let aiDisplayBusy = {};
@@ -6015,15 +6041,20 @@
     const sysDiv = document.createElement('div');
     sysDiv.className = 'system-msg ai-error-msg';
     sysDiv.id = 'ai-temp-error';
-    sysDiv.innerHTML = escapeHtml(aiTempError.text);
+    var html = escapeHtml(aiTempError.text);
+    if (aiTempError.detail) {
+      html += '<div class="ai-error-detail">' + escapeHtml(aiTempError.detail) + '</div>';
+    }
+    sysDiv.innerHTML = html;
     chatArea.appendChild(sysDiv);
   }
 
-  function showAiTempError(friend, message) {
+  function showAiTempError(friend, message, detail) {
     if (aiTempError && aiTempError.timer) clearTimeout(aiTempError.timer);
     aiTempError = {
       friendId: friend.id,
       text: '自動返信エラー: ' + message,
+      detail: detail ? String(detail) : '',
       timer: null
     };
     if (currentFriendId === friend.id) {
@@ -6213,7 +6244,7 @@
       return '回数制限に達しました。1分ほど待ってからもう一度送ってみてください。';
     }
     if (status === 400) {
-      return 'リクエストが正しくありません。モデル名を確認してみてください。' + (err ? '\n' + err : '');
+      return 'リクエストが正しくありません。モデル名を確認してみてください。';
     }
     if (status === 401 || status === 403) {
       return 'APIキーが無効か、このモデルを使う権限がありません。キーとモデル名を確認してください。';
@@ -6228,10 +6259,76 @@
     return String(msg);
   }
 
+  function formatAiErrorDetail(err) {
+    if (!err) err = aiLastGeminiError;
+    if (!err) return '';
+    var status = err.status;
+    var body = err.body;
+    var apiErr = body && body.error ? body.error : null;
+    var apiStatus = (apiErr && apiErr.status) || '';
+    var msg = '';
+    if (apiErr && apiErr.message) msg = String(apiErr.message);
+    else if (err.message) msg = String(err.message);
+    var quotaBits = [];
+    var modelFromQuota = '';
+    var details = apiErr && apiErr.details;
+    if (details && details.length) {
+      var i, j;
+      for (i = 0; i < details.length; i++) {
+        var d = details[i];
+        var violations = d && d.violations;
+        if (!violations || !violations.length) continue;
+        for (j = 0; j < violations.length; j++) {
+          var v = violations[j] || {};
+          var metric = v.quotaMetric ? String(v.quotaMetric).split('/').pop() : '';
+          var qid = v.quotaId ? String(v.quotaId) : '';
+          var dimModel = v.quotaDimensions && v.quotaDimensions.model;
+          if (dimModel) modelFromQuota = String(dimModel);
+          var bit = [qid, metric].filter(Boolean).join(' ');
+          if (bit && quotaBits.indexOf(bit) < 0) quotaBits.push(bit);
+        }
+      }
+    }
+    var model = modelFromQuota || err.model || ((typeof aiSettings !== 'undefined' && aiSettings.model) ? aiSettings.model : '');
+    if (!modelFromQuota && msg) {
+      var mm = msg.match(/model:\s*([A-Za-z0-9._-]+)/i);
+      if (mm) model = mm[1];
+    }
+    var short = msg.replace(/\s+/g, ' ').trim();
+    if (short.length > 180) short = short.slice(0, 177) + '...';
+    var parts = [];
+    var statusBit = [status != null && status !== '' ? String(status) : '', apiStatus].filter(Boolean).join(' ');
+    if (statusBit) parts.push(statusBit);
+    if (model) parts.push(model);
+    if (quotaBits.length) parts.push(quotaBits.join(', '));
+    if (short) parts.push(short);
+    return parts.join(' · ');
+  }
+
+  function recordAiDebugError(err) {
+    if (err) aiLastGeminiError = err;
+    var detail = formatAiErrorDetail(err);
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2, '0');
+    var min = String(now.getMinutes()).padStart(2, '0');
+    var ss = String(now.getSeconds()).padStart(2, '0');
+    var remain = 0;
+    if (ai429CooldownUntil && Date.now() < ai429CooldownUntil) {
+      remain = Math.ceil((ai429CooldownUntil - Date.now()) / 1000);
+    }
+    aiLastDebugError = 'gemini last ' + hh + ':' + min + ':' + ss +
+      (remain ? '  cooldown ' + remain + 's left' : '  cooldown off') +
+      (detail ? '\n' + detail : '');
+    if (typeof renderViewportDebug === 'function') {
+      try { renderViewportDebug(); } catch (e) {}
+    }
+    return detail;
+  }
+
   // nowDateTimeParts is defined with the virtual clock above.
 
-  function pushAiSystemError(friend, message) {
-    showAiTempError(friend, message);
+  function pushAiSystemError(friend, message, detail) {
+    showAiTempError(friend, message, detail);
   }
 
   // sanitizeAiBubbleText / splitAiReplyBubbles は描画側で定義し、ここで共用する。
@@ -6397,6 +6494,7 @@
           const e = new Error((result.data && result.data.error && result.data.error.message) || ('HTTP ' + result.res.status));
           e.status = result.res.status;
           e.body = result.data;
+          e.model = model;
           throw e;
         }
         return cleanAiReply(extractGeminiText(result.data));
@@ -6499,9 +6597,10 @@
     if (!friend) return;
 
     if (err) {
+      var detail = recordAiDebugError(err);
       if (isAiRateLimitError(err)) {
         noteAi429();
-        showAi429Once(friend);
+        showAi429Once(friend, err);
         return;
       }
       let message;
@@ -6510,7 +6609,7 @@
       } else {
         message = formatAiError(err.message, err.status, err.body);
       }
-      pushAiSystemError(friend, message);
+      pushAiSystemError(friend, message, detail);
       return;
     }
     if (!text) {
@@ -6531,6 +6630,7 @@
       text = await callGeminiGenerate(friend, nudge);
     } catch (e) {
       err = e;
+      recordAiDebugError(e);
       if (isAiRateLimitError(e)) noteAi429();
     }
     return finishAiReply(friendId, mySeq, text, err, timeOverride, dateOverride);
@@ -6572,31 +6672,39 @@
     return /RESOURCE_EXHAUSTED|quota|rate[- ]?limit|回数制限/i.test(msg + ' ' + statusText);
   }
 
-  function isAi429Cooling() {
-    if (!ai429CooldownUntil) return false;
+  function clearAi429CooldownIfExpired() {
+    if (!ai429CooldownUntil) return;
     if (Date.now() >= ai429CooldownUntil) {
       ai429CooldownUntil = 0;
       ai429MessageShown = false;
-      return false;
     }
-    return true;
+  }
+
+  function isAi429Cooling() {
+    clearAi429CooldownIfExpired();
+    return !!(ai429CooldownUntil && Date.now() < ai429CooldownUntil);
   }
 
   function noteAi429() {
+    // Only start/refresh cooldown from an actual 429 response, never from a skipped retry.
     ai429CooldownUntil = Date.now() + AI_429_COOLDOWN_MS;
   }
 
-  function showAi429Once(friend) {
+  function showAi429Once(friend, err) {
     if (ai429MessageShown) return;
     ai429MessageShown = true;
-    pushAiSystemError(friend, formatAiError('', 429, null));
+    if (err) recordAiDebugError(err);
+    var friendly = formatAiError((err && err.message) || '', (err && err.status) || 429, err && err.body);
+    var detail = formatAiErrorDetail(err || aiLastGeminiError);
+    pushAiSystemError(friend, friendly, detail);
   }
 
   function kickAiFetch(friendId, nudge, timeOverride, dateOverride) {
     const friend = friendsList.find(function (f) { return f.id === friendId; });
     if (!isAiFriend(friend)) return;
+    clearAi429CooldownIfExpired();
     if (isAi429Cooling()) {
-      showAi429Once(friend);
+      showAi429Once(friend, aiLastGeminiError);
       return;
     }
     if (aiInFlightByFriend[friendId]) {
@@ -6621,6 +6729,7 @@
     const friend = friendsList.find(function (f) { return f.id === friendId; });
     if (!isAiFriend(friend)) return;
 
+    clearAi429CooldownIfExpired();
     startOrResetReadDelay(friendId);
 
     if (aiFetchTimerByFriend[friendId]) clearTimeout(aiFetchTimerByFriend[friendId]);
@@ -7268,6 +7377,17 @@
       'standalone ' + standalone + '  display-mode ' + dm,
       'nav.standalone ' + String(window.navigator.standalone)
     ];
+    if (aiLastDebugError) {
+      lines.push('--- gemini ---');
+      lines.push(aiLastDebugError);
+    } else {
+      var cool = 0;
+      if (typeof ai429CooldownUntil !== 'undefined' && ai429CooldownUntil && Date.now() < ai429CooldownUntil) {
+        cool = Math.ceil((ai429CooldownUntil - Date.now()) / 1000);
+      }
+      lines.push('--- gemini ---');
+      lines.push(cool ? ('cooldown ' + cool + 's left') : 'no error yet  cooldown off');
+    }
     return lines.join('\n');
   }
 
