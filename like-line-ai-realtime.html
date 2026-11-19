@@ -53,16 +53,12 @@
       --sab-eff: var(--sab);
     }
  
-    /* Height: size to the visible window (visualViewport.height || innerHeight),
-       never screen.height. On this iPhone's home-screen mode, innerHeight is 793
-       and the window only paints 0..793, even though screen.height is 852 and
-       env(safe-area-inset-bottom) is still 34. Layout at 852 clipped the bottom
-       59pt (the black band). --app-h is set in JS to the visible height.
-       In that legacy mode the window already ends above the home indicator, so
-       --sab-eff is 0px instead of env(sab). The closed input bar also uses a
-       tight 3px bottom padding so the icons sit as low as possible. True
-       fullscreen (innerHeight ≈ screen.height) keeps env(sab). Keyboard-open
-       padding is unchanged. */
+    /* Height: keyboard-open and true-fullscreen still follow the visible
+       window (visualViewport / innerHeight). On the home-screen "legacy"
+       path, innerHeight is 793 even though screen.height is 852 and
+       env(safe-area-inset-*) are 59/34; the old live page (100vh/100dvh,
+       no JS cap, input-bar padding-bottom 34px) still sits lower, so
+       closed legacy layout uses screen.height. Keyboard-open is unchanged. */
     html, body {
       background-color: var(--bar);
       color: #ffffff;
@@ -1495,17 +1491,12 @@
       gap: 10px;
       flex-shrink: 0;
     }
-    /* Short webview (e.g. 793 vs 852), keyboard closed only: shrink the
-       bottom inset so the icons sit just above the 793 edge. Do not apply
-       this while the keyboard is open, and do not change the pill height
-       or the top padding. */
-    /* Legacy closed: drop vertical padding so the 36px pill sits on the
-       793 edge. Keyboard-open removes .legacy-short and keeps 8/8 padding.
-       The webview itself cannot paint below 793 (screen 852 - 59), so this
-       is the lowest the bar can go without clipping the pill. */
+    /* Home-screen legacy, keyboard closed: match the old live input bar
+       (padding 8 / 34) but raise the controls ~5pt (padding-bottom 39px).
+       Keyboard-open removes .legacy-short and keeps 8/8 padding. */
     html.legacy-short:not(.keyboard-open) .input-bar {
-      padding-top: 0;
-      padding-bottom: 0;
+      padding-top: 8px;
+      padding-bottom: 39px;
     }
  
     .input-icons-left {
@@ -3575,19 +3566,16 @@
         root.classList.remove('keyboard-open');
         clearViewportOffset();
         if (isIOS && standalone) {
-          if (appH) root.style.setProperty('--app-h', appH + 'px');
           root.classList.add('ios-standalone');
-          /* Visible window is already above the home indicator (e.g. 793 vs 852). */
-          const usedH = (document.querySelector('.container') &&
-            document.querySelector('.container').getBoundingClientRect().height) || appH;
-          const legacy = screenH > 0 && (
-            (appH > 0 && appH < screenH - 20) ||
-            (usedH > 0 && usedH < screenH - 20)
-          );
+          /* Detect from the visual window only, not the stretched container. */
+          const legacy = screenH > 0 && (appH > 0 && appH < screenH - 20);
           if (legacy) {
+            /* Old 100vh/100dvh page fills the screen; follow screen.height. */
+            root.style.setProperty('--app-h', screenH + 'px');
             root.style.setProperty('--sab-eff', '0px');
             root.classList.add('legacy-short');
           } else {
+            if (appH) root.style.setProperty('--app-h', appH + 'px');
             root.style.removeProperty('--sab-eff');
             root.classList.remove('legacy-short');
           }
