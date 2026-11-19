@@ -1005,6 +1005,23 @@
       display: flex;
       flex-direction: column;
     }
+
+    .chat-like-watermark {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      pointer-events: none;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+      background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2796%27%20height%3D%2760%27%20viewBox%3D%270%200%2096%2060%27%3E%3Cg%20fill%3D%27%23000000%27%20fill-opacity%3D%270.20%27%20font-family%3D%27-apple-system%2CBlinkMacSystemFont%2CHelvetica%20Neue%2Csans-serif%27%20font-size%3D%2713%27%20font-weight%3D%27700%27%20letter-spacing%3D%270.08em%27%3E%3Ctext%20x%3D%27-8%27%20y%3D%2722%27%20transform%3D%27rotate%28-22%2048%2030%29%27%3ELIKE%20LIKE%20LIKE%3C/text%3E%3Ctext%20x%3D%27-28%27%20y%3D%2752%27%20transform%3D%27rotate%28-22%2048%2030%29%27%3ELIKE%20LIKE%20LIKE%3C/text%3E%3C/g%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 96px 60px;
+    }
+    html:not(.like-unlocked) .chat-like-watermark {
+      display: block;
+    }
     .speaking-notice {
       position: absolute;
       left: 0;
@@ -2858,6 +2875,269 @@
       flex-shrink: 0;
       padding: 12px 22px calc(16px + var(--sab-eff));
     }
+
+    .ai-mood-chip.is-locked {
+      color: #c7c7cc;
+      padding-right: 10px;
+    }
+    .ai-mood-chip.is-locked.on {
+      background: #2a2a2c;
+      border-color: #3a3a3c;
+      color: #c7c7cc;
+    }
+    .ai-mood-lock {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      margin-left: 5px;
+      vertical-align: -1px;
+    }
+    .credits-secret-name {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      cursor: pointer;
+    }
+
+    .premium-overlay,
+    .unlock-code-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 6000;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    }
+    .premium-overlay.is-open,
+    .unlock-code-overlay.is-open {
+      display: flex;
+    }
+    .premium-overlay {
+      background: rgba(0, 0, 0, 0.62);
+    }
+    .premium-sheet {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      max-height: 100%;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #1c1c1e;
+      color: #f5f5f7;
+      border-radius: 22px;
+      padding: 22px 20px 16px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    }
+    .premium-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 16px;
+      background: #2c2c2e;
+      color: #f5f5f7;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .premium-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #8e8e93;
+      margin: 8px 0 8px;
+    }
+    .premium-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      margin: 0 0 8px;
+      color: #ffffff;
+    }
+    .premium-lead {
+      margin: 0 0 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #d1d1d6;
+    }
+    .premium-features {
+      list-style: none;
+      margin: 0 0 20px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .premium-features li {
+      position: relative;
+      padding-left: 22px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #f2f2f7;
+    }
+    .premium-features li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 7px;
+      background: #30d158;
+    }
+    .premium-plans {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .premium-plan {
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      width: 100%;
+      text-align: left;
+      border: 1px solid #3a3a3c;
+      background: #2c2c2e;
+      color: #f5f5f7;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .premium-plan.is-yearly {
+      border-color: #30d158;
+      background: #243128;
+    }
+    .premium-badge {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: #30d158;
+      color: #003313;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      border-radius: 999px;
+      padding: 3px 8px;
+    }
+    .premium-plan-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #aeaeb2;
+    }
+    .premium-plan-price {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .premium-plan-sub {
+      font-size: 11px;
+      color: #8e8e93;
+    }
+    .premium-cta {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #0a84ff;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .premium-footnote {
+      margin: 14px 2px 2px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #a1a1a6;
+    }
+    .unlock-code-overlay {
+      background: rgba(0, 0, 0, 0.45);
+    }
+    .unlock-code-sheet {
+      width: 100%;
+      max-width: 300px;
+      background: #ffffff;
+      color: #111111;
+      border-radius: 16px;
+      padding: 20px 18px 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    }
+    .unlock-code-sheet.is-shake {
+      animation: unlock-shake 0.42s ease;
+    }
+    @keyframes unlock-shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    .unlock-code-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 0 0 14px;
+      text-align: center;
+    }
+    #unlock-code-input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #d0d0d5;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 20px;
+      letter-spacing: 0.18em;
+      text-align: center;
+      font-family: inherit;
+      outline: none;
+      background: #f7f7f8;
+    }
+    .unlock-code-error {
+      min-height: 18px;
+      margin: 8px 0 12px;
+      text-align: center;
+      font-size: 12px;
+      color: #ff3b30;
+      visibility: hidden;
+    }
+    .unlock-code-error.is-show {
+      visibility: visible;
+    }
+    .unlock-code-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .unlock-code-actions button {
+      flex: 1;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    #unlock-code-cancel {
+      background: #efeff4;
+      color: #111111;
+    }
+    #unlock-code-ok {
+      background: #0a84ff;
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -2900,7 +3180,7 @@
       <div class="credits-title">CREDITS</div>
       <div class="credits-block">
         <div class="credits-label">DEVELOPER</div>
-        <div class="credits-name">無償の愛</div>
+        <div class="credits-name credits-secret-name" id="credits-dev-name">無償の愛</div>
       </div>
       <div class="credits-block">
         <div class="credits-label">AI &amp; DEVELOPMENT</div>
@@ -3034,6 +3314,7 @@
  
     <div class="chat-wrap">
       <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
+      <div class="chat-like-watermark" id="chat-like-watermark" aria-hidden="true"></div>
       <div id="speaking-notice" class="speaking-notice" aria-hidden="true">
         <div class="speaking-notice-box">
           <div class="speaking-notice-title" id="speaking-notice-title"></div>
@@ -3664,6 +3945,72 @@
     window.closeCreditsScreen = closeCreditsScreen;
     window.acceptDisclaimerAndStart = acceptDisclaimerAndStart;
 
+    (function bindSecretUnlockAndPaywall() {
+      const nameEl = document.getElementById('credits-dev-name');
+      const HOLD_MS = 800;
+      let holdTimer = 0;
+      let startX = 0, startY = 0;
+      function cancelHold() {
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = 0;
+        }
+      }
+      function beginHold(x, y) {
+        cancelHold();
+        startX = x || 0;
+        startY = y || 0;
+        holdTimer = setTimeout(function () {
+          holdTimer = 0;
+          if (typeof openUnlockCodeModal === 'function') openUnlockCodeModal();
+        }, HOLD_MS);
+      }
+      if (nameEl) {
+        nameEl.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+        nameEl.addEventListener('selectstart', function (e) { e.preventDefault(); });
+        nameEl.addEventListener('touchstart', function (e) {
+          const t0 = e.changedTouches && e.changedTouches[0];
+          beginHold(t0 ? t0.clientX : 0, t0 ? t0.clientY : 0);
+        }, { passive: true });
+        nameEl.addEventListener('touchmove', function (e) {
+          const t0 = e.changedTouches && e.changedTouches[0];
+          if (!t0) return;
+          if (Math.abs(t0.clientX - startX) > 12 || Math.abs(t0.clientY - startY) > 12) cancelHold();
+        }, { passive: true });
+        nameEl.addEventListener('touchend', cancelHold);
+        nameEl.addEventListener('touchcancel', cancelHold);
+        nameEl.addEventListener('mousedown', function (e) {
+          if (e.button !== 0) return;
+          beginHold(e.clientX, e.clientY);
+        });
+        nameEl.addEventListener('mousemove', function (e) {
+          if (!holdTimer) return;
+          if (Math.abs(e.clientX - startX) > 12 || Math.abs(e.clientY - startY) > 12) cancelHold();
+        });
+        nameEl.addEventListener('mouseup', cancelHold);
+        nameEl.addEventListener('mouseleave', cancelHold);
+      }
+      const closeBtn = document.getElementById('premium-close-btn');
+      if (closeBtn) closeBtn.addEventListener('click', function () {
+        if (typeof closePremiumScreen === 'function') closePremiumScreen();
+      });
+      const codeCancel = document.getElementById('unlock-code-cancel');
+      const codeOk = document.getElementById('unlock-code-ok');
+      const codeInput = document.getElementById('unlock-code-input');
+      if (codeCancel) codeCancel.addEventListener('click', function () {
+        if (typeof closeUnlockCodeModal === 'function') closeUnlockCodeModal();
+      });
+      if (codeOk) codeOk.addEventListener('click', function () {
+        if (typeof submitUnlockCode === 'function') submitUnlockCode();
+      });
+      if (codeInput) codeInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (typeof submitUnlockCode === 'function') submitUnlockCode();
+        }
+      });
+    })();
+
     try { history.replaceState({ lineLike: 'gate' }, '', location.href); } catch (e) {}
     window.addEventListener('popstate', function () {
       if (!disclaimerAccepted) {
@@ -3733,6 +4080,7 @@
   }
  
   function loadFromLocalStorage() {
+    loadLikeUnlock();
     try {
       const savedFriends = localStorage.getItem('line_like_friends');
       if (savedFriends) friendsList = JSON.parse(savedFriends);
@@ -3990,10 +4338,10 @@
     if (!lastMsg) return '';
     if (lastMsg.unsend) return 'メッセージの送信を取り消しました';
     if (lastMsg.isImage) {
-      return lastMsg.sender === 'partner' ? (friend.name + ' が写真を送信しました') : '写真を送信しました';
+      return lastMsg.sender === 'partner' ? (displayPartnerName(friend) + ' が写真を送信しました') : '写真を送信しました';
     }
     if (lastMsg.isVideo) {
-      return lastMsg.sender === 'partner' ? (friend.name + ' が動画を送信しました') : '動画を送信しました';
+      return lastMsg.sender === 'partner' ? (displayPartnerName(friend) + ' が動画を送信しました') : '動画を送信しました';
     }
     const raw = lastMsg.sender === 'partner' ? partnerPreviewText(lastMsg.text) : lastMsg.text;
     return raw || '';
@@ -4232,7 +4580,7 @@
         <img src="${resolveAvatarUrl(friend.avatar, 'partner')}" class="item-avatar" onerror="handleAvatarError(this, 'partner')">
         <div class="item-info">
           <div class="item-name-row">
-            <div class="item-name"><span class="item-name-text">${escapeHtml(friend.name)}</span>${muteIcon}</div>
+            <div class="item-name"><span class="item-name-text">${escapeHtml(displayPartnerName(friend))}</span>${muteIcon}</div>
             ${timeHtml}
           </div>
           <div class="item-preview-row">
@@ -4407,7 +4755,61 @@
     return friendsList.find(f => f.id === currentFriendId) || friendsList[0];
   }
 
+  const LIKE_UNLOCK_KEY = 'line_like_unlocked';
+  const LOCKED_MOODS = ['らぶ', '甘えたい', '照れ', '好意'];
+  let likeUnlocked = false;
+
+  function loadLikeUnlock() {
+    try {
+      likeUnlocked = localStorage.getItem(LIKE_UNLOCK_KEY) === '1';
+    } catch (e) {
+      likeUnlocked = false;
+    }
+    syncLikeLockChrome();
+    return likeUnlocked;
+  }
+
+  function syncLikeLockChrome() {
+    const root = document.documentElement;
+    if (!root) return;
+    if (likeUnlocked) root.classList.add('like-unlocked');
+    else root.classList.remove('like-unlocked');
+  }
+
+  function isLikeUnlocked() {
+    return !!likeUnlocked;
+  }
+
+  function setLikeUnlocked(on) {
+    likeUnlocked = !!on;
+    try {
+      localStorage.setItem(LIKE_UNLOCK_KEY, likeUnlocked ? '1' : '0');
+    } catch (e) {}
+    if (typeof afterLikeUnlockChanged === 'function') afterLikeUnlockChanged();
+  }
+
+  function isLockedMood(id) {
+    return LOCKED_MOODS.indexOf(id) >= 0;
+  }
+
+  function displayPartnerName(friendOrName) {
+    const raw = (typeof friendOrName === 'string'
+      ? friendOrName
+      : (friendOrName && friendOrName.name) || '') + '';
+    if (isLikeUnlocked()) return raw;
+    if (!raw) return '-LIKE';
+    if (raw.length >= 5 && raw.slice(-5) === '-LIKE') return raw;
+    return raw + '-LIKE';
+  }
+
+  function stripLikeSuffix(name) {
+    const raw = (name || '').toString().trim();
+    if (raw.length >= 5 && raw.slice(-5) === '-LIKE') return raw.slice(0, -5);
+    return raw;
+  }
+
   function isFriendSideSwapped(friend) {
+    if (!isLikeUnlocked()) return false;
     return !!(friend && friend.sideSwapped);
   }
 
@@ -4424,13 +4826,84 @@
   }
 
   function toggleFriendSideSwap() {
+    if (!isLikeUnlocked()) return;
     const friend = getCurrentActiveFriend();
     if (!friend || !document.getElementById('chat-screen').classList.contains('active')) return;
     friend.sideSwapped = !friend.sideSwapped;
     saveToLocalStorage();
     renderChat();
   }
- 
+
+  function afterLikeUnlockChanged() {
+    syncLikeLockChrome();
+    if (typeof renderHomeView === 'function') renderHomeView();
+    if (typeof renderChat === 'function' && document.getElementById('chat-screen') &&
+        document.getElementById('chat-screen').classList.contains('active')) {
+      renderChat();
+    }
+    if (typeof renderAiMoodChips === 'function') renderAiMoodChips();
+    if (typeof updateAiMoodButton === 'function') updateAiMoodButton();
+    const sheetName = document.getElementById('partner-name-input');
+    const friend = typeof getCurrentActiveFriend === 'function' ? getCurrentActiveFriend() : null;
+    if (sheetName && friend && document.getElementById('partner-edit-overlay') &&
+        document.getElementById('partner-edit-overlay').classList.contains('open')) {
+      sheetName.value = displayPartnerName(friend);
+    }
+  }
+
+  function openPremiumScreen() {
+    const el = document.getElementById('premium-overlay');
+    if (!el) return;
+    el.classList.add('is-open');
+    el.setAttribute('aria-hidden', 'false');
+  }
+
+  function closePremiumScreen() {
+    const el = document.getElementById('premium-overlay');
+    if (!el) return;
+    el.classList.remove('is-open');
+    el.setAttribute('aria-hidden', 'true');
+  }
+
+  function openUnlockCodeModal() {
+    const el = document.getElementById('unlock-code-overlay');
+    const input = document.getElementById('unlock-code-input');
+    const err = document.getElementById('unlock-code-error');
+    const sheet = document.getElementById('unlock-code-sheet');
+    if (!el) return;
+    if (input) input.value = '';
+    if (err) err.classList.remove('is-show');
+    if (sheet) sheet.classList.remove('is-shake');
+    el.classList.add('is-open');
+    el.setAttribute('aria-hidden', 'false');
+    setTimeout(function () { if (input) input.focus(); }, 50);
+  }
+
+  function closeUnlockCodeModal() {
+    const el = document.getElementById('unlock-code-overlay');
+    if (!el) return;
+    el.classList.remove('is-open');
+    el.setAttribute('aria-hidden', 'true');
+  }
+
+  function submitUnlockCode() {
+    const input = document.getElementById('unlock-code-input');
+    const err = document.getElementById('unlock-code-error');
+    const sheet = document.getElementById('unlock-code-sheet');
+    const code = input ? String(input.value || '').replace(/\s+/g, '') : '';
+    if (code === '0809') {
+      setLikeUnlocked(true);
+      closeUnlockCodeModal();
+      return;
+    }
+    if (err) err.classList.add('is-show');
+    if (sheet) {
+      sheet.classList.remove('is-shake');
+      void sheet.offsetWidth;
+      sheet.classList.add('is-shake');
+    }
+  }
+
   function getFormattedDateString(dateStr) {
     const today = new Date();
     const targetDate = new Date(dateStr);
@@ -4678,7 +5151,7 @@
     const timeStr = stamp.timeStr;
  
     const storedSender = storedSenderForAdmin(friend);
-    const useAiReply = (typeof isAiFriend === 'function' && isAiFriend(friend) && storedSender === 'me');
+    const useAiReply = shouldRequestPartnerAutoReply(friend, storedSender);
     friend.messages.push({
       sender: storedSender,
       text: text,
@@ -4700,7 +5173,7 @@
     if (typeof blurInput === 'function') blurInput();
     else updateSendButtonState();
     scrollToBottom();
-    if (storedSender === 'me') requestPartnerAutoReply(friend.id);
+    if (shouldRequestPartnerAutoReply(friend, storedSender)) requestPartnerAutoReply(friend.id);
   }
  
   function openScheduleModal() {
@@ -4732,7 +5205,7 @@
     closeAllModals();
  
     const friend = friendsList.find(f => f.id === currentFriendId);
-    scheduleNtfyPush(entry, friend ? friend.name : '').then(err => {
+    scheduleNtfyPush(entry, friend ? displayPartnerName(friend) : '').then(err => {
       alert(err
         ? 'メッセージの予約投稿を設定しました\n（プッシュ通知は予約できませんでした：' + err + '）'
         : 'メッセージの予約投稿を設定しました（プッシュ通知も予約済み）');
@@ -4825,7 +5298,7 @@
     if (!targetMsg || targetMsg.unsend || targetMsg.sender === 'system') return;
  
     activeReplyTarget = targetMsg;
-    const label = targetMsg.sender === 'me' ? myName : friend.name;
+    const label = targetMsg.sender === 'me' ? myName : displayPartnerName(friend);
     document.getElementById('reply-preview-sender').innerText = `返信先: ${label}`;
     document.getElementById('reply-preview-text').innerText = (targetMsg.isImage || targetMsg.isVideo) ? (targetMsg.isImage ? '[画像]' : '[動画]') : (targetMsg.sender === 'partner' ? partnerPreviewText(targetMsg.text) : targetMsg.text);
     document.getElementById('input-reply-bar').style.display = 'flex';
@@ -4885,7 +5358,7 @@
     if (msg.replyTo && !options.hideReply) {
       const replyWho = msg.replyTo.sender === 'me' ? 'me' : 'partner';
       const replyAvatar = resolveAvatarUrl(replyWho === 'me' ? myAvatarUrl : friend.avatar, replyWho);
-      const senderLabel = msg.replyTo.sender === 'me' ? myName : friend.name;
+      const senderLabel = msg.replyTo.sender === 'me' ? myName : displayPartnerName(friend);
       const replyContent = msg.replyTo.sender === 'partner' ? partnerPreviewText(msg.replyTo.content) : msg.replyTo.content;
       replyPreviewHtml = `
           <div class="bubble-reply-container">
@@ -4939,7 +5412,7 @@
   function renderChat() {
     const friend = getCurrentActiveFriend();
     if (!friend) return;
-    document.getElementById('partner-name-display').innerText = isFriendSideSwapped(friend) ? myName : friend.name;
+    document.getElementById('partner-name-display').innerText = isFriendSideSwapped(friend) ? myName : displayPartnerName(friend);
 
     const chatArea = document.getElementById('chat-area');
     chatArea.innerHTML = '';
@@ -5144,7 +5617,7 @@
     closeAllModals();
     const nameEl = document.getElementById('partner-name-input');
     const avEl = document.getElementById('partner-avatar-preview');
-    if (nameEl) nameEl.value = friend.name || '';
+    if (nameEl) nameEl.value = displayPartnerName(friend);
     if (avEl) avEl.src = friend.avatar || '';
     setSettingsSheetOpen('partner-edit-overlay', true);
   }
@@ -5152,7 +5625,8 @@
   function savePartnerSettings() {
     const friend = getCurrentActiveFriend();
     const nameEl = document.getElementById('partner-name-input');
-    const newPartnerName = nameEl ? nameEl.value.trim() : '';
+    let newPartnerName = nameEl ? nameEl.value.trim() : '';
+    if (!isLikeUnlocked()) newPartnerName = stripLikeSuffix(newPartnerName);
     if (friend && newPartnerName) friend.name = newPartnerName;
     saveToLocalStorage();
     renderChat();
@@ -5304,7 +5778,7 @@
       const timeStr = stamp.timeStr;
  
       const storedSender = storedSenderForAdmin(friend);
-      const useAiReply = (typeof isAiFriend === 'function' && isAiFriend(friend) && storedSender === 'me');
+      const useAiReply = shouldRequestPartnerAutoReply(friend, storedSender);
       friend.messages.push({
         sender: storedSender,
         text: e.target.result,
@@ -5322,7 +5796,7 @@
       cancelReply();
       renderChat();
       scrollToBottom();
-      if (storedSender === 'me') requestPartnerAutoReply(friend.id);
+      if (shouldRequestPartnerAutoReply(friend, storedSender)) requestPartnerAutoReply(friend.id);
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -5551,6 +6025,9 @@
     raw.forEach(function (id) {
       if (allowed[id] && out.indexOf(id) < 0) out.push(id);
     });
+    if (!isLikeUnlocked()) {
+      return out.filter(function (id) { return !isLockedMood(id); });
+    }
     return out;
   }
 
@@ -5625,6 +6102,10 @@
   function toggleAiMood(id) {
     const friend = getCurrentActiveFriend();
     if (!friend) return;
+    if (!isLikeUnlocked() && isLockedMood(id)) {
+      openPremiumScreen();
+      return;
+    }
     const result = applyMoodToggle(getFriendMoods(friend), id);
     if (result.blocked) {
       showMoodLimitHint();
@@ -5678,11 +6159,21 @@
     AI_MOOD_ORDER.forEach(function (id) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      const on = selected.indexOf(id) >= 0;
-      const conflict = !on && moodConflictsWithAny(id, selected);
-      btn.className = 'ai-mood-chip' + (on ? ' on' : '') + (conflict ? ' conflict' : '');
+      const locked = !isLikeUnlocked() && isLockedMood(id);
+      const on = !locked && selected.indexOf(id) >= 0;
+      const conflict = !on && !locked && moodConflictsWithAny(id, selected);
+      btn.className = 'ai-mood-chip' + (on ? ' on' : '') + (conflict ? ' conflict' : '') + (locked ? ' is-locked' : '');
       btn.textContent = id;
+      if (locked) {
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.setAttribute('class', 'ai-mood-lock');
+        icon.setAttribute('viewBox', '0 0 24 24');
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML = '<path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="11" width="14" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>';
+        btn.appendChild(icon);
+      }
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('data-mood', id);
       btn.addEventListener('click', function () { toggleAiMood(id); });
       row.appendChild(btn);
     });
@@ -6845,9 +7336,18 @@
       });
   }
 
+  function shouldRequestPartnerAutoReply(friend, storedSender) {
+    // AIは常に相手（保存上の partner）として返す。入れ替え中に自分として見える返信は出さない。
+    if (!friend || typeof isAiFriend !== 'function' || !isAiFriend(friend)) return false;
+    if (storedSender !== 'me') return false;
+    if (isFriendSideSwapped(friend)) return false;
+    return true;
+  }
+
   function requestPartnerAutoReply(friendId) {
     const friend = friendsList.find(function (f) { return f.id === friendId; });
     if (!isAiFriend(friend)) return;
+    if (isFriendSideSwapped(friend)) return;
 
     clearAi429CooldownIfExpired();
     startOrResetReadDelay(friendId);
@@ -7332,7 +7832,7 @@
  
     document.getElementById('call-bg-img').src = friend.avatar;
     document.getElementById('call-avatar').src = friend.avatar;
-    document.getElementById('call-name').textContent = friend.name;
+    document.getElementById('call-name').textContent = displayPartnerName(friend);
     document.getElementById('call-timer').textContent = formatCallTime(1);
     document.getElementById('call-edit-overlay').classList.remove('show');
     document.getElementById('call-screen').className = 'call-screen show calling';
@@ -7477,7 +7977,7 @@
       if (taps >= 5) {
         taps = 0;
         tapStart = 0;
-        toggleFriendSideSwap();
+        if (isLikeUnlocked()) toggleFriendSideSwap();
         return;
       }
       tapTimer = setTimeout(function () {
@@ -7489,7 +7989,54 @@
     });
   })();
 
+  document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('premium-close-btn');
+    if (btn) btn.addEventListener('click', closePremiumScreen);
+  });
+
 </script>
  
+
+<div id="premium-overlay" class="premium-overlay" aria-hidden="true">
+  <div class="premium-sheet" role="dialog" aria-modal="true" aria-labelledby="premium-title" onclick="event.stopPropagation()">
+    <button type="button" class="premium-close" id="premium-close-btn" aria-label="閉じる" onclick="closePremiumScreen()">×</button>
+    <div class="premium-kicker">LINE-LIKE</div>
+    <h2 class="premium-title" id="premium-title">LINE-LIKE プレミアム</h2>
+    <p class="premium-lead">雰囲気と表示の制限を解除して、より深いやりとりを。</p>
+    <ul class="premium-features">
+      <li>「らぶ」「甘えたい」「照れ」「好意」の雰囲気</li>
+      <li>自分と相手の入れ替え</li>
+      <li>名前の「-LIKE」表示の解除</li>
+    </ul>
+    <div class="premium-plans">
+      <button type="button" class="premium-plan" id="premium-plan-month">
+        <span class="premium-plan-label">月額</span>
+        <span class="premium-plan-price">¥480</span>
+        <span class="premium-plan-sub">いつでもキャンセル可能</span>
+      </button>
+      <button type="button" class="premium-plan is-yearly" id="premium-plan-year">
+        <span class="premium-badge">お得</span>
+        <span class="premium-plan-label">年額</span>
+        <span class="premium-plan-price">¥4,800</span>
+        <span class="premium-plan-sub">月あたり ¥400</span>
+      </button>
+    </div>
+    <button type="button" class="premium-cta" id="premium-cta-btn">プレミアムを始める</button>
+    <p class="premium-footnote">※コレは無償の愛によるユーモアです。</p>
+  </div>
+</div>
+
+<div id="unlock-code-overlay" class="unlock-code-overlay" aria-hidden="true">
+  <div class="unlock-code-sheet" id="unlock-code-sheet" role="dialog" aria-modal="true" aria-labelledby="unlock-code-title" onclick="event.stopPropagation()">
+    <div class="unlock-code-title" id="unlock-code-title">コードを入力</div>
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" id="unlock-code-input" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();submitUnlockCode();}">
+    <div class="unlock-code-error" id="unlock-code-error">コードが違います</div>
+    <div class="unlock-code-actions">
+      <button type="button" id="unlock-code-cancel" onclick="closeUnlockCodeModal()">キャンセル</button>
+      <button type="button" id="unlock-code-ok" onclick="submitUnlockCode()">OK</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
