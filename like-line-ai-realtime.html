@@ -1009,6 +1009,44 @@
       display: flex;
       flex-direction: column;
     }
+    .speaking-notice {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(var(--sat) + 52px);
+      bottom: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .speaking-notice.is-visible {
+      display: flex;
+    }
+    .speaking-notice-box {
+      max-width: 82%;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: rgba(20, 20, 20, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: #ffffff;
+      text-align: center;
+      pointer-events: none;
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.35);
+    }
+    .speaking-notice-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+    .speaking-notice-sub {
+      margin-top: 4px;
+      font-size: 11px;
+      line-height: 1.4;
+      color: rgba(255, 255, 255, 0.86);
+    }
  
     .chat-area {
       flex: 1;
@@ -2995,6 +3033,12 @@
  
     <div class="chat-wrap">
       <div class="chat-area" id="chat-area" onclick="blurInput()"></div>
+      <div id="speaking-notice" class="speaking-notice" aria-hidden="true">
+        <div class="speaking-notice-box">
+          <div class="speaking-notice-title" id="speaking-notice-title"></div>
+          <div class="speaking-notice-sub">現在LINE-LIKEを開いています。</div>
+        </div>
+      </div>
       <div class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()">
         <svg viewBox="0 0 24 24"><path d="M12 4v16M5.5 13.5 12 20l6.5-6.5"/></svg>
       </div>
@@ -3566,6 +3610,7 @@
       } else {
         wasKeyboardOpen = true;
       }
+      if (typeof window.syncSpeakingNotice === 'function') window.syncSpeakingNotice();
     }
 
     function onOrientationChange() {
@@ -4401,6 +4446,7 @@
     if (aiPanel && aiPanel.style.display === 'flex') aiPanel.style.display = 'none';
     if (typeof syncAiModeButton === 'function') syncAiModeButton();
     if (typeof syncManualPostFormVisibility === 'function') syncManualPostFormVisibility();
+    if (typeof syncSpeakingNotice === 'function') syncSpeakingNotice();
   }
  
   var inputIconsExpanded = false;
@@ -4462,6 +4508,34 @@
     if (typeof window.__syncAppHeight === 'function') window.__syncAppHeight();
   }
 
+  function isSpeakingNoticeAllowed() {
+    const chat = document.getElementById('chat-screen');
+    if (!chat || !chat.classList.contains('active')) return false;
+    if (typeof isAiPanelOpen === 'function' && isAiPanelOpen()) return false;
+    if (currentSender !== 'me' && currentSender !== 'partner') return false;
+    const input = document.getElementById('message-input');
+    const focused = !!(input && document.activeElement === input);
+    const keyboardOpen = document.documentElement.classList.contains('keyboard-open');
+    return focused && keyboardOpen;
+  }
+
+  function syncSpeakingNotice() {
+    const el = document.getElementById('speaking-notice');
+    const title = document.getElementById('speaking-notice-title');
+    if (!el) return;
+    if (!isSpeakingNoticeAllowed()) {
+      el.classList.remove('is-visible');
+      el.setAttribute('aria-hidden', 'true');
+      return;
+    }
+    if (title) {
+      title.textContent = currentSender === 'partner' ? '今相手が話しています。' : '今あなたが話しています。';
+    }
+    el.classList.add('is-visible');
+    el.setAttribute('aria-hidden', 'false');
+  }
+  window.syncSpeakingNotice = syncSpeakingNotice;
+
   var restoringInputChrome = false;
   function restoreUnfocusedInputChrome() {
     if (restoringInputChrome) return;
@@ -4482,6 +4556,7 @@
     updateSendButtonState();
     requestSyncAppHeight();
     restoringInputChrome = false;
+    if (typeof syncSpeakingNotice === 'function') syncSpeakingNotice();
   }
 
   function focusInput() {
@@ -4492,6 +4567,7 @@
     setAdminFieldsNonFocusable(true);
     updateSendButtonState();
     requestSyncAppHeight();
+    if (typeof syncSpeakingNotice === 'function') syncSpeakingNotice();
   }
 
   function onMessageInputBlur() {
@@ -5813,6 +5889,7 @@
     }
     syncAiModeButton();
     syncManualPostFormVisibility();
+    if (typeof syncSpeakingNotice === 'function') syncSpeakingNotice();
   }
 
   function toggleKeyVisibility(inputId, btnId) {
